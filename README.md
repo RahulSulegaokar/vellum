@@ -10,22 +10,28 @@ Components install into your project with the normal shadcn CLI, and you own the
 
 You need a project that has been set up with shadcn (`npx shadcn@latest init`) using Tailwind CSS v4.
 
-```bash
-npx shadcn@latest add RahulSulegaokar/vellum/button
-```
-
-Installing any component also installs:
-- `vellum-theme`: the design tokens, written into your global CSS
-- `utils`: the `cn` helper
-- any other Vellum components it depends on
-
-To install the theme on its own:
+**1. Install the theme once.** This overwrites the shadcn colour, radius and shadow tokens in your global CSS with Vellum's:
 
 ```bash
 npx shadcn@latest add RahulSulegaokar/vellum/vellum-theme
 ```
 
+**2. Add components:**
+
+```bash
+npx shadcn@latest add RahulSulegaokar/vellum/button RahulSulegaokar/vellum/dialog
+```
+
+Each component also brings in:
+- the other Vellum components it needs
+- the `cn` helper
+- any theme tokens your project doesn't have yet
+
+Pulled in this way, the theme only adds missing tokens. It never overwrites values you've set, which is why step 1 installs it explicitly.
+
 Pin a release by appending a tag: `RahulSulegaokar/vellum/button#v0.1.0`.
+
+> With a brand-new `create-next-app` project, `shadcn init` may write `--font-sans: var(--font-sans)` while the layout defines `--font-geist-sans`. Point one at the other, or the page falls back to a serif font. This is unrelated to Vellum.
 
 ## Theming
 
@@ -67,7 +73,7 @@ npx shadcn@latest add RahulSulegaokar/vellum/dialog --diff
 npx shadcn@latest add RahulSulegaokar/vellum/dialog --overwrite
 ```
 
-To get updates as a weekly pull request, copy [`templates/vellum-update.yml`](templates/vellum-update.yml) into your project's `.github/workflows/`. It re-installs every Vellum component you already have, and opens a PR if anything changed. Local edits to those files show up in the PR diff, so you can keep or drop them.
+To get updates as a weekly pull request, copy [`templates/vellum-update.yml`](templates/vellum-update.yml) into your project's `.github/workflows/`. It re-installs every Vellum component you already have, and opens a PR if anything changed. Local edits to those files show up in the PR diff, so you can keep or drop them. It doesn't re-install the theme, so your token choices are never overwritten. To take a new release's token values, re-run step 1 by hand.
 
 ## Variants beyond shadcn
 

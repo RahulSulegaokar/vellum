@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { examples } from "@/components/examples"
 
-const install = "npx shadcn@latest add RahulSulegaokar/vellum/vellum-theme RahulSulegaokar/vellum/button"
+const install = "npx shadcn@latest add RahulSulegaokar/vellum/vellum-theme\nnpx shadcn@latest add RahulSulegaokar/vellum/button"
 
 export default function Home() {
   const names = Object.keys(examples).filter((n) => n !== "component")
@@ -14,7 +14,7 @@ export default function Home() {
       </p>
       <pre className="mt-6 overflow-x-auto rounded-lg bg-surface-muted p-4 font-mono text-sm ring-1 ring-hairline">{install}</pre>
       <p className="mt-3 text-sm text-subtle">
-        Installing any component also installs the theme. Update later with <code className="font-mono">--diff</code> or{" "}
+        Install the theme first (it sets the tokens), then add components. Update later with <code className="font-mono">--diff</code> or{" "}
         <code className="font-mono">--overwrite</code>.
       </p>
       <h2 className="mt-12 text-lg font-semibold">Components ({names.length})</h2>

@@ -25,11 +25,12 @@ jobs:
       - name: Re-install Vellum items present in this project
         run: |
           available=$(curl -fsSL https://raw.githubusercontent.com/RahulSulegaokar/vellum/main/registry.json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).items.filter(i=>i.type==="registry:ui").map(i=>i.name).join(" ")))')
-          items="RahulSulegaokar/vellum/vellum-theme"
+          # The theme is not re-installed explicitly, so project token overrides survive; new tokens still arrive as dependencies.
+          items=""
           for name in $available; do
             [ -f "components/ui/$name.tsx" ] && items="$items RahulSulegaokar/vellum/$name"
           done
-          npx shadcn@latest add $items --overwrite --yes
+          [ -n "$items" ] && npx shadcn@latest add $items --overwrite --yes
       - uses: peter-evans/create-pull-request@v7
         with:
           branch: vellum-update
