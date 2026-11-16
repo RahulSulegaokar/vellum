@@ -15,7 +15,6 @@ import {
   SettingsIcon,
   UserPlusIcon,
 } from "lucide-react"
-import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -34,7 +33,8 @@ export type ShellNavItem = { label: string; href: string }
 export type ShellWorkspace = { id: string; name: string; plan?: string }
 export type ShellAccount = { name: string; email: string; initials: string }
 export type ShellApplication = { id: string; name: string; href?: string }
-export type ShellEnvironment = { id: string; label: string; tone: "development" | "production" }
+/** `tone` picks the status dot: amber for a sandbox/test environment, green for live. */
+export type ShellEnvironment = { id: string; label: string; tone: "sandbox" | "live" }
 
 /* ------------------------------- Shared bits ------------------------------- */
 
@@ -69,8 +69,8 @@ function WorkspaceAvatar({ name, className }: { name: string; className?: string
 }
 
 const envDot: Record<ShellEnvironment["tone"], string> = {
-  development: "bg-orange-500 shadow-orange-500/25",
-  production: "bg-green-500 shadow-green-500/25",
+  sandbox: "bg-warning shadow-warning/25",
+  live: "bg-success shadow-success/25",
 }
 
 function EnvironmentDot({ tone }: { tone: ShellEnvironment["tone"] }) {
@@ -79,7 +79,7 @@ function EnvironmentDot({ tone }: { tone: ShellEnvironment["tone"] }) {
 
 /* ------------------------------ Workspace menu ----------------------------- */
 
-/** Workspace and account switcher: current workspace with plan badge, other workspaces and account actions. */
+/** Workspace and account switcher: current workspace with plan badge, other workspaces and account actions. Each action renders only when its handler is passed. */
 export function WorkspaceMenu({
   account,
   workspaces,
@@ -144,25 +144,37 @@ export function WorkspaceMenu({
             </MenuPrimitive.Item>
           )}
         </div>
-        <DropdownMenuSeparator className="mx-0 my-0 bg-edge/6" />
-        <div className="p-1">
-          <MenuPrimitive.Item onClick={onOpenSettings} className={cn(menuItem, "font-medium")}>
-            <span className="flex size-6 items-center justify-center"><SettingsIcon /></span>
-            <span className="flex-1">Settings</span>
-            <ChevronRightIcon />
-          </MenuPrimitive.Item>
-          <MenuPrimitive.Item onClick={onInviteMembers} className={cn(menuItem, "font-medium")}>
-            <span className="flex size-6 items-center justify-center"><UserPlusIcon /></span>
-            Invite members
-          </MenuPrimitive.Item>
-        </div>
-        <DropdownMenuSeparator className="mx-0 my-0 bg-edge/6" />
-        <div className="p-1">
-          <MenuPrimitive.Item onClick={onSignOut} className={cn(menuItem, "font-medium")}>
-            <span className="flex size-6 items-center justify-center"><LogOutIcon /></span>
-            Sign out
-          </MenuPrimitive.Item>
-        </div>
+        {(onOpenSettings || onInviteMembers) && (
+          <>
+            <DropdownMenuSeparator className="mx-0 my-0 bg-edge/6" />
+            <div className="p-1">
+              {onOpenSettings && (
+                <MenuPrimitive.Item onClick={onOpenSettings} className={cn(menuItem, "font-medium")}>
+                  <span className="flex size-6 items-center justify-center"><SettingsIcon /></span>
+                  <span className="flex-1">Settings</span>
+                  <ChevronRightIcon />
+                </MenuPrimitive.Item>
+              )}
+              {onInviteMembers && (
+                <MenuPrimitive.Item onClick={onInviteMembers} className={cn(menuItem, "font-medium")}>
+                  <span className="flex size-6 items-center justify-center"><UserPlusIcon /></span>
+                  Invite members
+                </MenuPrimitive.Item>
+              )}
+            </div>
+          </>
+        )}
+        {onSignOut && (
+          <>
+            <DropdownMenuSeparator className="mx-0 my-0 bg-edge/6" />
+            <div className="p-1">
+              <MenuPrimitive.Item onClick={onSignOut} className={cn(menuItem, "font-medium")}>
+                <span className="flex size-6 items-center justify-center"><LogOutIcon /></span>
+                Sign out
+              </MenuPrimitive.Item>
+            </div>
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )
@@ -170,20 +182,33 @@ export function WorkspaceMenu({
 
 /* ----------------------------- Application menu ---------------------------- */
 
-/** Application switcher: current application with a settings shortcut, other applications and create/all links. */
+/**
+ * Application switcher: current application with a settings shortcut, other applications and create/all links.
+ * An application with `href` renders as a link; one without calls `onApplicationChange`. Links render as `<a>`
+ * unless you pass `linkComponent` (for example Next's or Inertia's `Link`).
+ */
 export function ApplicationMenu({
   applications,
   currentApplicationId,
-  settingsHref = "#",
-  allApplicationsHref = "#",
+  onApplicationChange,
+  settingsHref,
+  allApplicationsHref,
   onCreateApplication,
+  linkComponent,
 }: {
   applications: ShellApplication[]
   currentApplicationId: string
+  onApplicationChange?: (id: string) => void
+  /** Shows a settings shortcut beside the current application. */
   settingsHref?: string
+  /** Shows an "All applications" link. */
   allApplicationsHref?: string
   onCreateApplication?: () => void
+  /** Component used for every link; defaults to `"a"`. */
+  linkComponent?: React.ElementType
 }) {
+  const Link = linkComponent ?? "a"
+  const renderLink = (props: React.ComponentProps<"a">) => <Link {...props} />
   const current = applications.find((a) => a.id === currentApplicationId) ?? applications[0]
   const others = applications.filter((a) => a.id !== current.id)
   return (
@@ -198,37 +223,60 @@ export function ApplicationMenu({
             <BoxIcon className="size-3.5" />
           </span>
           <span className="min-w-0 grow truncate font-medium text-foreground">{current.name}</span>
-          <MenuPrimitive.LinkItem
-            href={settingsHref}
-            aria-label="Application settings"
-            className="flex size-6 items-center justify-center rounded-md bg-surface text-subtle shadow-control outline-none data-highlighted:bg-surface-muted data-highlighted:text-foreground"
-          >
-            <SettingsIcon className="size-4" />
-          </MenuPrimitive.LinkItem>
+          {settingsHref && (
+            <MenuPrimitive.LinkItem
+              href={settingsHref}
+              render={renderLink}
+              aria-label="Application settings"
+              className="flex size-6 items-center justify-center rounded-md bg-surface text-subtle shadow-control outline-none data-highlighted:bg-surface-muted data-highlighted:text-foreground"
+            >
+              <SettingsIcon className="size-4" />
+            </MenuPrimitive.LinkItem>
+          )}
         </div>
         {others.length > 0 && (
-          <div role="group" aria-label="Applications" className="max-h-56 overflow-y-auto border-b border-edge/6 p-1">
-            {others.map((app) => (
-              <MenuPrimitive.LinkItem key={app.id} href={app.href ?? "#"} className={cn(menuItem, "group/app text-foreground")}>
-                <BoxIcon className="text-subtle" />
-                <span className="flex-1 truncate">{app.name}</span>
-                <ArrowRightIcon className="text-subtle opacity-0 transition-opacity group-data-highlighted/app:opacity-100" />
-              </MenuPrimitive.LinkItem>
-            ))}
+          <div role="group" aria-label="Applications" className="max-h-56 overflow-y-auto border-b border-edge/6 p-1 last:border-b-0">
+            {others.map((app) => {
+              const content = (
+                <>
+                  <BoxIcon className="text-subtle" />
+                  <span className="flex-1 truncate">{app.name}</span>
+                  <ArrowRightIcon className="text-subtle opacity-0 transition-opacity group-data-highlighted/app:opacity-100" />
+                </>
+              )
+              return app.href ? (
+                <MenuPrimitive.LinkItem key={app.id} href={app.href} render={renderLink} className={cn(menuItem, "group/app text-foreground")}>
+                  {content}
+                </MenuPrimitive.LinkItem>
+              ) : (
+                <MenuPrimitive.Item
+                  key={app.id}
+                  onClick={() => onApplicationChange?.(app.id)}
+                  disabled={!onApplicationChange}
+                  className={cn(menuItem, "group/app text-foreground data-disabled:opacity-50")}
+                >
+                  {content}
+                </MenuPrimitive.Item>
+              )
+            })}
           </div>
         )}
-        <div className="p-1">
-          {onCreateApplication && (
-            <MenuPrimitive.Item onClick={onCreateApplication} className={menuItem}>
-              <PlusIcon />
-              <span className="font-medium">Create application</span>
-            </MenuPrimitive.Item>
-          )}
-          <MenuPrimitive.LinkItem href={allApplicationsHref} className={menuItem}>
-            <LayoutGridIcon />
-            <span className="font-medium">All applications</span>
-          </MenuPrimitive.LinkItem>
-        </div>
+        {(onCreateApplication || allApplicationsHref) && (
+          <div className="p-1">
+            {onCreateApplication && (
+              <MenuPrimitive.Item onClick={onCreateApplication} className={menuItem}>
+                <PlusIcon />
+                <span className="font-medium">Create application</span>
+              </MenuPrimitive.Item>
+            )}
+            {allApplicationsHref && (
+              <MenuPrimitive.LinkItem href={allApplicationsHref} render={renderLink} className={menuItem}>
+                <LayoutGridIcon />
+                <span className="font-medium">All applications</span>
+              </MenuPrimitive.LinkItem>
+            )}
+          </div>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   )
@@ -236,13 +284,13 @@ export function ApplicationMenu({
 
 /* ----------------------------- Environment menu ---------------------------- */
 
-/** Environment switcher with a status dot (orange for development, green for production). */
+/** Environment switcher with a status dot (amber for a sandbox, green for live). */
 export function EnvironmentMenu({
   environments,
   value,
   onValueChange,
   onCreateEnvironment,
-  createLabel = "Create production instance",
+  createLabel = "Create environment",
 }: {
   environments: ShellEnvironment[]
   value: string
@@ -275,7 +323,7 @@ export function EnvironmentMenu({
         {onCreateEnvironment && (
           <DropdownMenuItem
             onClick={onCreateEnvironment}
-            className="gap-2.5 px-2 py-1.5 text-[0.8125rem]/5 font-medium text-brand focus:text-brand not-data-[variant=destructive]:focus:**:text-brand"
+            className="gap-2.5 px-2 py-1.5 text-[0.8125rem]/5 font-medium text-brand-text focus:text-brand-text not-data-[variant=destructive]:focus:**:text-brand-text"
           >
             <PlusIcon />
             {createLabel}
@@ -288,28 +336,35 @@ export function EnvironmentMenu({
 
 /* ------------------------------ Primary nav -------------------------------- */
 
-/** Underline tab navigation under the shell header; the active item gets `aria-current="page"`. */
+/**
+ * Underline tab navigation under the shell header; the active item gets `aria-current="page"`.
+ * Links render as `<a>` unless you pass `linkComponent` (for example Next's or Inertia's `Link`).
+ */
 export function ShellNav({
   items,
   activeHref,
   label = "Primary",
   onNavigate,
+  linkComponent,
 }: {
   items: ShellNavItem[]
   activeHref?: string
   label?: string
-  onNavigate?: (item: ShellNavItem, event: React.MouseEvent<HTMLAnchorElement>) => void
+  onNavigate?: (item: ShellNavItem, event: React.MouseEvent<HTMLElement>) => void
+  /** Component used for every link; defaults to `"a"`. */
+  linkComponent?: React.ElementType
 }) {
+  const Link = linkComponent ?? "a"
   return (
     <div className="sticky top-0 z-10 h-12 border-t border-edge/6 bg-surface-muted shadow-rule">
       <nav aria-label={label} className="relative flex h-full overflow-x-auto px-0.5 pb-px [scrollbar-width:none] md:px-1.5">
         {items.map((item) => {
           const active = item.href === activeHref
           return (
-            <a
+            <Link
               key={item.href}
               href={item.href}
-              onClick={(e) => onNavigate?.(item, e)}
+              onClick={(e: React.MouseEvent<HTMLElement>) => onNavigate?.(item, e)}
               aria-current={active ? "page" : undefined}
               className={cn(
                 "relative flex shrink-0 items-center rounded-xl px-3.5 text-[0.8125rem] font-normal transition outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-inset",
@@ -318,7 +373,7 @@ export function ShellNav({
             >
               {item.label}
               {active && <span aria-hidden="true" className="absolute inset-x-3.5 top-full h-px bg-foreground" />}
-            </a>
+            </Link>
           )
         })}
       </nav>
@@ -328,7 +383,10 @@ export function ShellNav({
 
 /* --------------------------------- Shell ----------------------------------- */
 
-/** Dashboard chrome: workspace, application and environment menus, header actions and the primary tab nav above the page content. */
+/**
+ * Dashboard chrome: workspace, application and environment menus, header actions and the primary tab nav above the page content.
+ * Every link (tab nav, application switcher) renders as `<a>` unless you pass `linkComponent`, which receives `href`.
+ */
 export function DashboardShell({
   account,
   workspaces,
@@ -340,6 +398,9 @@ export function DashboardShell({
   onSignOut,
   applications,
   currentApplicationId,
+  onApplicationChange,
+  applicationSettingsHref,
+  allApplicationsHref,
   onCreateApplication,
   environments,
   environment,
@@ -353,6 +414,7 @@ export function DashboardShell({
   inviteLabel = "Invite",
   onInvite,
   primaryAction,
+  linkComponent,
   className,
   children,
 }: {
@@ -366,6 +428,9 @@ export function DashboardShell({
   onSignOut?: () => void
   applications: ShellApplication[]
   currentApplicationId: string
+  onApplicationChange?: (id: string) => void
+  applicationSettingsHref?: string
+  allApplicationsHref?: string
   onCreateApplication?: () => void
   environments: ShellEnvironment[]
   environment: string
@@ -373,13 +438,15 @@ export function DashboardShell({
   onCreateEnvironment?: () => void
   nav: ShellNavItem[]
   activeHref?: string
-  onNavigate?: (item: ShellNavItem, event: React.MouseEvent<HTMLAnchorElement>) => void
+  onNavigate?: (item: ShellNavItem, event: React.MouseEvent<HTMLElement>) => void
   notificationCount?: number
   onNotificationsClick?: () => void
   inviteLabel?: string
   onInvite?: () => void
-  /** The one primary action in the header, e.g. "Go to production". */
-  primaryAction?: { label: string; onClick?: () => void }
+  /** The one primary action in the header, e.g. "Upgrade". */
+  primaryAction?: { label: string; onClick: () => void }
+  /** Component used for every link; defaults to `"a"`. */
+  linkComponent?: React.ElementType
   className?: string
   children?: React.ReactNode
 }) {
@@ -399,11 +466,20 @@ export function DashboardShell({
               onSignOut={onSignOut}
             />
             <Slash />
-            <ApplicationMenu applications={applications} currentApplicationId={currentApplicationId} onCreateApplication={onCreateApplication} />
+            <ApplicationMenu
+              applications={applications}
+              currentApplicationId={currentApplicationId}
+              onApplicationChange={onApplicationChange}
+              settingsHref={applicationSettingsHref}
+              allApplicationsHref={allApplicationsHref}
+              onCreateApplication={onCreateApplication}
+              linkComponent={linkComponent}
+            />
             <Slash />
             <EnvironmentMenu environments={environments} value={environment} onValueChange={onEnvironmentChange} onCreateEnvironment={onCreateEnvironment} />
           </div>
           <div className="sticky end-0 isolate flex h-full items-center gap-2.5 bg-surface-muted px-4 md:px-5">
+            {onNotificationsClick && (
             <div className="relative inline-flex">
               <Button
                 variant="elevated"
@@ -411,7 +487,7 @@ export function DashboardShell({
                 onClick={onNotificationsClick}
                 aria-label={notificationCount > 0 ? `Notifications, ${notificationCount} unread` : "Notifications"}
               >
-                <BellIcon className="text-subtle" />
+                <BellIcon aria-hidden="true" className="text-subtle" />
               </Button>
               {notificationCount > 0 && (
                 <span
@@ -422,6 +498,7 @@ export function DashboardShell({
                 </span>
               )}
             </div>
+            )}
             {onInvite && (
               <Button variant="elevated" size="compact-sm" onClick={onInvite} aria-label={inviteLabel} className="max-sm:w-6 max-sm:px-0">
                 <span className="max-sm:hidden">{inviteLabel}</span>
@@ -436,79 +513,8 @@ export function DashboardShell({
           </div>
         </div>
       </header>
-      <ShellNav items={nav} activeHref={activeHref} onNavigate={onNavigate} />
+      <ShellNav items={nav} activeHref={activeHref} onNavigate={onNavigate} linkComponent={linkComponent} />
       <div className="flex-1">{children}</div>
     </div>
-  )
-}
-
-/* ---------------------------------- Demo ----------------------------------- */
-
-const demoAccount: ShellAccount = { name: "Maya Lindqvist", email: "maya@acme.dev", initials: "ML" }
-const demoWorkspaces: ShellWorkspace[] = [
-  { id: "acme", name: "acme", plan: "Pro" },
-  { id: "acme-labs", name: "acme-labs", plan: "Hobby" },
-]
-const demoApplications: ShellApplication[] = [
-  { id: "web", name: "Acme Web" },
-  { id: "storefront", name: "Acme Storefront", href: "#" },
-  { id: "internal", name: "Internal tools", href: "#" },
-]
-const demoEnvironments: ShellEnvironment[] = [
-  { id: "development", label: "Development", tone: "development" },
-  { id: "production", label: "Production", tone: "production" },
-]
-const demoNav: ShellNavItem[] = [
-  { label: "Overview", href: "#overview" },
-  { label: "Users", href: "#users" },
-  { label: "Organizations", href: "#organizations" },
-  { label: "Billing", href: "#billing" },
-  { label: "Logs", href: "#logs" },
-  { label: "Configure", href: "#configure" },
-]
-
-export default function DashboardShellDemo() {
-  const [workspace, setWorkspace] = useState("acme")
-  const [environment, setEnvironment] = useState("development")
-  const [active, setActive] = useState("#users")
-  const page = demoNav.find((n) => n.href === active)?.label ?? "Overview"
-
-  return (
-    <DashboardShell
-      account={demoAccount}
-      workspaces={demoWorkspaces}
-      currentWorkspaceId={workspace}
-      onWorkspaceChange={setWorkspace}
-      onAddWorkspace={() => {}}
-      applications={demoApplications}
-      currentApplicationId="web"
-      onCreateApplication={() => {}}
-      environments={demoEnvironments}
-      environment={environment}
-      onEnvironmentChange={setEnvironment}
-      nav={demoNav}
-      activeHref={active}
-      onNavigate={(item, e) => {
-        e.preventDefault()
-        setActive(item.href)
-      }}
-      notificationCount={1}
-      onInvite={() => {}}
-      primaryAction={environment === "development" ? { label: "Go to production", onClick: () => setEnvironment("production") } : undefined}
-    >
-      <main className="mx-auto w-[calc(100%-2.5rem)] max-w-6xl pt-8 pb-10">
-        <h1 className="text-xl font-semibold text-foreground">{page}</h1>
-        <p className="mt-1 text-sm text-subtle">Page content renders here.</p>
-        <div className="mt-8 grid gap-4 sm:grid-cols-3">
-          {["Total users", "Active this week", "New sign-ups"].map((label) => (
-            <div key={label} className="rounded-xl bg-surface p-5 shadow-card">
-              <p className="text-[0.8125rem] text-subtle">{label}</p>
-              <div className="mt-3 h-6 w-20 rounded-md bg-accent" />
-            </div>
-          ))}
-        </div>
-        <div className="mt-8 h-64 rounded-xl bg-surface shadow-card" />
-      </main>
-    </DashboardShell>
   )
 }

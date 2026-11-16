@@ -6,8 +6,8 @@
     "lucide-react"
   ],
   "registryDependencies": [
-    "RahulSulegaokar/vellum/input",
-    "RahulSulegaokar/vellum/vellum-theme",
+    "RahulSulegaokar/vellum/input#v0.3.0",
+    "RahulSulegaokar/vellum/vellum-theme#v0.3.0",
     "utils"
   ],
   "files": [

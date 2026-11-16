@@ -2,18 +2,18 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "callout",
   "title": "Callout",
-  "description": "Inline notice for page-level context (\"Use this development instance for test users…\").",
+  "description": "Inline notice for page-level context (\"Use this sandbox for test data; switch to live when you're ready.\").",
   "dependencies": [
     "lucide-react"
   ],
   "registryDependencies": [
-    "RahulSulegaokar/vellum/vellum-theme",
+    "RahulSulegaokar/vellum/vellum-theme#v0.3.0",
     "utils"
   ],
   "files": [
     {
       "path": "components/blocks/callout.tsx",
-      "content": "import { InfoIcon } from \"lucide-react\"\nimport { cn } from \"@/lib/utils\"\n\n/**\n * Inline notice for page-level context (\"Use this development instance for test users…\").\n * Tinted with the subtle token and a hairline inset ring; pass any icon to replace the info glyph.\n */\nexport function Callout({\n  icon = <InfoIcon className=\"size-4 shrink-0 translate-y-0.5\" />,\n  className,\n  children,\n}: {\n  icon?: React.ReactNode\n  className?: string\n  children: React.ReactNode\n}) {\n  return (\n    <div\n      data-slot=\"callout\"\n      className={cn(\n        \"flex items-start gap-2 rounded-md bg-subtle/4 p-2 text-[0.8125rem]/[1.125rem] text-subtle ring-1 ring-subtle/12 ring-inset\",\n        className\n      )}\n    >\n      {icon}\n      <p className=\"text-pretty\">{children}</p>\n    </div>\n  )\n}\n\nexport default function CalloutDemo() {\n  return (\n    <div className=\"mx-auto max-w-2xl p-10\">\n      <Callout>\n        Use this development instance for internal and test users. When you&apos;re ready to invite real users, create\n        your production instance.\n      </Callout>\n    </div>\n  )\n}\n",
+      "content": "import { InfoIcon } from \"lucide-react\"\nimport { cn } from \"@/lib/utils\"\n\n/**\n * Inline notice for page-level context (\"Use this sandbox for test data; switch to live when you're ready.\").\n * Tinted with the subtle token and a hairline inset ring; pass any icon to replace the info glyph.\n */\nexport function Callout({\n  icon = <InfoIcon className=\"size-4 shrink-0 translate-y-0.5\" />,\n  className,\n  children,\n}: {\n  icon?: React.ReactNode\n  className?: string\n  children: React.ReactNode\n}) {\n  return (\n    <div\n      data-slot=\"callout\"\n      className={cn(\n        \"flex items-start gap-2 rounded-md bg-subtle/4 p-2 text-[0.8125rem]/[1.125rem] text-subtle ring-1 ring-subtle/12 ring-inset\",\n        className\n      )}\n    >\n      {icon}\n      <p className=\"text-pretty\">{children}</p>\n    </div>\n  )\n}\n",
       "type": "registry:component"
     }
   ],

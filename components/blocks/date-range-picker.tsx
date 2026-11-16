@@ -1,12 +1,13 @@
 "use client"
 
 import { useState } from "react"
-import { CalendarIcon, CheckIcon, ChevronDownIcon } from "lucide-react"
+import { CalendarIcon, ChevronDownIcon } from "lucide-react"
 import type { DateRange } from "react-day-picker"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
 import { NativeSelect, NativeSelectOption } from "@/components/ui/native-select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { cn } from "@/lib/utils"
 
 /* --------------------------------- Types ----------------------------------- */
@@ -29,14 +30,15 @@ const MINUTE = 60_000
 const HOUR = 60 * MINUTE
 const DAY = 24 * HOUR
 
+/** Generic relative windows. Mark entries `disabled` (for example, beyond a plan's retention) in your own copy. */
 export const defaultDateRangePresets: DateRangePreset[] = [
   { key: "last15Minutes", label: "Last 15 minutes", ms: HOUR / 4 },
   { key: "last1Hour", label: "Last 1 hour", ms: HOUR },
   { key: "last3Hours", label: "Last 3 hours", ms: 3 * HOUR },
   { key: "last24Hours", label: "Last 24 hours", ms: DAY, triggerLabel: "Last 1 day" },
-  { key: "last3Days", label: "Last 3 days", ms: 3 * DAY, disabled: true },
-  { key: "last7Days", label: "Last 7 days", ms: 7 * DAY, disabled: true },
-  { key: "last30Days", label: "Last 30 days", ms: 30 * DAY, disabled: true },
+  { key: "last3Days", label: "Last 3 days", ms: 3 * DAY },
+  { key: "last7Days", label: "Last 7 days", ms: 7 * DAY },
+  { key: "last30Days", label: "Last 30 days", ms: 30 * DAY },
 ]
 
 /* -------------------------------- Helpers ---------------------------------- */
@@ -110,6 +112,8 @@ export function DateTimeRow({
 /**
  * Popover date-range picker with relative presets, From/To date-time rows and a range calendar.
  * Presets resolve against "now" when the popover opens, so nothing time-based runs during render.
+ * Presets are a radio group (arrow keys move the selection); the calendar is a react-day-picker grid
+ * (arrow keys move by day/week, PageUp/PageDown by month, Home/End to the week's ends).
  */
 export function DateRangePicker({
   value,
@@ -204,28 +208,24 @@ export function DateRangePicker({
       >
         {draft && now && (
           <>
-            <div role="listbox" aria-label="Date presets" className="hidden min-w-44 flex-1 flex-col gap-1.5 px-1.5 py-4 sm:flex">
-              {presets.map((p) => {
-                const selected = draft.preset === p.key
-                return (
-                  <button
-                    key={p.key}
-                    type="button"
-                    role="option"
-                    aria-selected={selected}
-                    disabled={p.disabled}
-                    onClick={() => pickPreset(p.key)}
-                    className={cn(
-                      "flex w-full items-center gap-2 rounded-md px-1.5 py-2 text-left text-xs/4 font-medium text-subtle transition-colors outline-none hover:bg-subtle/4 hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-transparent disabled:hover:text-subtle",
-                      selected && "bg-subtle/8 text-brand hover:bg-subtle/8 hover:text-brand"
-                    )}
-                  >
-                    {selected ? <CheckIcon aria-hidden="true" className="size-4" /> : <span className="size-4" />}
-                    {p.label}
-                  </button>
-                )
-              })}
-            </div>
+            <RadioGroup
+              aria-label="Date presets"
+              value={draft.preset ?? ""}
+              onValueChange={(key) => typeof key === "string" && key && pickPreset(key)}
+              className="hidden min-w-44 flex-1 content-start gap-1.5 px-1.5 py-4 sm:grid"
+            >
+              {presets.map((p) => (
+                <label
+                  key={p.key}
+                  className={cn(
+                    "flex w-full cursor-pointer items-center gap-2 rounded-md px-1.5 py-2 text-xs/4 font-medium text-subtle transition-colors hover:bg-subtle/4 hover:text-foreground has-data-checked:bg-subtle/8 has-data-checked:text-brand-text has-data-disabled:cursor-not-allowed has-data-disabled:opacity-50 has-data-disabled:hover:bg-transparent has-data-disabled:hover:text-subtle"
+                  )}
+                >
+                  <RadioGroupItem value={p.key} disabled={p.disabled} />
+                  {p.label}
+                </label>
+              ))}
+            </RadioGroup>
             <div className="flex flex-col divide-y divide-edge/6 rounded-xl bg-surface shadow-surface ring-1 ring-edge/4">
               <div className="w-72 max-w-full flex-1 overflow-y-auto p-4">
                 <label className="mb-4 block sm:hidden">
@@ -261,7 +261,7 @@ export function DateRangePicker({
                 />
               </div>
               <footer className="flex items-center justify-end gap-3 p-4">
-                {invalid && <p className="mr-auto text-xs/4 text-destructive" role="alert">Start is after end</p>}
+                {invalid && <p className="mr-auto text-xs/4 text-destructive-text" role="alert">Start is after end</p>}
                 <Button variant="elevated" size="compact-sm" onClick={() => setOpen(false)}>Cancel</Button>
                 <Button
                   variant="primary"
@@ -280,14 +280,5 @@ export function DateRangePicker({
         )}
       </PopoverContent>
     </Popover>
-  )
-}
-
-export default function DateRangePickerDemo() {
-  const [range, setRange] = useState<DateRangeValue>({ preset: "last24Hours" })
-  return (
-    <div className="mx-auto flex max-w-5xl justify-end p-6 sm:p-10">
-      <DateRangePicker value={range} onChange={setRange} maxAgeMs={DAY} />
-    </div>
   )
 }

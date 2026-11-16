@@ -1,5 +1,7 @@
 "use client"
 
+/** Pricing section: title, monthly/annual toggle and a responsive grid of plan cards. */
+
 import * as React from "react"
 import { CheckIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
@@ -48,8 +50,23 @@ function RollingNumber({ value, prefix = "$" }: { value: number; prefix?: string
   )
 }
 
-/** One plan: name, price, blurb, CTA and a feature list. `featured` adds the "Most popular" emphasis. */
-export function PlanCard({ plan, billing, popularLabel = "Most popular" }: { plan: PricingPlan; billing: Billing; popularLabel?: string }) {
+/**
+ * One plan: name, price, blurb, CTA and a feature list. `featured` adds the "Most popular" emphasis.
+ * The CTA renders through `linkComponent` (defaults to `"a"`).
+ */
+export function PlanCard({
+  plan,
+  billing,
+  popularLabel = "Most popular",
+  linkComponent,
+}: {
+  plan: PricingPlan
+  billing: Billing
+  popularLabel?: string
+  /** Element or component used for the CTA link, e.g. your router's `Link`. Defaults to `"a"`. */
+  linkComponent?: React.ElementType
+}) {
+  const Link = linkComponent ?? "a"
   const amount = billing === "annual" ? plan.price.annual : plan.price.monthly
   const paid = amount !== null
   return (
@@ -74,7 +91,7 @@ export function PlanCard({ plan, billing, popularLabel = "Most popular" }: { pla
         <Button
           variant={plan.featured ? "primary" : "elevated"}
           nativeButton={false}
-          render={<a href={plan.cta.href} />}
+          render={<Link href={plan.cta.href} />}
           className="mt-4 w-full"
         >
           {plan.cta.label}
@@ -97,21 +114,39 @@ export function PlanCard({ plan, billing, popularLabel = "Most popular" }: { pla
   )
 }
 
-/** Pricing section: title, monthly/annual toggle and a responsive grid of plan cards. */
+/**
+ * Pricing section: title, monthly/annual toggle and a responsive grid of plan cards.
+ *
+ * Plan CTAs render through `linkComponent`, which defaults to `"a"`; pass your router's `Link` for
+ * client-side navigation.
+ */
 export function PricingPlans({
-  title = "Simple pricing that grows with you",
-  description = "Start free, then pay as your product and team grow. Every plan includes unlimited applications.",
-  plans = defaultPlans,
+  title,
+  description,
+  plans,
   defaultBilling = "annual",
-  annualHint = "Save 20%",
+  annualHint,
+  monthlyLabel = "Monthly",
+  annualLabel = "Annual",
+  billingLabel = "Billing period",
+  popularLabel,
+  linkComponent,
   className,
 }: {
-  title?: React.ReactNode
+  title: React.ReactNode
   description?: React.ReactNode
-  plans?: PricingPlan[]
+  plans: PricingPlan[]
   defaultBilling?: Billing
-  /** Small badge beside the toggle; pass an empty string to hide it. */
+  /** Small badge beside the toggle, e.g. the annual discount. Hidden when omitted. */
   annualHint?: string
+  monthlyLabel?: string
+  annualLabel?: string
+  /** Accessible name of the billing toggle. */
+  billingLabel?: string
+  /** Badge on the featured plan. Defaults to "Most popular". */
+  popularLabel?: string
+  /** Element or component used for links, e.g. your router's `Link`. Defaults to `"a"`. */
+  linkComponent?: React.ElementType
   className?: string
 }) {
   const [billing, setBilling] = React.useState<Billing>(defaultBilling)
@@ -124,63 +159,17 @@ export function PricingPlans({
       </h2>
       {description && <p className="mt-4 max-w-xl text-center text-base/6 text-balance text-muted-foreground">{description}</p>}
       <div className="mt-8 flex items-center gap-3">
-        <SegmentedControl aria-label="Billing period" value={billing} onValueChange={(v) => setBilling(v as Billing)} className="w-fit">
-          <SegmentedControlItem value="monthly">Monthly</SegmentedControlItem>
-          <SegmentedControlItem value="annual">Annual</SegmentedControlItem>
+        <SegmentedControl aria-label={billingLabel} value={billing} onValueChange={(v) => setBilling(v as Billing)} className="w-fit">
+          <SegmentedControlItem value="monthly">{monthlyLabel}</SegmentedControlItem>
+          <SegmentedControlItem value="annual">{annualLabel}</SegmentedControlItem>
         </SegmentedControl>
         {annualHint && <Badge variant="subtle">{annualHint}</Badge>}
       </div>
       <div className={cn("mt-10 grid w-full grid-cols-1 gap-4", cols)}>
         {plans.map((p) => (
-          <PlanCard key={p.name} plan={p} billing={billing} />
+          <PlanCard key={p.name} plan={p} billing={billing} popularLabel={popularLabel} linkComponent={linkComponent} />
         ))}
       </div>
     </section>
-  )
-}
-
-const defaultPlans: PricingPlan[] = [
-  {
-    name: "Hobby",
-    price: { monthly: null, annual: null, label: "Free" },
-    note: "Free forever",
-    blurb: "Everything you need to launch a side project.",
-    cta: { label: "Start for free", href: "#start" },
-    featuresTitle: "Includes",
-    features: ["Up to 5,000 monthly active users", "Email and social sign-in", "Prebuilt components", "Community support"],
-  },
-  {
-    name: "Pro",
-    price: { monthly: 25, annual: 20 },
-    blurb: "For growing products that need more control.",
-    cta: { label: "Start a free trial", href: "#trial" },
-    featured: true,
-    featuresTitle: "Everything in Hobby, plus",
-    features: ["Up to 50,000 monthly active users", "Custom domains", "Workspaces and roles", "Remove Acme branding", "Email support"],
-  },
-  {
-    name: "Business",
-    price: { monthly: 120, annual: 99 },
-    blurb: "For teams with compliance and scale needs.",
-    cta: { label: "Start a free trial", href: "#trial" },
-    featuresTitle: "Everything in Pro, plus",
-    features: ["Single sign-on for workspaces", "Audit logs", "99.95% uptime target", "Priority support"],
-  },
-  {
-    name: "Enterprise",
-    price: { monthly: null, annual: null, label: "Custom" },
-    note: "Volume pricing",
-    blurb: "For large organizations with custom requirements.",
-    cta: { label: "Talk to sales", href: "#sales" },
-    featuresTitle: "Everything in Business, plus",
-    features: ["Dedicated environment", "Custom contract and invoicing", "Named support engineer", "Onboarding workshops"],
-  },
-]
-
-export default function PricingPlansDemo() {
-  return (
-    <div className="mx-auto max-w-6xl p-6 sm:p-10">
-      <PricingPlans />
-    </div>
   )
 }

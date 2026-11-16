@@ -6,7 +6,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Spinner } from "@/components/ui/spinner"
 import { cn } from "@/lib/utils"
 
@@ -22,18 +32,22 @@ function WorkspaceAvatar({ workspace, className }: { workspace: Pick<Workspace, 
   return (
     <Avatar className={cn("rounded-md after:rounded-md", className)}>
       {workspace.imageUrl && <AvatarImage src={workspace.imageUrl} alt="" className="rounded-md" />}
-      <AvatarFallback className="rounded-md bg-solid text-[0.6875rem] font-semibold text-solid-foreground">
+      <AvatarFallback className="rounded-md text-[0.6875rem] font-semibold">
         {workspace.name.charAt(0).toUpperCase()}
       </AvatarFallback>
     </Avatar>
   )
 }
 
-/** Workspace list: the active one with "Manage", the others as switch targets, then "Create workspace". */
+/**
+ * Workspace list for inline use (a sheet, a sidebar panel): the active one with a manage button, the others as switch targets,
+ * then "Create workspace". Use `WorkspaceSwitcher` for the dropdown version.
+ */
 export function WorkspaceList({
   workspaces,
   activeId,
   createLabel = "Create workspace",
+  manageLabel = "Manage",
   onSwitch,
   onManage,
   onCreate,
@@ -42,8 +56,11 @@ export function WorkspaceList({
   workspaces: Workspace[]
   activeId: string
   createLabel?: string
+  manageLabel?: string
   onSwitch?: (id: string) => void
+  /** Omit to hide the manage button. */
   onManage?: (id: string) => void
+  /** Omit to hide the create row. */
   onCreate?: () => void
   className?: string
 }) {
@@ -61,7 +78,7 @@ export function WorkspaceList({
           {onManage && (
             <Button variant="elevated" size="compact-sm" onClick={() => onManage(active.id)}>
               <SettingsIcon className="size-3.5" aria-hidden="true" />
-              Manage
+              {manageLabel}
             </Button>
           )}
         </div>
@@ -105,70 +122,102 @@ export function WorkspaceList({
   )
 }
 
-/** Workspace switcher: a compact trigger showing the active workspace that opens a list to switch, manage or create. */
+/**
+ * Workspace switcher: a compact trigger showing the active workspace that opens a dropdown menu. Workspaces are radio items
+ * (arrow keys move, Enter selects), followed by optional "Workspace settings" and "Create workspace" actions.
+ */
 export function WorkspaceSwitcher({
-  workspaces = demoWorkspaces,
+  workspaces,
   activeId,
   defaultActiveId,
   defaultOpen,
   onSwitch,
   onManage,
   onCreate,
-  createLabel,
+  label = "Workspaces",
+  placeholder = "Select workspace",
+  manageLabel = "Workspace settings",
+  createLabel = "Create workspace",
+  align = "start",
   className,
 }: {
-  workspaces?: Workspace[]
+  workspaces: Workspace[]
   /** Controlled active workspace id. */
   activeId?: string
   defaultActiveId?: string
   defaultOpen?: boolean
   onSwitch?: (id: string) => void
+  /** Omit to hide the settings action. Called with the active workspace id. */
   onManage?: (id: string) => void
+  /** Omit to hide the create action. */
   onCreate?: () => void
+  /** Heading above the workspace list. */
+  label?: string
+  /** Trigger text when no workspace is active. */
+  placeholder?: string
+  manageLabel?: string
   createLabel?: string
+  align?: "start" | "center" | "end"
   className?: string
 }) {
-  const [open, setOpen] = React.useState(defaultOpen ?? false)
   const [internal, setInternal] = React.useState(defaultActiveId ?? workspaces[0]?.id ?? "")
   const current = activeId ?? internal
   const active = workspaces.find((w) => w.id === current)
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger
+    <DropdownMenu defaultOpen={defaultOpen}>
+      <DropdownMenuTrigger
         render={<Button variant="elevated" size="compact" className={cn("max-w-64 gap-2 pr-1.5 pl-1.5", className)} />}
         aria-label={active ? `Switch workspace, current: ${active.name}` : "Switch workspace"}
       >
         {active && <WorkspaceAvatar workspace={active} className="size-5" />}
-        <span className="truncate">{active?.name ?? "Select workspace"}</span>
+        <span className="truncate">{active?.name ?? placeholder}</span>
         <ChevronsUpDownIcon className="size-3.5 text-subtle" aria-hidden="true" />
-      </PopoverTrigger>
-      <PopoverContent align="start" sideOffset={6} className="w-90 max-w-[calc(100vw-2rem)] gap-0 p-0">
-        <WorkspaceList
-          workspaces={workspaces}
-          activeId={current}
-          createLabel={createLabel}
-          onSwitch={(id) => {
-            setInternal(id)
-            setOpen(false)
-            onSwitch?.(id)
-          }}
-          onManage={
-            onManage &&
-            ((id) => {
-              setOpen(false)
-              onManage(id)
-            })
-          }
-          onCreate={
-            onCreate &&
-            (() => {
-              setOpen(false)
-              onCreate()
-            })
-          }
-        />
-      </PopoverContent>
-    </Popover>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align={align} sideOffset={6} className="w-72 max-w-[calc(100vw-2rem)]">
+        {workspaces.length > 0 && (
+          <DropdownMenuGroup>
+            <DropdownMenuLabel>{label}</DropdownMenuLabel>
+            <DropdownMenuRadioGroup
+              value={current}
+              onValueChange={(id: string) => {
+                if (id === current) return
+                setInternal(id)
+                onSwitch?.(id)
+              }}
+            >
+              {workspaces.map((w) => (
+                <DropdownMenuRadioItem key={w.id} value={w.id} closeOnClick className="gap-2.5 py-1.5">
+                  <WorkspaceAvatar workspace={w} className="size-7" />
+                  <span className="min-w-0">
+                    <span className="block truncate text-[0.8125rem]/[1.125rem] font-medium">{w.name}</span>
+                    {w.role && <span className="block text-xs text-muted-foreground">{w.role}</span>}
+                  </span>
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuGroup>
+        )}
+        {((onManage && active) || onCreate) && (
+          <>
+            {workspaces.length > 0 && <DropdownMenuSeparator />}
+            <DropdownMenuGroup>
+              {onManage && active && (
+                <DropdownMenuItem onClick={() => onManage(active.id)}>
+                  <SettingsIcon aria-hidden="true" />
+                  {manageLabel}
+                </DropdownMenuItem>
+              )}
+              {onCreate && (
+                <DropdownMenuItem onClick={onCreate}>
+                  <PlusIcon aria-hidden="true" />
+                  {createLabel}
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuGroup>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   )
 }
 
@@ -180,11 +229,11 @@ function slugify(value: string) {
     .replace(/^-+|-+$/g, "")
 }
 
-/** Create-workspace form: logo upload, name and a slug that follows the name until edited. */
+/** Create-workspace form: logo upload, name and a URL slug that follows the name until edited. */
 export function CreateWorkspaceForm({
   title = "Create workspace",
   submitLabel = "Create workspace",
-  slugPrefix = "acme.app/",
+  slugPrefix,
   maxLogoSizeMb = 10,
   onSubmit,
   onCancel,
@@ -192,7 +241,7 @@ export function CreateWorkspaceForm({
 }: {
   title?: string
   submitLabel?: string
-  /** Shown before the slug field. */
+  /** Shown before the slug field, e.g. "app.example.com/". Omit to hide. */
   slugPrefix?: string
   maxLogoSizeMb?: number
   onSubmit?: (values: { name: string; slug: string; logo?: File }) => void | Promise<void>
@@ -242,8 +291,8 @@ export function CreateWorkspaceForm({
           </span>
           <div className="flex flex-col items-start gap-2">
             <div className="flex gap-2">
-              <Button type="button" variant="elevated" size="compact" onClick={() => fileRef.current?.click()}>
-                Upload
+              <Button type="button" variant="elevated" size="compact" aria-describedby={`${id}-logo-hint`} onClick={() => fileRef.current?.click()}>
+                Upload logo
               </Button>
               {logo && (
                 <Button type="button" variant="ghost" size="compact" onClick={() => setLogo(null)}>
@@ -251,8 +300,8 @@ export function CreateWorkspaceForm({
                 </Button>
               )}
             </div>
-            <p id={`${id}-logo-hint`} className={cn("text-xs", logoError ? "text-destructive" : "text-subtle")}>
-              {logoError ?? `Recommended size 1:1, up to ${maxLogoSizeMb}MB.`}
+            <p id={`${id}-logo-hint`} aria-live="polite" className={cn("text-xs", logoError ? "text-destructive-text" : "text-subtle")}>
+              {logoError ?? `Square image, up to ${maxLogoSizeMb}MB.`}
             </p>
             <input
               ref={fileRef}
@@ -284,15 +333,20 @@ export function CreateWorkspaceForm({
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={`${id}-slug`} className="text-[0.8125rem]">
-            Slug URL
+            URL
           </Label>
           <div className="flex items-center rounded-md">
-            <span className="flex h-8 items-center rounded-l-md bg-surface-muted px-2.5 text-sm text-subtle ring-1 ring-edge/12">{slugPrefix}</span>
+            {slugPrefix && (
+              <span id={`${id}-slug-prefix`} className="flex h-8 items-center rounded-l-md bg-surface-muted px-2.5 text-sm text-subtle ring-1 ring-edge/12">
+                {slugPrefix}
+              </span>
+            )}
             <Input
               id={`${id}-slug`}
               variant="compact"
               placeholder="my-workspace"
-              className="rounded-l-none"
+              className={cn(slugPrefix && "rounded-l-none")}
+              aria-describedby={slugPrefix ? `${id}-slug-prefix` : undefined}
               value={effectiveSlug}
               onChange={(e) => {
                 setSlugEdited(true)
@@ -315,22 +369,5 @@ export function CreateWorkspaceForm({
         </Button>
       </div>
     </form>
-  )
-}
-
-const demoWorkspaces: Workspace[] = [
-  { id: "ws_northwind", name: "Northwind", role: "Admin" },
-  { id: "ws_personal", name: "Personal workspace" },
-  { id: "ws_globex", name: "Globex", role: "Member" },
-]
-
-export default function WorkspaceSwitcherDemo() {
-  return (
-    <div className="mx-auto grid max-w-5xl items-start gap-10 p-6 sm:p-10 md:grid-cols-2">
-      <div className="min-h-80">
-        <WorkspaceSwitcher defaultOpen onManage={() => {}} onCreate={() => {}} />
-      </div>
-      <CreateWorkspaceForm onCancel={() => {}} onSubmit={() => new Promise((r) => setTimeout(r, 800))} />
-    </div>
   )
 }

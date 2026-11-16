@@ -8,14 +8,14 @@
     "lucide-react"
   ],
   "registryDependencies": [
-    "RahulSulegaokar/vellum/button",
-    "RahulSulegaokar/vellum/input",
-    "RahulSulegaokar/vellum/separator",
-    "RahulSulegaokar/vellum/sheet",
-    "RahulSulegaokar/vellum/skeleton",
-    "RahulSulegaokar/vellum/tooltip",
-    "RahulSulegaokar/vellum/use-mobile",
-    "RahulSulegaokar/vellum/vellum-theme",
+    "RahulSulegaokar/vellum/button#v0.3.0",
+    "RahulSulegaokar/vellum/input#v0.3.0",
+    "RahulSulegaokar/vellum/separator#v0.3.0",
+    "RahulSulegaokar/vellum/sheet#v0.3.0",
+    "RahulSulegaokar/vellum/skeleton#v0.3.0",
+    "RahulSulegaokar/vellum/tooltip#v0.3.0",
+    "RahulSulegaokar/vellum/use-mobile#v0.3.0",
+    "RahulSulegaokar/vellum/vellum-theme#v0.3.0",
     "utils"
   ],
   "files": [

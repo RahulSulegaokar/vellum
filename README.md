@@ -2,7 +2,7 @@
 
 A themeable, [shadcn](https://ui.shadcn.com)-compatible component registry built on [Base UI](https://base-ui.com).
 
-Vellum ships 65 components (every shadcn `base-nova` component except `form`, plus `segmented-control`). Every one of them reads its colours, rings, shadows and radius from theme tokens, so you can restyle the whole kit by changing a few CSS variables. The default theme is calm and precise: soft layered shadows, hairline rings, and a violet accent.
+Vellum ships 66 components (every shadcn `base-nova` component, a framework-free `form`, and `segmented-control`). Every one of them reads its colours, rings, shadows and radius from theme tokens, so you can restyle the whole kit by changing a few CSS variables. The default theme is calm and precise: soft layered shadows, hairline rings, and a violet accent.
 
 Components install into your project with the normal shadcn CLI, and you own the code afterwards, just as with shadcn.
 
@@ -29,7 +29,7 @@ Each component also brings in:
 
 Pulled in this way, the theme only adds missing tokens. It never overwrites values you've set, which is why step 1 installs it explicitly.
 
-Pin a release by appending a tag: `RahulSulegaokar/vellum/button#v0.1.0`.
+Pin a release by appending a tag: `RahulSulegaokar/vellum/button#v0.3.0`.
 
 > The shadcn CLI also adds lines like `--rule-shadow: var(--rule-shadow);` to `@theme inline` for every token that isn't a colour. They're harmless, because the real values in `:root` win, and you can delete them.
 
@@ -79,9 +79,16 @@ To get updates as a weekly pull request, copy [`templates/vellum-update.yml`](te
 
 > **Public repo required.** The `RahulSulegaokar/vellum/<item>` addresses (and the dependencies between items) are fetched from GitHub without credentials, so they only work while the repo is public. If you keep a private fork, host its built registry (`npm run registry:build` writes `public/r`) behind your own URL and reference items by that URL or a namespace in `components.json` instead.
 
+## Forms, banners and theming outside Next.js
+
+- `form`: `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage`. Pass the field's error (`errors.email` from Inertia's `useForm`, a server error, anything) to `FormItem`; `FormControl` wires `id`, `aria-describedby` (description + error) and `aria-invalid` onto the input. No form library required.
+- `banner` block: info, warning, destructive and success notice strips.
+- Dark mode follows the `dark` class on `<html>`; `sonner` uses the framework-free `use-theme` hook, so Laravel/Inertia and Vite apps don't need `next-themes`.
+- Contrast: every text/background token pair meets WCAG AA in light and dark (`npm run test:contrast`, run in CI). Use the `-text` tokens for status-coloured text.
+
 ## Blocks
 
-Ready-made screen sections built from the components. Each installs into a `blocks` folder under your components alias (`components/blocks/<name>.tsx` in Next.js, `resources/js/components/blocks/<name>.tsx` in Laravel); it exports prop-driven components plus a default demo.
+Ready-made screen sections built from the components. Each installs into a `blocks` folder under your components alias (`components/blocks/<name>.tsx` in Next.js, `resources/js/components/blocks/<name>.tsx` in Laravel); it exports prop-driven components and ships no demo data.
 
 ```bash
 npx shadcn@latest add RahulSulegaokar/vellum/data-table-card
@@ -89,42 +96,50 @@ npx shadcn@latest add RahulSulegaokar/vellum/data-table-card
 
 **Dashboard**
 
-- `dashboard-shell`: Breadcrumb-style menu trigger: flat until hovered or open, then a raised white chip.
-- `settings-sidebar`: Grouped settings navigation: section headings, plain links and collapsible groups with a guide rail.
-- `settings-card`: Height-animated disclosure region; content is `inert` while closed.
-- `data-table-card`: Makes the column sortable. Return `null` for "no value" (sorts as lowest).
-- `filter-bar`: Fixed choices render as a checkbox list; omit for a free-text field.
-- `date-range-picker`: Length of the window ending at "now", in milliseconds.
+- `dashboard-shell`: Dashboard chrome: workspace, application and environment menus, header actions and the primary tab nav above the page content.
+- `settings-sidebar`: Desktop settings sidebar: a "Find…" box that opens the find dialog above the grouped, collapsible settings navigation.
+- `settings-card`: Settings card: a switch-led header (title, description, optional badge) over a white panel of option rows that collapses while off.
+- `data-table-card`: Data table card with search, column visibility, filters, sortable headers, row actions and empty states.
+- `filter-bar`: Filter toolbar: removable filter pills and "Clear all" on wider screens, a filter sheet on phones, with leading and trailing slots for navigation and actions (date range, refresh, share).
+- `date-range-picker`: Popover date-range picker with relative presets, From/To date-time rows and a range calendar.
 - `create-user-dialog`: "Create new user" dialog with Create / Invite tabs, optional name fields, password visibility toggle and inline validation.
 - `invite-member-dialog`: Invite-member dialog: email and role fields with inline validation, Cancel / Invite footer.
-- `create-wizard`: "identifier" options become the preview's text field; the rest render as provider buttons.
-- `integration-cards`: Secondary line under the name, usually the partner's domain.
-- `feature-upsell`: Illustration for the 244×151 card; `active` is true for the centered card.
-- `callout`: Inline notice for page-level context ("Use this development instance for test users…").
-- `empty-state`: Centered empty state: icon tile, title, supporting copy and optional actions. Sits inside a card or table body.
+- `create-wizard`: Two-step create flow (type cards and name, then toggleable options) with a live preview on the right.
+- `integration-cards`: Responsive grid of integration cards with an optional "request an integration" callout.
+- `feature-upsell`: "Turn on a feature" panel: a feature carousel with illustrations and an enable button, which swaps to an empty state with a turn-off action once enabled.
+- `banner`: Full-width notice strip for page or section state (trial ending, sending paused, verification needed).
+- `callout`: Inline notice for page-level context ("Use this sandbox for test data; switch to live when you're ready.").
+- `empty-state`: Centered empty state: icon tile, title, supporting copy and optional actions.
 
 **Auth and account**
 
 - `auth-page`: Full-page auth layout: soft centered glow on the canvas, a centered card slot and a copyright/links footer.
-- `auth-sign-in`: Glyph shown before the label. Defaults to a monogram of the label.
-- `auth-sign-up`: Sign-up card: logo, provider buttons, email and password (with show/hide), primary continue and a link to sign in.
+- `auth-sign-in`: Sign-in card: optional logo, provider buttons, email field, primary continue, an optional alternative method and a link to sign up.
+- `auth-sign-up`: Sign-up card: optional logo, provider buttons, email and password (with show/hide), primary continue and a link to sign in.
 - `auth-waitlist`: Waitlist card: email field and a join button, swapping to a confirmation once submitted.
-- `account-menu`: The menu body on its own: user summary, manage/sign-out actions, other signed-in accounts and "Add account".
-- `account-profile`: Settings shell: title and vertical nav on the muted rail, the active section in a white panel. Nav scrolls horizontally on narrow screens.
-- `workspace-switcher`: Your role in it ("Admin", "Member"). Omit for a personal workspace.
-- `members-card`: ISO date, formatted deterministically.
-- `api-keys-card`: Visible prefix, e.g. "ak_live_".
+- `account-menu`: Avatar button that opens an account dropdown menu: user summary, "Manage account" and "Sign out", other signed-in accounts to switch to, "Add account" and an optional confirmed "Sign out of all accounts".
+- `account-profile`: Account settings panel with a sidebar nav and a Profile section (avatar and name, email addresses, linked sign-in accounts).
+- `workspace-switcher`: Workspace switcher: a compact trigger showing the active workspace that opens a dropdown menu.
+- `members-card`: Workspace members: Members/Invitations tabs, search, invite dialog, and a table with per-member role select and an actions menu.
+- `api-keys-card`: API keys list with masked values, copy, revoke (with confirmation) and a create dialog that reveals the new secret once.
 
 **Marketing**
 
-- `site-header`: Default logo: a round mark and a lowercase wordmark. Pass your own through `logo`.
-- `hero-section`: Pill that copies a prompt to the clipboard: stacked bubbles, label and a copy glyph that swaps to a check.
-- `feature-grid`: Small label above a section title.
-- `pricing-plans`: Per-month prices; leave both `null` for a free or custom plan and set `label` ("Free", "Custom").
-- `testimonials-section`: True when the viewer asked for reduced motion; false during server render.
-- `faq-section`: Accordion list of questions, one open at a time. Use inside your own section layout.
-- `cta-section`: Large round mark used as the card's decorative art.
-- `site-footer`: One dotted hairline that runs past its box by 1.25rem and fades out at both ends.
+- `site-header`: Floating sticky marketing header: optional announcement bar, logo slot, mega-menu navigation, sign-in/sign-up actions and a phone menu.
+- `hero-section`: Marketing hero: headline, supporting copy, a primary CTA beside a copy-to-clipboard pill, and an optional logo cloud.
+- `feature-grid`: Feature section: eyebrow, title and body, a bento grid of feature cards, and an optional badge row.
+- `pricing-plans`: Pricing section: title, monthly/annual toggle and a responsive grid of plan cards.
+- `testimonials-section`: Testimonials: heading, an optional action, a rotating featured quote and a grid of quote cards.
+- `faq-section`: FAQ section: title on the left, accordion of questions on the right.
+- `cta-section`: Closing call-to-action card: title, short pitch and actions over soft line art.
+- `site-footer`: Marketing footer: framed logo, link columns, social links and a legal line.
+
+Blocks ship no demo data: every data prop (rows, members, plans, nav items…) is passed in, and the gallery demos live in the Vellum repo under `components/examples/blocks/`. Blocks that render links take `linkComponent` (defaults to `"a"`), so an Inertia or React Router app can pass its own `Link`:
+
+```tsx
+import { Link } from "@inertiajs/react"
+<DashboardShell linkComponent={Link} nav={nav} activeHref={url}>{children}</DashboardShell>
+```
 
 ## For AI agents
 

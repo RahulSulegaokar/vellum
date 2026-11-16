@@ -7,8 +7,8 @@
     "react-day-picker"
   ],
   "registryDependencies": [
-    "RahulSulegaokar/vellum/button",
-    "RahulSulegaokar/vellum/vellum-theme",
+    "RahulSulegaokar/vellum/button#v0.3.0",
+    "RahulSulegaokar/vellum/vellum-theme#v0.3.0",
     "utils"
   ],
   "files": [

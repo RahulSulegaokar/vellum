@@ -1,6 +1,6 @@
 "use client"
 
-import { useTheme } from "next-themes"
+import { useTheme } from "@/hooks/use-theme"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 import {
   CircleCheckIcon,
@@ -11,12 +11,12 @@ import {
 } from "lucide-react"
 
 const Toaster = ({ ...props }: ToasterProps) => {
-  // app/layout.tsx forces the light theme; fall back to light (not the OS theme) if the provider is ever absent.
-  const { theme = "light" } = useTheme()
+  // Follows the `dark` class on <html>; pass `theme` to override. No next-themes dependency.
+  const theme = useTheme()
 
   return (
     <Sonner
-      theme={theme as ToasterProps["theme"]}
+      theme={theme}
       className="toaster group"
       icons={{
         success: <CircleCheckIcon className="size-4 text-success" />,

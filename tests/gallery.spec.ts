@@ -5,9 +5,9 @@ const names = readdirSync("components/examples")
   .filter((f) => f.endsWith("-example.tsx"))
   .map((f) => f.replace(/-example\.tsx$/, ""))
 
-const blockNames = readdirSync("components/blocks")
-  .filter((f) => f.endsWith(".tsx"))
-  .map((f) => f.replace(/\.tsx$/, ""))
+const blockNames = readdirSync("components/examples/blocks")
+  .filter((f) => f.endsWith("-example.tsx"))
+  .map((f) => f.replace(/-example\.tsx$/, ""))
 
 const pages = [...names.map((n) => ({ name: n, path: `/components/${n}` })), ...blockNames.map((n) => ({ name: `block-${n}`, path: `/blocks/${n}` }))]
 

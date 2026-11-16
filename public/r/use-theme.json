@@ -1,0 +1,13 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "use-theme",
+  "title": "Use Theme",
+  "files": [
+    {
+      "path": "hooks/use-theme.ts",
+      "content": "import * as React from \"react\"\n\n/**\n * Framework-free theme reader: \"dark\" when <html> has the `dark` class, otherwise \"light\".\n * Follows class changes made by any theme switcher (next-themes, a Laravel/Inertia toggle, plain JS).\n */\nfunction subscribe(onChange: () => void) {\n  const observer = new MutationObserver(onChange)\n  observer.observe(document.documentElement, { attributes: true, attributeFilter: [\"class\"] })\n  return () => observer.disconnect()\n}\n\nexport function useTheme(): \"light\" | \"dark\" {\n  return React.useSyncExternalStore(\n    subscribe,\n    () => (document.documentElement.classList.contains(\"dark\") ? \"dark\" : \"light\"),\n    () => \"light\"\n  )\n}\n",
+      "type": "registry:hook"
+    }
+  ],
+  "type": "registry:hook"
+}

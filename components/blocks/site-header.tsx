@@ -1,7 +1,9 @@
 "use client"
 
+/** Floating sticky marketing header: announcement bar, logo slot, mega-menu navigation, auth links and a phone menu. */
+
 import * as React from "react"
-import { BookOpenIcon, BoxesIcon, KeyRoundIcon, LayersIcon, PlugIcon, ShieldCheckIcon, TerminalIcon, UsersIcon } from "lucide-react"
+import { ChevronDownIcon, MenuIcon, PlayIcon, XIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
   NavigationMenu,
@@ -23,32 +25,26 @@ const ease = "transition-[color,background-color,border-color,box-shadow] durati
 const arrowMotion = "transition duration-300 ease-[cubic-bezier(0.4,0.36,0,1)]"
 
 function Triangle({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 10 10" aria-hidden="true" className={cn("size-2.5 flex-none", className)}>
-      <path fill="currentColor" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="m7.25 5-3.5-2.25v4.5L7.25 5Z" />
-    </svg>
-  )
-}
-
-/** Default logo: a round mark and a lowercase wordmark. Pass your own through `logo`. */
-export function AcmeLogo({ name = "Acme", href = "#home", className }: { name?: string; href?: string; className?: string }) {
-  return (
-    <a href={href} className={cn("inline-flex items-center gap-1.5 text-[1.0625rem] font-semibold tracking-[-0.03em] text-foreground", className)}>
-      <svg viewBox="0 0 24 24" aria-hidden="true" className="size-4.5">
-        <circle cx="12" cy="12" r="10" className="fill-foreground" />
-        <path d="M7.5 15.5 12 7l4.5 8.5" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="stroke-background" />
-      </svg>
-      {name.toLowerCase()}
-    </a>
-  )
+  return <PlayIcon aria-hidden="true" className={cn("size-2.5 flex-none fill-current", className)} />
 }
 
 /** Dark strip above the header; skewed side panels and a sliding arrow on hover. */
-export function AnnouncementBar({ text, cta, href, className }: SiteAnnouncement & { className?: string }) {
+export function AnnouncementBar({
+  text,
+  cta,
+  href,
+  linkComponent,
+  className,
+}: SiteAnnouncement & {
+  /** Element or component used for the link, e.g. your router's `Link`. Defaults to `"a"`. */
+  linkComponent?: React.ElementType
+  className?: string
+}) {
+  const Link = linkComponent ?? "a"
   const side =
     "relative -my-2 grow overflow-hidden before:absolute before:inset-0 before:-translate-y-[calc(100%-0.625rem)] before:rounded before:border-background/15 before:bg-background/8"
   return (
-    <a
+    <Link
       href={href}
       className={cn(
         "group relative z-10 flex w-full gap-x-4 bg-foreground py-2 text-sm font-medium whitespace-nowrap text-background outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-inset",
@@ -64,7 +60,7 @@ export function AnnouncementBar({ text, cta, href, className }: SiteAnnouncement
         <Triangle className={cn("-ml-2.5 -translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100", arrowMotion)} />
       </span>
       <div aria-hidden="true" className={cn(side, "before:ml-8 before:skew-x-45 before:border-b before:border-l")} />
-    </a>
+    </Link>
   )
 }
 
@@ -103,10 +99,12 @@ function MobileSection({
   item,
   defaultOpen,
   onNavigate,
+  linkComponent: Link,
 }: {
   item: Extract<SiteNavItem, { groups: SiteNavGroup[] }>
   defaultOpen?: boolean
   onNavigate: () => void
+  linkComponent: React.ElementType
 }) {
   const [open, setOpen] = React.useState(!!defaultOpen)
   const id = React.useId()
@@ -120,9 +118,7 @@ function MobileSection({
         className="group flex w-full items-center justify-between border-t border-edge/6 py-3 pr-1.25 text-lg/6 font-medium text-foreground outline-none group-first/item:border-t-0 focus-visible:ring-2 focus-visible:ring-brand/40"
       >
         {item.label}
-        <svg viewBox="0 0 10 10" aria-hidden="true" fill="none" className="size-2.5 text-subtle transition-transform group-aria-expanded:rotate-180 group-aria-expanded:text-foreground">
-          <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M1.75 3.75 5 7.25l3.25-3.5" />
-        </svg>
+        <ChevronDownIcon aria-hidden="true" className="size-3.5 text-subtle transition-transform group-aria-expanded:rotate-180 group-aria-expanded:text-foreground" />
       </button>
       <div id={id} hidden={!open} className="space-y-6 pt-3 pb-6">
         {item.groups.map((group) => (
@@ -131,7 +127,7 @@ function MobileSection({
             <ul className="flex flex-col gap-y-4">
               {group.items.map((link) => (
                 <li key={link.title}>
-                  <a href={link.href} onClick={onNavigate} className="group/link flex items-center gap-x-3 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-brand/40">
+                  <Link href={link.href} onClick={onNavigate} className="group/link flex items-center gap-x-3 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-brand/40">
                     {link.icon && (
                       <span className="flex size-8 flex-none items-center justify-center rounded-md bg-surface text-foreground shadow-surface ring-1 ring-hairline [&_svg]:size-4">
                         {link.icon}
@@ -143,7 +139,7 @@ function MobileSection({
                         <span className="block text-xs/4 text-muted-foreground transition-colors group-hover/link:text-foreground">{link.description}</span>
                       )}
                     </span>
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -157,29 +153,39 @@ function MobileSection({
 /**
  * Floating sticky marketing header: optional announcement bar, logo slot, mega-menu navigation,
  * sign-in/sign-up actions and a phone menu. `tone="dark"` swaps it to dark tokens.
+ *
+ * Every link (announcement, nav, mega-menu, mobile menu, auth actions) renders through `linkComponent`,
+ * which defaults to `"a"`. Pass your router's `Link` (Next.js, Inertia, React Router…) to get client-side navigation.
+ * The auth actions render only when their `href` is set.
  */
 export function SiteHeader({
-  nav = defaultNav,
-  announcement = defaultAnnouncement,
-  logo = <AcmeLogo />,
-  signInHref = "#sign-in",
-  signUpHref = "#sign-up",
+  nav = [],
+  announcement,
+  logo,
+  signInHref,
+  signUpHref,
   signInLabel = "Sign in",
   signUpLabel = "Sign up",
+  linkComponent,
   tone = "light",
   className,
 }: {
   nav?: SiteNavItem[]
-  /** Pass `null` to hide the bar. */
+  /** Omit or pass `null` to hide the bar. */
   announcement?: SiteAnnouncement | null
+  /** Your brand mark, usually a link home. Nothing renders when omitted. */
   logo?: React.ReactNode
   signInHref?: string
   signUpHref?: string
   signInLabel?: string
   signUpLabel?: string
+  /** Element or component used for every link, e.g. your router's `Link`. Defaults to `"a"`. */
+  linkComponent?: React.ElementType
   tone?: "light" | "dark"
   className?: string
 }) {
+  const Link = linkComponent ?? "a"
+  const hasAuth = Boolean(signInHref || signUpHref)
   const [open, setOpen] = React.useState(false)
   const headerRef = React.useRef<HTMLElement>(null)
   const toggleRef = React.useRef<HTMLButtonElement>(null)
@@ -224,7 +230,7 @@ export function SiteHeader({
 
   return (
     <>
-      {announcement && <AnnouncementBar {...announcement} />}
+      {announcement && <AnnouncementBar {...announcement} linkComponent={Link} />}
       <header ref={headerRef} data-tone={tone} className={cn("sticky top-2 isolate z-50 mt-2 h-fit w-full", tone === "dark" && "dark", className)}>
         <div className="relative z-40">
           <ProgressiveBlur />
@@ -235,10 +241,12 @@ export function SiteHeader({
               "[@media(width<22.5rem)]:h-10.5"
             )}
           >
-            <div className="flex items-center gap-x-3 select-none">
-              {logo}
-              <div aria-hidden="true" className="hidden h-6.5 w-px bg-edge/12 md:block" />
-            </div>
+            {logo && (
+              <div className="flex items-center gap-x-3 select-none">
+                {logo}
+                <div aria-hidden="true" className="hidden h-6.5 w-px bg-edge/12 md:block" />
+              </div>
+            )}
 
             <NavigationMenu className="ml-3 hidden md:flex">
               <NavigationMenuList className="group/nav">
@@ -255,7 +263,7 @@ export function SiteHeader({
                                 <ul className="grid gap-0.5">
                                   {group.items.map((link) => (
                                     <li key={link.title}>
-                                      <NavigationMenuLink href={link.href} className="items-start gap-2.5 px-2 py-1.5">
+                                      <NavigationMenuLink render={<Link href={link.href} />} className="items-start gap-2.5 px-2 py-1.5">
                                         {link.icon && <span className="mt-0.5 flex-none text-subtle [&_svg]:size-4">{link.icon}</span>}
                                         <span className="flex flex-col gap-0.5">
                                           <span className="text-[0.8125rem] font-medium text-foreground">{link.title}</span>
@@ -271,7 +279,7 @@ export function SiteHeader({
                         </NavigationMenuContent>
                       </>
                     ) : (
-                      <NavigationMenuLink href={item.href} className={cn(navText, "rounded-md p-0 px-2 hover:bg-transparent focus:bg-transparent")}>
+                      <NavigationMenuLink render={<Link href={item.href} />} className={cn(navText, "rounded-md p-0 px-2 hover:bg-transparent focus:bg-transparent")}>
                         {item.label}
                       </NavigationMenuLink>
                     )}
@@ -281,13 +289,17 @@ export function SiteHeader({
             </NavigationMenu>
 
             <div className="ml-auto flex items-center [@media(width<22.5rem)]:hidden">
-              <Button variant="ghost" size="compact-sm" nativeButton={false} render={<a href={signInHref} />} className="h-6.5 px-2.5 text-[0.8125rem]">
-                {signInLabel}
-              </Button>
-              <div aria-hidden="true" className="mx-1 h-3.5 w-px bg-edge/12" />
-              <Button variant="ghost" size="compact-sm" nativeButton={false} render={<a href={signUpHref} />} className="h-6.5 px-2.5 text-[0.8125rem]">
-                {signUpLabel}
-              </Button>
+              {signInHref && (
+                <Button variant="ghost" size="compact-sm" nativeButton={false} render={<Link href={signInHref} />} className="h-6.5 px-2.5 text-[0.8125rem]">
+                  {signInLabel}
+                </Button>
+              )}
+              {signInHref && signUpHref && <div aria-hidden="true" className="mx-1 h-3.5 w-px bg-edge/12" />}
+              {signUpHref && (
+                <Button variant="ghost" size="compact-sm" nativeButton={false} render={<Link href={signUpHref} />} className="h-6.5 px-2.5 text-[0.8125rem]">
+                  {signUpLabel}
+                </Button>
+              )}
             </div>
 
             <button
@@ -302,13 +314,7 @@ export function SiteHeader({
                 "relative flex size-10.5 items-center justify-center rounded-r-xl text-subtle outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-inset md:hidden [@media(width<22.5rem)]:ml-auto"
               )}
             >
-              <svg viewBox="0 0 16 16" fill="none" className="size-4" aria-hidden="true">
-                {open ? (
-                  <path stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" d="M4 4l8 8M12 4l-8 8" />
-                ) : (
-                  <path stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" d="M4 4.667h8M4 11.333h8" />
-                )}
-              </svg>
+              {open ? <XIcon aria-hidden="true" className="size-4" strokeWidth={1.5} /> : <MenuIcon aria-hidden="true" className="size-4" strokeWidth={1.5} />}
             </button>
           </div>
         </div>
@@ -320,93 +326,40 @@ export function SiteHeader({
                 <ul role="list" className="mb-10">
                   {nav.map((item, i) =>
                     "groups" in item ? (
-                      <MobileSection key={item.label} item={item} defaultOpen={i === 0} onNavigate={close} />
+                      <MobileSection key={item.label} item={item} defaultOpen={i === 0} onNavigate={close} linkComponent={Link} />
                     ) : (
                       <li key={item.label} className="group/item">
-                        <a
+                        <Link
                           href={item.href}
                           onClick={close}
                           className="block border-t border-edge/6 py-2 text-[1.0625rem]/6 font-medium text-foreground outline-none group-first/item:border-t-0 focus-visible:ring-2 focus-visible:ring-brand/40"
                         >
                           {item.label}
-                        </a>
+                        </Link>
                       </li>
                     )
                   )}
                 </ul>
                 {/* Below 360px the header hides its auth links, so they move here. */}
-                <div className="grid w-full grid-cols-2 gap-x-6 [@media(width>=22.5rem)]:hidden">
-                  <Button variant="elevated" nativeButton={false} render={<a href={signInHref} onClick={close} />}>
-                    {signInLabel}
-                  </Button>
-                  <Button nativeButton={false} render={<a href={signUpHref} onClick={close} />}>
-                    {signUpLabel}
-                  </Button>
-                </div>
+                {hasAuth && (
+                  <div className="grid w-full grid-cols-2 gap-x-6 [@media(width>=22.5rem)]:hidden">
+                    {signInHref && (
+                      <Button variant="elevated" nativeButton={false} render={<Link href={signInHref} onClick={close} />}>
+                        {signInLabel}
+                      </Button>
+                    )}
+                    {signUpHref && (
+                      <Button nativeButton={false} render={<Link href={signUpHref} onClick={close} />}>
+                        {signUpLabel}
+                      </Button>
+                    )}
+                  </div>
+                )}
               </nav>
             </div>
           </div>
         )}
       </header>
     </>
-  )
-}
-
-const defaultAnnouncement: SiteAnnouncement = {
-  text: "Acme 3.0 is here: faster builds, preview environments and a new CLI",
-  cta: "Read the release notes",
-  href: "#changelog",
-}
-
-const defaultNav: SiteNavItem[] = [
-  {
-    label: "Product",
-    groups: [
-      {
-        title: "Platform",
-        items: [
-          { title: "Accounts", description: "Sign-up, sign-in and profiles", href: "#accounts", icon: <UsersIcon /> },
-          { title: "Access control", description: "Roles, permissions and policies", href: "#access", icon: <ShieldCheckIcon /> },
-          { title: "API keys", description: "Issue and rotate machine credentials", href: "#keys", icon: <KeyRoundIcon /> },
-        ],
-      },
-      {
-        title: "Build",
-        items: [
-          { title: "Workspaces", description: "Group members and applications", href: "#workspaces", icon: <LayersIcon /> },
-          { title: "Integrations", description: "Connect the tools you already use", href: "#integrations", icon: <PlugIcon /> },
-          { title: "Components", description: "Drop-in UI for common flows", href: "#components", icon: <BoxesIcon /> },
-        ],
-      },
-    ],
-  },
-  {
-    label: "Developers",
-    groups: [
-      {
-        title: "Resources",
-        items: [
-          { title: "Documentation", description: "Guides and API reference", href: "#docs", icon: <BookOpenIcon /> },
-          { title: "CLI", description: "Manage applications from the terminal", href: "#cli", icon: <TerminalIcon /> },
-        ],
-      },
-    ],
-  },
-  { label: "Pricing", href: "#pricing" },
-  { label: "Changelog", href: "#changelog" },
-  { label: "Blog", href: "#blog" },
-]
-
-export default function SiteHeaderDemo() {
-  return (
-    <div className="min-h-[150vh] bg-background">
-      <SiteHeader />
-      <div className="mx-auto max-w-5xl p-6 pt-24 sm:p-10 sm:pt-32">
-        <h1 className="text-3xl font-semibold tracking-tight text-balance text-foreground sm:text-5xl">Scroll to see the header float</h1>
-        <p className="mt-4 max-w-xl text-base/6 text-muted-foreground">
-          The bar stays pinned near the top with a soft blur behind it. Open a menu to see the mega-menu, or narrow the window for the phone menu.
-        </p>
-      </div>
-    </div>
   )
 }

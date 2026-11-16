@@ -1,3 +1,4 @@
+/** FAQ section: title on the left, an accordion of questions on the right. */
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { cn } from "@/lib/utils"
 
@@ -23,13 +24,13 @@ export function FaqList({ items, className }: { items: FaqItem[]; className?: st
 export function FaqSection({
   title = "Frequently asked questions",
   description,
-  items = defaultItems,
+  items,
   tone = "light",
   className,
 }: {
   title?: React.ReactNode
   description?: React.ReactNode
-  items?: FaqItem[]
+  items: FaqItem[]
   tone?: "light" | "dark"
   className?: string
 }) {
@@ -43,36 +44,5 @@ export function FaqSection({
         <FaqList items={items} className="min-w-0 lg:-mt-6" />
       </div>
     </section>
-  )
-}
-
-const defaultItems: FaqItem[] = [
-  {
-    q: "What counts as a monthly active user?",
-    a: "Anyone who signs in or refreshes a session during the billing month. Users who only exist in your directory don't count.",
-  },
-  {
-    q: "Can I try paid features before upgrading?",
-    a: "Yes. Every development instance has all features unlocked, so you can build and test before you choose a plan.",
-  },
-  {
-    q: "Do you offer discounts for startups and nonprofits?",
-    a: "We do. Teams under two years old or registered nonprofits can apply for a year of credits from the billing page.",
-  },
-  {
-    q: "How do I move existing users to Acme?",
-    a: "Import them with the CLI or the API. Passwords hashed with common algorithms move over without a reset.",
-  },
-  {
-    q: "Where is my data stored?",
-    a: "You can pick a region when you create an application. Data stays in that region, including backups.",
-  },
-]
-
-export default function FaqSectionDemo() {
-  return (
-    <div className="mx-auto max-w-5xl p-6 sm:p-10">
-      <FaqSection />
-    </div>
   )
 }

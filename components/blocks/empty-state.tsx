@@ -1,5 +1,4 @@
 import { InboxIcon } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 /** Centered empty state: icon tile, title, supporting copy and optional actions. Sits inside a card or table body. */
@@ -24,25 +23,6 @@ export function EmptyState({
         {description && <div className="max-w-120 text-sm/5 text-balance text-subtle">{description}</div>}
       </div>
       {actions && <div className="flex items-center gap-2">{actions}</div>}
-    </div>
-  )
-}
-
-export default function EmptyStateDemo() {
-  return (
-    <div className="mx-auto max-w-2xl p-10">
-      <div className="rounded-xl bg-surface shadow-card">
-        <EmptyState
-          title="No users yet"
-          description="Create a user or import existing ones to get started."
-          actions={
-            <>
-              <Button variant="elevated" size="compact">Import</Button>
-              <Button variant="primary" size="compact">Create user</Button>
-            </>
-          }
-        />
-      </div>
     </div>
   )
 }

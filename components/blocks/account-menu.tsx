@@ -2,9 +2,27 @@
 
 import * as React from "react"
 import { LogOutIcon, PlusIcon, SettingsIcon } from "lucide-react"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 
@@ -28,60 +46,129 @@ function UserAvatar({ user, size = "default", className }: { user: AccountUser; 
   return (
     <Avatar size={size} className={className}>
       {user.imageUrl && <AvatarImage src={user.imageUrl} alt="" />}
-      <AvatarFallback className="bg-solid text-xs font-semibold text-solid-foreground">{initials(user.name)}</AvatarFallback>
+      <AvatarFallback className="text-xs font-semibold">{initials(user.name)}</AvatarFallback>
     </Avatar>
   )
 }
 
-/** The menu body on its own: user summary, manage/sign-out actions, other signed-in accounts and "Add account". */
-export function AccountMenuPanel({
-  user,
-  otherAccounts = [],
-  manageLabel = "Manage account",
-  signOutLabel = "Sign out",
-  addAccountLabel = "Add account",
-  onManageAccount,
-  onSignOut,
-  onSwitchAccount,
-  onAddAccount,
-  className,
-}: {
+function AccountSummary({ user }: { user: AccountUser }) {
+  return (
+    <div className="flex min-w-0 items-center gap-4">
+      <UserAvatar user={user} size="lg" />
+      <div className="min-w-0">
+        <div className="truncate text-[0.8125rem]/[1.125rem] font-medium tracking-[-0.01em] text-foreground">{user.name}</div>
+        <div className="truncate text-xs text-muted-foreground">{user.email}</div>
+      </div>
+    </div>
+  )
+}
+
+type SignOutAllCopy = {
+  /** Shows a "Sign out of all accounts" action, confirmed in a dialog. Omit to hide it. */
+  onSignOutAll?: () => void
+  signOutAllLabel?: string
+  signOutAllTitle?: string
+  signOutAllDescription?: string
+  cancelLabel?: string
+}
+
+function SignOutAllDialog({
+  open,
+  onOpenChange,
+  onSignOutAll,
+  signOutAllLabel = "Sign out of all accounts",
+  signOutAllTitle = "Sign out of all accounts?",
+  signOutAllDescription = "Every account on this device will be signed out. You'll need to sign in to each one again.",
+  cancelLabel = "Cancel",
+}: SignOutAllCopy & { open: boolean; onOpenChange: (open: boolean) => void }) {
+  return (
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{signOutAllTitle}</AlertDialogTitle>
+          <AlertDialogDescription>{signOutAllDescription}</AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel variant="elevated" size="compact">
+            {cancelLabel}
+          </AlertDialogCancel>
+          <AlertDialogAction
+            size="compact"
+            className="bg-destructive-strong text-destructive-foreground hover:bg-destructive-strong/90"
+            onClick={() => {
+              onOpenChange(false)
+              onSignOutAll?.()
+            }}
+          >
+            {signOutAllLabel}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  )
+}
+
+type AccountMenuProps = SignOutAllCopy & {
   user: AccountUser
-  /** Other signed-in sessions to switch to. */
+  /** Other signed-in accounts to switch to. */
   otherAccounts?: AccountUser[]
   manageLabel?: string
   signOutLabel?: string
   addAccountLabel?: string
+  switchAccountLabel?: string
+  /** Omit to hide the "Manage account" action. */
   onManageAccount?: () => void
   onSignOut?: () => void
   onSwitchAccount?: (id: string) => void
   /** Omit to hide the "Add account" row. */
   onAddAccount?: () => void
   className?: string
-}) {
+}
+
+/**
+ * The account panel on its own, for inline use (a sheet, a settings page): user summary, manage/sign-out buttons,
+ * other signed-in accounts and "Add account". Use `AccountMenu` for the avatar-triggered dropdown.
+ */
+export function AccountMenuPanel({
+  user,
+  otherAccounts = [],
+  manageLabel = "Manage account",
+  signOutLabel = "Sign out",
+  addAccountLabel = "Add account",
+  switchAccountLabel = "Switch account",
+  onManageAccount,
+  onSignOut,
+  onSwitchAccount,
+  onAddAccount,
+  className,
+  ...signOutAll
+}: AccountMenuProps) {
+  const [confirmOpen, setConfirmOpen] = React.useState(false)
   return (
     <div data-slot="account-menu-panel" className={cn("flex flex-col", className)}>
-      <div className="flex items-center gap-4 px-5 pt-4 pb-3">
-        <UserAvatar user={user} size="lg" />
-        <div className="min-w-0">
-          <div className="truncate text-[0.8125rem]/[1.125rem] font-medium tracking-[-0.01em] text-foreground">{user.name}</div>
-          <div className="truncate text-xs text-muted-foreground">{user.email}</div>
+      <div className={cn("px-5 pt-4", onManageAccount || onSignOut ? "pb-3" : "pb-4")}>
+        <AccountSummary user={user} />
+      </div>
+      {(onManageAccount || onSignOut) && (
+        <div className="flex flex-wrap gap-2 pr-5 pb-4 pl-19">
+          {onManageAccount && (
+            <Button variant="elevated" size="compact-sm" onClick={onManageAccount}>
+              <SettingsIcon className="size-3.5" aria-hidden="true" />
+              {manageLabel}
+            </Button>
+          )}
+          {onSignOut && (
+            <Button variant="elevated" size="compact-sm" className="flex-1" onClick={onSignOut}>
+              <LogOutIcon className="size-3.5" aria-hidden="true" />
+              {signOutLabel}
+            </Button>
+          )}
         </div>
-      </div>
-      <div className="flex gap-2 pr-5 pb-4 pl-19">
-        <Button variant="elevated" size="compact-sm" onClick={onManageAccount}>
-          <SettingsIcon className="size-3.5" aria-hidden="true" />
-          {manageLabel}
-        </Button>
-        <Button variant="elevated" size="compact-sm" className="flex-1" onClick={onSignOut}>
-          <LogOutIcon className="size-3.5" aria-hidden="true" />
-          {signOutLabel}
-        </Button>
-      </div>
+      )}
       {otherAccounts.length > 0 && (
         <>
           <Separator className="bg-edge/6" />
-          <ul className="flex flex-col p-1" aria-label="Other accounts">
+          <ul className="flex flex-col p-1" aria-label={switchAccountLabel}>
             {otherAccounts.map((a) => (
               <li key={a.id}>
                 <button
@@ -94,7 +181,7 @@ export function AccountMenuPanel({
                   </span>
                   <span className="min-w-0">
                     <span className="block truncate text-[0.8125rem]/[1.125rem] font-medium text-foreground">{a.name}</span>
-                    <span className="block truncate text-xs text-subtle">{a.email}</span>
+                    <span className="block truncate text-xs text-muted-foreground">{a.email}</span>
                   </span>
                 </button>
               </li>
@@ -102,74 +189,140 @@ export function AccountMenuPanel({
           </ul>
         </>
       )}
-      {onAddAccount && (
+      {(onAddAccount || signOutAll.onSignOutAll) && (
         <>
           <Separator className="bg-edge/6" />
-          <div className="p-1">
-            <button
-              type="button"
-              onClick={onAddAccount}
-              className="flex h-10 w-full items-center gap-4 rounded-md px-4 text-[0.8125rem] font-medium text-muted-foreground outline-none hover:bg-surface-muted hover:text-foreground focus-visible:bg-surface-muted focus-visible:ring-2 focus-visible:ring-brand/40"
-            >
-              <span className="flex w-10 justify-center">
-                <span className="grid size-6 place-items-center rounded-full border border-dashed border-edge/20 bg-surface-muted">
-                  <PlusIcon className="size-3" aria-hidden="true" />
+          <div className="flex flex-col p-1">
+            {onAddAccount && (
+              <button
+                type="button"
+                onClick={onAddAccount}
+                className="flex h-10 w-full items-center gap-4 rounded-md px-4 text-[0.8125rem] font-medium text-muted-foreground outline-none hover:bg-surface-muted hover:text-foreground focus-visible:bg-surface-muted focus-visible:ring-2 focus-visible:ring-brand/40"
+              >
+                <span className="flex w-10 justify-center">
+                  <span className="grid size-6 place-items-center rounded-full border border-dashed border-edge/20 bg-surface-muted">
+                    <PlusIcon className="size-3" aria-hidden="true" />
+                  </span>
                 </span>
-              </span>
-              {addAccountLabel}
-            </button>
+                {addAccountLabel}
+              </button>
+            )}
+            {signOutAll.onSignOutAll && (
+              <button
+                type="button"
+                onClick={() => setConfirmOpen(true)}
+                className="flex h-10 w-full items-center gap-4 rounded-md px-4 text-[0.8125rem] font-medium text-destructive-text outline-none hover:bg-destructive/6 focus-visible:bg-destructive/6 focus-visible:ring-2 focus-visible:ring-brand/40"
+              >
+                <span className="flex w-10 justify-center">
+                  <LogOutIcon className="size-3.5" aria-hidden="true" />
+                </span>
+                {signOutAll.signOutAllLabel ?? "Sign out of all accounts"}
+              </button>
+            )}
           </div>
+          <SignOutAllDialog open={confirmOpen} onOpenChange={setConfirmOpen} {...signOutAll} />
         </>
       )}
     </div>
   )
 }
 
-/** Avatar button that opens an account popover with the user summary and "Manage account" / "Sign out" actions. */
+/**
+ * Avatar button that opens an account dropdown menu: user summary, "Manage account" and "Sign out",
+ * other signed-in accounts to switch to, "Add account" and an optional confirmed "Sign out of all accounts".
+ */
 export function AccountMenu({
+  user,
+  otherAccounts = [],
+  manageLabel = "Manage account",
+  signOutLabel = "Sign out",
+  addAccountLabel = "Add account",
+  switchAccountLabel = "Switch account",
+  onManageAccount,
+  onSignOut,
+  onSwitchAccount,
+  onAddAccount,
   defaultOpen,
   align = "end",
-  ...props
-}: React.ComponentProps<typeof AccountMenuPanel> & {
+  className,
+  ...signOutAll
+}: AccountMenuProps & {
   defaultOpen?: boolean
   align?: "start" | "center" | "end"
 }) {
-  const [open, setOpen] = React.useState(defaultOpen ?? false)
-  const close = <T extends unknown[]>(fn?: (...args: T) => void) => (...args: T) => {
-    setOpen(false)
-    fn?.(...args)
-  }
+  const [confirmOpen, setConfirmOpen] = React.useState(false)
+  const hasFooter = Boolean(onAddAccount || signOutAll.onSignOutAll)
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger
-        aria-label={`Open account menu for ${props.user.name}`}
-        className="rounded-full outline-none focus-visible:ring-3 focus-visible:ring-brand/40"
-      >
-        <UserAvatar user={props.user} className="size-7" />
-      </PopoverTrigger>
-      <PopoverContent align={align} sideOffset={8} className="w-90 max-w-[calc(100vw-2rem)] gap-0 p-0">
-        <AccountMenuPanel
-          {...props}
-          onManageAccount={close(props.onManageAccount)}
-          onSignOut={close(props.onSignOut)}
-          onSwitchAccount={close(props.onSwitchAccount)}
-          onAddAccount={props.onAddAccount && close(props.onAddAccount)}
-        />
-      </PopoverContent>
-    </Popover>
-  )
-}
-
-const demoUser: AccountUser = { id: "u_1", name: "Ada Park", email: "ada.park@example.com" }
-const demoOthers: AccountUser[] = [{ id: "u_2", name: "Ada Park (Work)", email: "ada@acme.example" }]
-
-export default function AccountMenuDemo() {
-  return (
-    <div className="min-h-96 w-full bg-background">
-      <header className="flex h-12 items-center justify-between border-b border-edge/6 bg-surface px-4 sm:px-6">
-        <span className="text-sm font-semibold text-foreground">Acme</span>
-        <AccountMenu defaultOpen user={demoUser} otherAccounts={demoOthers} onAddAccount={() => {}} />
-      </header>
-    </div>
+    <>
+      <DropdownMenu defaultOpen={defaultOpen}>
+        <DropdownMenuTrigger
+          aria-label={`Account menu for ${user.name}`}
+          className={cn("rounded-full outline-none focus-visible:ring-3 focus-visible:ring-brand/40", className)}
+        >
+          <UserAvatar user={user} className="size-7" />
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align={align} sideOffset={8} className="w-80 max-w-[calc(100vw-2rem)]">
+          <div className="px-2 pt-2 pb-2.5">
+            <AccountSummary user={user} />
+          </div>
+          {(onManageAccount || onSignOut) && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                {onManageAccount && (
+                  <DropdownMenuItem onClick={onManageAccount}>
+                    <SettingsIcon aria-hidden="true" />
+                    {manageLabel}
+                  </DropdownMenuItem>
+                )}
+                {onSignOut && (
+                  <DropdownMenuItem onClick={onSignOut}>
+                    <LogOutIcon aria-hidden="true" />
+                    {signOutLabel}
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuGroup>
+            </>
+          )}
+          {otherAccounts.length > 0 && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                <DropdownMenuLabel>{switchAccountLabel}</DropdownMenuLabel>
+                {otherAccounts.map((a) => (
+                  <DropdownMenuItem key={a.id} onClick={() => onSwitchAccount?.(a.id)} className="gap-3 py-1.5">
+                    <UserAvatar user={a} size="sm" />
+                    <span className="min-w-0">
+                      <span className="block truncate text-[0.8125rem]/[1.125rem] font-medium">{a.name}</span>
+                      <span className="block truncate text-xs text-muted-foreground">{a.email}</span>
+                    </span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuGroup>
+            </>
+          )}
+          {hasFooter && (
+            <>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                {onAddAccount && (
+                  <DropdownMenuItem onClick={onAddAccount}>
+                    <PlusIcon aria-hidden="true" />
+                    {addAccountLabel}
+                  </DropdownMenuItem>
+                )}
+                {signOutAll.onSignOutAll && (
+                  <DropdownMenuItem variant="destructive" onClick={() => setConfirmOpen(true)}>
+                    <LogOutIcon aria-hidden="true" />
+                    {signOutAll.signOutAllLabel ?? "Sign out of all accounts"}
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuGroup>
+            </>
+          )}
+        </DropdownMenuContent>
+      </DropdownMenu>
+      {signOutAll.onSignOutAll && <SignOutAllDialog open={confirmOpen} onOpenChange={setConfirmOpen} {...signOutAll} />}
+    </>
   )
 }

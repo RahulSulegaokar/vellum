@@ -1,6 +1,9 @@
 "use client"
 
+/** Testimonials section: heading, a rotating featured quote and a grid of quote cards. */
+
 import * as React from "react"
+import { QuoteIcon } from "lucide-react"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
 
@@ -28,7 +31,7 @@ const avatarTints = [
   "bg-solid text-solid-foreground",
   "bg-accent text-foreground",
   "bg-foreground text-background",
-  "bg-subtle text-background",
+  "bg-muted text-muted-foreground",
 ]
 
 const initials = (name: string) =>
@@ -66,12 +69,7 @@ export function FeaturedQuotes({ quotes, interval = 6000, className }: { quotes:
       onFocus={() => setPaused(true)}
       onBlur={() => setPaused(false)}
     >
-      <svg viewBox="0 0 32 32" aria-hidden="true" className="size-8 text-foreground/15">
-        <path
-          fill="currentColor"
-          d="M13 9.5c-4.4 1.6-7 5-7 9.6V23a2.5 2.5 0 0 0 2.5 2.5h3A2.5 2.5 0 0 0 14 23v-3a2.5 2.5 0 0 0-2.5-2.5H9.6c.4-2.6 2-4.4 4.4-5.4L13 9.5Zm12 0c-4.4 1.6-7 5-7 9.6V23a2.5 2.5 0 0 0 2.5 2.5h3A2.5 2.5 0 0 0 26 23v-3a2.5 2.5 0 0 0-2.5-2.5h-1.9c.4-2.6 2-4.4 4.4-5.4L25 9.5Z"
-        />
-      </svg>
+      <QuoteIcon aria-hidden="true" className="size-8 fill-current text-foreground/15" strokeWidth={1} />
       <div className="mt-4 grid">
         {quotes.map((q, i) => {
           const on = i === active
@@ -135,19 +133,21 @@ export function QuoteCard({ item, index = 0 }: { item: Testimonial; index?: numb
 
 /** Testimonials: heading, an optional action, a rotating featured quote and a grid of quote cards. `tone="dark"` for dark bands. */
 export function TestimonialsSection({
-  title = "Teams ship faster with Acme",
-  description = "From weekend projects to products with millions of users, builders rely on Acme for the parts every app needs.",
+  title,
+  description,
   action,
-  featured = defaultFeatured,
-  quotes = defaultQuotes,
+  featured = [],
+  quotes = [],
   tone = "light",
   className,
 }: {
-  title?: React.ReactNode
+  title: React.ReactNode
   description?: React.ReactNode
   /** Rendered under the description, e.g. a button or copy-prompt pill. */
   action?: React.ReactNode
+  /** Quotes that rotate under the heading. Hidden while empty. */
   featured?: Testimonial[]
+  /** Quote cards in the grid. Hidden while empty. */
   quotes?: Testimonial[]
   tone?: "light" | "dark"
   className?: string
@@ -169,43 +169,16 @@ export function TestimonialsSection({
             </>
           )}
         </div>
-        <ul role="list" className="mt-12 grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-0">
-          {quotes.map((q, i) => (
-            <li key={q.name} className="flex [&>figure]:flex-1">
-              <QuoteCard item={q} index={i + featured.length} />
-            </li>
-          ))}
-        </ul>
+        {quotes.length > 0 && (
+          <ul role="list" className="mt-12 grid flex-1 grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-0">
+            {quotes.map((q, i) => (
+              <li key={q.name} className="flex [&>figure]:flex-1">
+                <QuoteCard item={q} index={i + featured.length} />
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </section>
   )
-}
-
-const defaultFeatured: Testimonial[] = [
-  {
-    quote: "We replaced three internal services with Acme in a week. Our team finally works on the product instead of the plumbing.",
-    name: "Maya Lindqvist",
-    role: "CTO, Northwind Labs",
-  },
-  {
-    quote: "Workspaces and roles were exactly the model we had sketched on a whiteboard, already built and tested.",
-    name: "Daniel Okafor",
-    role: "Staff engineer, Halcyon",
-  },
-  {
-    quote: "The components look like they belong in our app. Customers never notice the seams.",
-    name: "Priya Raman",
-    role: "Design lead, Brightpath",
-  },
-]
-
-const defaultQuotes: Testimonial[] = [
-  { quote: "Setup took twenty minutes, most of which was picking a logo.", name: "Tom Becker", role: "Founder, Quarry" },
-  { quote: "Audit logs and SSO closed our first enterprise deal. That alone paid for the plan.", name: "Sofia Marin", role: "Head of product, Lumen" },
-  { quote: "The CLI makes preview environments trivial. Every pull request gets its own users.", name: "Ken Watanabe", role: "Platform engineer" },
-  { quote: "Docs are clear, examples run the first time, and support answers within the hour.", name: "Ada Mensah", role: "Indie developer" },
-]
-
-export default function TestimonialsSectionDemo() {
-  return <TestimonialsSection />
 }

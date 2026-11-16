@@ -2,19 +2,18 @@
   "$schema": "https://ui.shadcn.com/schema/registry-item.json",
   "name": "empty-state",
   "title": "Empty State",
-  "description": "Centered empty state: icon tile, title, supporting copy and optional actions. Sits inside a card or table body.",
+  "description": "Centered empty state: icon tile, title, supporting copy and optional actions.",
   "dependencies": [
     "lucide-react"
   ],
   "registryDependencies": [
-    "RahulSulegaokar/vellum/button",
-    "RahulSulegaokar/vellum/vellum-theme",
+    "RahulSulegaokar/vellum/vellum-theme#v0.3.0",
     "utils"
   ],
   "files": [
     {
       "path": "components/blocks/empty-state.tsx",
-      "content": "import { InboxIcon } from \"lucide-react\"\nimport { Button } from \"@/components/ui/button\"\nimport { cn } from \"@/lib/utils\"\n\n/** Centered empty state: icon tile, title, supporting copy and optional actions. Sits inside a card or table body. */\nexport function EmptyState({\n  icon = <InboxIcon className=\"size-5 text-subtle\" />,\n  title,\n  description,\n  actions,\n  className,\n}: {\n  icon?: React.ReactNode\n  title: string\n  description?: React.ReactNode\n  actions?: React.ReactNode\n  className?: string\n}) {\n  return (\n    <div data-slot=\"empty-state\" className={cn(\"flex flex-col items-center gap-4 p-10 text-center\", className)}>\n      <div className=\"flex size-12 items-center justify-center rounded-md bg-subtle/4 ring-1 ring-edge/8 ring-inset\">{icon}</div>\n      <div className=\"flex flex-col gap-1\">\n        <h3 className=\"text-[0.9375rem]/5 font-semibold text-balance text-foreground\">{title}</h3>\n        {description && <div className=\"max-w-120 text-sm/5 text-balance text-subtle\">{description}</div>}\n      </div>\n      {actions && <div className=\"flex items-center gap-2\">{actions}</div>}\n    </div>\n  )\n}\n\nexport default function EmptyStateDemo() {\n  return (\n    <div className=\"mx-auto max-w-2xl p-10\">\n      <div className=\"rounded-xl bg-surface shadow-card\">\n        <EmptyState\n          title=\"No users yet\"\n          description=\"Create a user or import existing ones to get started.\"\n          actions={\n            <>\n              <Button variant=\"elevated\" size=\"compact\">Import</Button>\n              <Button variant=\"primary\" size=\"compact\">Create user</Button>\n            </>\n          }\n        />\n      </div>\n    </div>\n  )\n}\n",
+      "content": "import { InboxIcon } from \"lucide-react\"\nimport { cn } from \"@/lib/utils\"\n\n/** Centered empty state: icon tile, title, supporting copy and optional actions. Sits inside a card or table body. */\nexport function EmptyState({\n  icon = <InboxIcon className=\"size-5 text-subtle\" />,\n  title,\n  description,\n  actions,\n  className,\n}: {\n  icon?: React.ReactNode\n  title: string\n  description?: React.ReactNode\n  actions?: React.ReactNode\n  className?: string\n}) {\n  return (\n    <div data-slot=\"empty-state\" className={cn(\"flex flex-col items-center gap-4 p-10 text-center\", className)}>\n      <div className=\"flex size-12 items-center justify-center rounded-md bg-subtle/4 ring-1 ring-edge/8 ring-inset\">{icon}</div>\n      <div className=\"flex flex-col gap-1\">\n        <h3 className=\"text-[0.9375rem]/5 font-semibold text-balance text-foreground\">{title}</h3>\n        {description && <div className=\"max-w-120 text-sm/5 text-balance text-subtle\">{description}</div>}\n      </div>\n      {actions && <div className=\"flex items-center gap-2\">{actions}</div>}\n    </div>\n  )\n}\n",
       "type": "registry:component"
     }
   ],

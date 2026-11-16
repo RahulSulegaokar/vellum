@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { BookOpenIcon, Building2Icon, ChevronDownIcon, ChevronLeftIcon, ChevronRightIcon, EyeIcon } from "lucide-react"
+import { BookOpenIcon, ChevronLeftIcon, ChevronRightIcon, EyeIcon } from "lucide-react"
 import { EmptyState } from "@/components/blocks/empty-state"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
@@ -114,6 +114,7 @@ export function FeatureCarousel({
 /**
  * "Turn on a feature" panel: a feature carousel with illustrations and an enable button,
  * which swaps to an empty state with a turn-off action once enabled. Footer links to a video and docs.
+ * Footer links render through `linkComponent` (default `"a"`); pass your router's `Link`, e.g. Inertia's.
  */
 export function FeatureUpsell({
   features,
@@ -128,6 +129,9 @@ export function FeatureUpsell({
   enabledIcon,
   videoHref,
   docsHref,
+  videoLabel = "Watch the video",
+  docsLabel = "View docs",
+  linkComponent,
   className,
 }: {
   features: UpsellFeature[]
@@ -142,8 +146,13 @@ export function FeatureUpsell({
   enabledIcon?: React.ReactNode
   videoHref?: string
   docsHref?: string
+  videoLabel?: string
+  docsLabel?: string
+  /** Component used for links; defaults to `"a"`. */
+  linkComponent?: React.ElementType
   className?: string
 }) {
+  const Link = linkComponent ?? "a"
   const [internal, setInternal] = useState(defaultEnabled)
   const enabled = enabledProp ?? internal
   const set = (on: boolean) => {
@@ -173,167 +182,19 @@ export function FeatureUpsell({
       {(videoHref || docsHref) && (
         <footer className="flex items-center justify-between gap-4 px-5 pt-4 pb-3 text-[0.8125rem]/[1.125rem] text-subtle">
           {videoHref ? (
-            <span className="inline-flex items-center gap-1.5">
+            <Link href={videoHref} className="inline-flex items-center gap-1.5 rounded-sm font-medium transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40">
               <EyeIcon aria-hidden="true" className="size-4" />
-              <span>
-                Watch the{" "}
-                <a href={videoHref} className="font-medium text-foreground underline decoration-edge/20 underline-offset-2 hover:decoration-edge/60">video</a>
-              </span>
-            </span>
+              {videoLabel}
+            </Link>
           ) : <span />}
           {docsHref && (
-            <a href={docsHref} className="inline-flex items-center gap-1.5 rounded-sm font-medium transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40">
+            <Link href={docsHref} className="inline-flex items-center gap-1.5 rounded-sm font-medium transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40">
               <BookOpenIcon aria-hidden="true" className="size-4" />
-              View docs
-            </a>
+              {docsLabel}
+            </Link>
           )}
         </footer>
       )}
     </section>
-  )
-}
-
-/* ------------------------------ Demo artwork ------------------------------- */
-
-const tile = "shadow-surface ring-1 ring-hairline"
-const tiny = "text-[0.4375rem]/[0.6875rem] font-medium"
-const people = ["text-chart-1", "text-chart-3", "text-chart-2", "text-chart-4"]
-
-/** Head-and-shoulders figure that fills its box, drawn in currentColor. */
-function Person({ tone, muted }: { tone: string; muted?: boolean }) {
-  return (
-    <svg viewBox="0 0 40 46" className={cn("absolute inset-x-0 bottom-0 mx-auto h-[86%]", muted ? "text-border" : tone)} aria-hidden="true">
-      <circle cx="20" cy="17" r="8.5" fill="currentColor" opacity={muted ? 1 : 0.9} />
-      <path d="M3 46c0-9.5 7.6-16 17-16s17 6.5 17 16Z" fill="currentColor" opacity={muted ? 0.7 : 0.55} />
-    </svg>
-  )
-}
-
-function RolesArt({ on }: { on: boolean }) {
-  return (
-    <div className="absolute top-6 left-6 flex flex-col gap-4">
-      <div className="flex h-17 gap-2.5">
-        {people.map((t, i) => (
-          <div key={t} className={cn("relative h-17 w-14.75 flex-none rounded-md bg-surface p-0.75", tile)}>
-            <div className={cn("relative size-full overflow-hidden rounded-sm ring-1 ring-edge/6", i === 0 && on ? "bg-brand/12" : "bg-surface-muted", i > 0 && "opacity-70")}>
-              <Person tone={t} muted={i === 0 ? !on : false} />
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="flex gap-2">
-        {["Member", "Admin", "Editor", "QA Tester"].map((r) => (
-          <div key={r} className={cn("flex h-4.75 items-center rounded-full px-2", r === "Admin" ? (on ? "bg-foreground text-background" : "bg-subtle text-background") : "bg-surface-muted text-muted-foreground ring-1 ring-edge/10")}>
-            <p className={tiny}>{r}</p>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function InvitesArt({ on }: { on: boolean }) {
-  const spots: [number, number][] = [[3, 5], [3, 79], [66, -27], [66, 47], [66, 121], [129, 5], [129, 79], [192, -27], [192, 47], [192, 121]]
-  return (
-    <>
-      {spots.map(([x, y]) => (
-        <div key={`${x}-${y}`} className="absolute h-16.5 w-13.75 rounded-lg bg-surface p-0.75 ring-1 ring-edge/6" style={{ left: x, top: y }}>
-          <div className="relative size-full overflow-hidden rounded-md bg-surface-muted"><Person tone="" muted /></div>
-        </div>
-      ))}
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(96%_96%_at_52%_74%,transparent_0%,var(--surface)_83%)]" />
-      <div className="absolute top-10.5 left-1/2 h-16.5 w-13.75 -translate-x-1/2">
-        <div className={cn("absolute -inset-0.5 rounded-xl opacity-60 blur-xs", on ? "bg-linear-to-br from-chart-1 to-chart-3" : "bg-border")} />
-        <div className="absolute inset-0 rounded-lg bg-surface shadow-surface ring-1 ring-edge/6" />
-        <div className={cn("absolute inset-0.5 overflow-hidden rounded-md ring-1 ring-edge/10", on ? "bg-chart-3/12" : "bg-surface-muted")}>
-          <Person tone="text-chart-3" muted={!on} />
-        </div>
-        <span className={cn("absolute top-1.5 right-1.5 size-2.25 rounded-full", on ? "bg-brand" : "bg-placeholder")} />
-      </div>
-    </>
-  )
-}
-
-function TenantsArt({ on }: { on: boolean }) {
-  const minis = [
-    { pos: "top-17.75 left-7.75", tone: people[0], lead: true },
-    { pos: "-top-1.5 left-36.75", tone: people[1] },
-    { pos: "top-23.5 left-44.75", tone: people[2] },
-  ]
-  return (
-    <>
-      {["size-30", "size-46", "size-62.25"].map((s) => (
-        <div key={s} className={cn("absolute top-1/2 left-1/2 -translate-1/2 rounded-full border border-border", s)} />
-      ))}
-      {minis.map((m) => (
-        <div key={m.pos} className={cn("absolute h-11.5 w-10 rounded-md bg-surface p-0.5", m.pos, tile)}>
-          <div className={cn("relative size-full overflow-hidden rounded-sm ring-1 ring-edge/6", m.lead && on ? "bg-brand/12" : "bg-surface-muted", !m.lead && "opacity-60")}>
-            <Person tone={m.tone} muted={m.lead && !on} />
-          </div>
-        </div>
-      ))}
-      <div className="absolute top-11.75 left-23.5 flex size-14 items-center justify-center rounded-full bg-subtle/4 ring-1 ring-border ring-inset">
-        <Building2Icon aria-hidden="true" className="size-5 text-foreground" strokeWidth={1.5} />
-      </div>
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(85%_85%_at_50%_61%,transparent_46%,color-mix(in_oklab,var(--surface)_80%,transparent)_79%)]" />
-    </>
-  )
-}
-
-function SwitcherArt({ on }: { on: boolean }) {
-  const rows = [
-    { name: "Northwind", role: "Member", dot: "bg-brand" },
-    { name: "Greenleaf", role: "Admin", dot: "bg-green-600" },
-    { name: "Personal account", dot: "bg-chart-2" },
-  ]
-  return (
-    <>
-      <div className={cn("absolute top-6 left-6 flex items-center gap-1 rounded-sm bg-surface px-1.5 py-0.75", tile)}>
-        <span className="size-2.25 rounded-xs bg-foreground" />
-        <p className={cn(tiny, "text-foreground")}>Acme Apps</p>
-        <ChevronDownIcon aria-hidden="true" className="size-2 text-placeholder" />
-      </div>
-      <div className="absolute top-12.25 left-6 flex h-44 w-49 flex-col overflow-hidden rounded-md bg-surface-muted pb-3 shadow-popover ring-1 ring-hairline">
-        <div className="flex flex-col overflow-hidden rounded-md bg-surface shadow-surface">
-          {rows.map((r) => (
-            <div key={r.name} className="flex items-center gap-2 border-b border-edge/6 p-1.5 pr-3">
-              <div className={cn("flex size-7 items-center justify-center rounded-sm bg-surface", tile)}>
-                <span className={cn("size-3 rounded-full", on ? r.dot : "bg-border")} />
-              </div>
-              <div className="flex flex-col text-[0.4375rem]/[0.6875rem] whitespace-nowrap">
-                <p className="font-medium text-foreground">{r.name}</p>
-                {r.role && <p className="text-placeholder">{r.role}</p>}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-[radial-gradient(92%_92%_at_50%_25%,transparent_46%,color-mix(in_oklab,var(--surface)_80%,transparent)_79%)]" />
-    </>
-  )
-}
-
-const demoFeatures: UpsellFeature[] = [
-  { id: "roles", title: "Roles and permissions built in", description: "Give members roles like admin or editor and decide exactly what each one can do", art: (on) => <RolesArt on={on} /> },
-  { id: "invites", title: "Team invitations included", description: "Members bring in teammates by email, and new people join with a single click", art: (on) => <InvitesArt on={on} /> },
-  { id: "tenants", title: "Multi-tenancy out of the box", description: "People can spin up workspaces, add their team and control access without a custom backend", art: (on) => <TenantsArt on={on} /> },
-  { id: "switcher", title: "A ready-made workspace switcher", description: "Prebuilt components let people hop between workspaces and their personal account", art: (on) => <SwitcherArt on={on} /> },
-]
-
-export default function FeatureUpsellDemo() {
-  return (
-    <div className="mx-auto max-w-5xl p-6 sm:p-10">
-      <FeatureUpsell
-        features={demoFeatures}
-        label="Workspace features"
-        enableLabel="Enable workspaces"
-        disableLabel="Turn off workspaces"
-        enabledTitle="No workspaces yet"
-        enabledDescription="Workspaces are on. Ones your users create will show up here."
-        enabledIcon={<Building2Icon className="size-5 text-subtle" />}
-        videoHref="#"
-        docsHref="#"
-      />
-    </div>
   )
 }

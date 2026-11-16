@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { ArrowLeftIcon, Building2Icon, FingerprintIcon, MailIcon, PhoneIcon, SettingsIcon, UserRoundIcon } from "lucide-react"
+import { ArrowLeftIcon, SettingsIcon } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { RadioCard, RadioGroup } from "@/components/ui/radio-group"
@@ -16,43 +16,9 @@ export type WizardToggleOption = {
   id: string
   label: string
   icon: React.ReactNode
-  /** "identifier" options become the preview's text field; the rest render as provider buttons. */
-  kind?: "identifier" | "provider"
-  /** Lowercase noun for the preview field ("email address"); defaults to the label. */
-  fieldLabel?: string
 }
 
 export type WizardValues = { type: string; name: string; enabled: string[] }
-
-/* ------------------------------- Demo data --------------------------------- */
-
-/** Original letter glyph for third-party providers; never a trademark path. */
-function Glyph({ letter }: { letter: string }) {
-  return (
-    <span aria-hidden="true" className="grid size-4 place-items-center rounded-full bg-current">
-      <span className="text-[0.5625rem] leading-none font-bold text-background">{letter}</span>
-    </span>
-  )
-}
-
-const demoTypes: WizardTypeOption[] = [
-  { value: "consumer", label: "Consumer", description: "Each user signs in to their own personal account. You can add workspaces anytime.", icon: <FingerprintIcon aria-hidden="true" strokeWidth={1.5} className="mt-0.5 size-5 shrink-0 text-subtle" /> },
-  { value: "b2b", label: "B2B", description: "People collaborate in shared workspaces. We'll turn on workspaces for you.", icon: <Building2Icon aria-hidden="true" strokeWidth={1.5} className="mt-0.5 size-5 shrink-0 text-subtle" /> },
-]
-
-const demoOptions: WizardToggleOption[] = [
-  { id: "email", label: "Email", kind: "identifier", fieldLabel: "email address", icon: <MailIcon className="size-4" /> },
-  { id: "phone", label: "Phone number", kind: "identifier", icon: <PhoneIcon className="size-4" /> },
-  { id: "username", label: "Username", kind: "identifier", icon: <UserRoundIcon className="size-4" /> },
-  { id: "google", label: "Google", icon: <Glyph letter="G" /> },
-  { id: "github", label: "GitHub", icon: <Glyph letter="H" /> },
-  { id: "apple", label: "Apple", icon: <Glyph letter="A" /> },
-  { id: "microsoft", label: "Microsoft", icon: <Glyph letter="M" /> },
-  { id: "discord", label: "Discord", icon: <Glyph letter="D" /> },
-  { id: "gitlab", label: "GitLab", icon: <Glyph letter="L" /> },
-  { id: "slack", label: "Slack", icon: <Glyph letter="S" /> },
-  { id: "linear", label: "Linear", icon: <Glyph letter="N" /> },
-]
 
 /* ------------------------------- Small pieces ------------------------------ */
 
@@ -93,54 +59,48 @@ function DashEdge({ side }: { side: "top" | "bottom" | "left" | "right" }) {
 
 /* --------------------------------- Preview --------------------------------- */
 
-/** Inert sign-in card that reflects the wizard's name and enabled options. */
-export function SignInPreview({ name, enabled, options }: { name: string; enabled: string[]; options: WizardToggleOption[] }) {
-  const on = (o: WizardToggleOption) => enabled.includes(o.id)
-  const providers = options.filter((o) => o.kind !== "identifier" && on(o))
-  const ids = options.filter((o) => o.kind === "identifier" && on(o)).map((o) => o.fieldLabel ?? o.label.toLowerCase())
-  const cols = providers.length <= 1 ? 1 : providers.length <= 2 ? 2 : Math.min(providers.length, 6)
-  const iconOnly = providers.length > 2
-  const field = ids.length ? ids.join(" or ") : null
+/** Inert summary card that reflects the wizard's type, name and enabled options. */
+export function WizardPreview({
+  values,
+  types,
+  options,
+  untitledLabel = "Untitled",
+  emptyLabel = "No options turned on yet.",
+}: {
+  values: WizardValues
+  types: WizardTypeOption[]
+  options: WizardToggleOption[]
+  untitledLabel?: string
+  emptyLabel?: string
+}) {
+  const type = types.find((t) => t.value === values.type)
+  const on = options.filter((o) => values.enabled.includes(o.id))
+  const name = values.name.trim() || untitledLabel
 
   return (
-    <div inert className="flex min-h-120 w-104 max-w-full flex-col overflow-hidden rounded-xl bg-surface-muted shadow-card ring-1 ring-hairline">
-      <div className="flex flex-1 flex-col rounded-b-lg bg-surface ring-1 ring-edge/6">
-        <div className="flex flex-col gap-8 p-9">
-          <header className="flex flex-col gap-2 text-center">
-            <h3 className="text-xl font-bold break-words text-foreground">Sign in to {name || "My Application"}</h3>
-            <p className="text-[0.8125rem]/4.5 text-subtle">Welcome back! Please sign in to continue</p>
-          </header>
-          {providers.length > 0 && (
-            <div className="grid w-full gap-2" style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}>
-              {providers.map((o) => (
-                <span key={o.id} className="inline-flex min-h-8 min-w-0 items-center justify-center gap-3 rounded-md p-2 text-[0.8125rem]/4.5 font-medium text-foreground shadow-[0_1px_0_rgb(0_0_0/0.02),0_2px_3px_-1px_rgb(0_0_0/0.08)] ring-1 ring-edge/8">
-                  <span className="size-4 select-none">{o.icon}</span>
-                  {!iconOnly && <span className="truncate">{providers.length === 1 ? `Continue with ${o.label}` : o.label}</span>}
-                </span>
-              ))}
-            </div>
-          )}
-          {providers.length > 0 && field && (
-            <div className="relative">
-              <hr className="border-border" />
-              <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-[calc(50%+1px)] bg-surface px-4 py-0.5 text-[0.8125rem]/4.5 text-subtle">or</span>
-            </div>
-          )}
-          {field && (
-            <div className="flex flex-col gap-8">
-              <span className="flex w-full flex-col gap-2">
-                <span className="text-[0.8125rem]/4.5 font-medium text-foreground first-letter:capitalize">{field}</span>
-                <span className="w-full rounded-md bg-field px-3 py-1.5 text-[0.8125rem]/4.5 text-placeholder ring-1 ring-field-ring">Enter your {field}</span>
-              </span>
-              <span className="inline-flex min-h-8 items-center justify-center rounded-md bg-brand p-2 text-[0.8125rem]/4.5 font-medium text-brand-foreground ring-1 ring-brand-edge">Continue</span>
-            </div>
-          )}
-          {!field && providers.length === 0 && <p className="text-center text-[0.8125rem]/4.5 text-subtle">Turn on at least one sign-in option.</p>}
+    <div inert className="flex w-104 max-w-full flex-col overflow-hidden rounded-xl bg-surface shadow-card ring-1 ring-hairline">
+      <header className="flex items-center gap-3 border-b border-edge/6 p-5">
+        <span aria-hidden="true" className="grid size-10 shrink-0 place-items-center rounded-lg bg-muted text-sm font-semibold text-muted-foreground uppercase">
+          {name.slice(0, 1)}
+        </span>
+        <div className="min-w-0">
+          <h3 className="truncate text-[0.9375rem]/5 font-semibold text-foreground">{name}</h3>
+          {type && <p className="truncate text-[0.8125rem]/[1.125rem] text-subtle">{type.label}</p>}
         </div>
-      </div>
-      <div className="py-4 text-center text-[0.8125rem]/4.5 text-subtle">
-        Don&apos;t have an account? <span className="text-brand">Sign up</span>
-      </div>
+      </header>
+      {on.length > 0 ? (
+        <ul className="divide-y divide-edge/6">
+          {on.map((o) => (
+            <li key={o.id} className="flex items-center gap-3 px-5 py-2.5 text-[0.8125rem]/5 text-foreground">
+              <span className="size-4 text-subtle select-none">{o.icon}</span>
+              <span className="min-w-0 flex-1 truncate">{o.label}</span>
+              <span className="size-1.5 rounded-full bg-brand" />
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="px-5 py-6 text-center text-[0.8125rem]/[1.125rem] text-subtle">{emptyLabel}</p>
+      )}
     </div>
   )
 }
@@ -205,32 +165,46 @@ function OptionsCard({
 
 /* --------------------------------- Wizard ---------------------------------- */
 
+const backClass =
+  "-ml-1.5 inline-flex h-7 items-center gap-1 rounded-md px-1.5 text-[0.8125rem]/4 font-medium text-subtle outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40"
+
 /**
  * Two-step create flow (type cards and name, then toggleable options) with a live preview on the right.
  * Create shows a pending state; Back aborts the pending request through the AbortSignal passed to `onCreate`.
+ *
+ * The step-one Back control renders as a link when `backHref` is set (through `linkComponent`, which defaults
+ * to a plain `<a>`; pass your router's `Link`, e.g. Inertia's), as a button when only `onBack` is set, and is
+ * hidden otherwise. Replace the default summary preview with `renderPreview`.
  */
 export function CreateWizard({
-  types = demoTypes,
-  options = demoOptions,
+  types,
+  options,
   defaultType = types[0]?.value ?? "",
-  defaultName = "My Application",
-  defaultEnabled = ["email", "google"],
-  steps = ["Application", "Authentication"],
-  typeTitle = "What type of application are you building?",
-  typeDescription = "Pick the type that best fits your use case:",
-  nameTitle = "Application name",
-  nameDescription = "We generated one for you. Change it anytime.",
+  defaultName = "",
+  defaultEnabled = [],
+  steps = ["Details", "Options"],
+  typeTitle = "Choose a type",
+  typeDescription = "Pick the one that fits best.",
+  nameTitle = "Name",
+  nameDescription = "You can change this later.",
+  namePlaceholder,
   optionsTitle = "Customize options",
-  optionsLabel = "Sign in options",
-  optionsDescription = "You can change these anytime in the dashboard.",
-  createLabel = "Create application",
+  optionsLabel = "Options",
+  optionsDescription = "You can change these later in settings.",
+  createLabel = "Create",
   pendingLabel = "Creating…",
-  backHref = "#",
-  renderPreview = (v) => <SignInPreview name={v.name} enabled={v.enabled} options={options} />,
+  backLabel = "Back",
+  backHref,
+  onBack,
+  linkComponent,
+  previewCaption = "Preview",
+  renderPreview = (v) => <WizardPreview values={v} types={types} options={options} />,
   onCreate,
 }: {
-  types?: WizardTypeOption[]
-  options?: WizardToggleOption[]
+  /** Choices for step one, shown as radio cards. */
+  types: WizardTypeOption[]
+  /** Toggleable options for step two. */
+  options: WizardToggleOption[]
   defaultType?: string
   defaultName?: string
   defaultEnabled?: string[]
@@ -239,13 +213,20 @@ export function CreateWizard({
   typeDescription?: string
   nameTitle?: string
   nameDescription?: string
+  namePlaceholder?: string
   optionsTitle?: string
   optionsLabel?: string
   optionsDescription?: string
   createLabel?: string
   pendingLabel?: string
+  backLabel?: string
   /** Where the step-one Back link goes. */
   backHref?: string
+  /** Step-one Back handler, used when there is no `backHref`. */
+  onBack?: () => void
+  /** Component used for links; defaults to `"a"`. Pass your router's `Link`. */
+  linkComponent?: React.ElementType
+  previewCaption?: React.ReactNode
   renderPreview?: (values: WizardValues) => React.ReactNode
   /** Called on Create. Resolve when done; abort means the user pressed Back. */
   onCreate?: (values: WizardValues, signal: AbortSignal) => Promise<void> | void
@@ -255,11 +236,13 @@ export function CreateWizard({
   const [name, setName] = useState(defaultName)
   const [enabled, setEnabled] = useState<string[]>(defaultEnabled)
   const [creating, setCreating] = useState(false)
+  const [nameTouched, setNameTouched] = useState(false)
   const pending = useRef<AbortController | null>(null)
 
   useEffect(() => () => pending.current?.abort(), [])
 
   const values: WizardValues = { type, name, enabled }
+  const Link = linkComponent ?? "a"
 
   const toggle = (id: string, on: boolean) => setEnabled((prev) => (on ? [...prev.filter((x) => x !== id), id] : prev.filter((x) => x !== id)))
 
@@ -293,17 +276,24 @@ export function CreateWizard({
           <StepDots steps={steps} step={step} />
         </div>
         <div className="space-y-8 pt-20 pb-8">
-          {step === 1 && (
-            <a href={backHref} className="-ml-1.5 inline-flex h-7 items-center gap-1 rounded-md px-1.5 text-[0.8125rem]/4 font-medium text-subtle outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40">
+          {step === 1 && backHref !== undefined && (
+            <Link href={backHref} className={backClass}>
               <ArrowLeftIcon aria-hidden="true" className="size-4" />
-              Back
-            </a>
+              {backLabel}
+            </Link>
+          )}
+          {step === 1 && backHref === undefined && onBack && (
+            <button type="button" onClick={onBack} className={backClass}>
+              <ArrowLeftIcon aria-hidden="true" className="size-4" />
+              {backLabel}
+            </button>
           )}
           <form
             className="w-full [--rail-gap:1.5rem] lg:w-94"
             onSubmit={(e) => {
               e.preventDefault()
               if (step === 1) {
+                setNameTouched(true)
                 if (name.trim()) setStep(2)
               } else if (enabled.length > 0 && !creating) void create()
             }}
@@ -333,7 +323,17 @@ export function CreateWizard({
                     <div aria-hidden="true" className="relative grid size-5 place-content-center rounded-full bg-solid text-[0.6875rem] font-medium text-solid-foreground">2</div>
                     <div className="space-y-4">
                       <StepHeader title={nameTitle} description={nameDescription} />
-                      <Input variant="compact" aria-label={nameTitle} autoComplete="off" maxLength={50} placeholder="My Application" value={name} onChange={(e) => setName(e.target.value)} aria-invalid={!name.trim() || undefined} />
+                      <Input
+                        variant="compact"
+                        aria-label={nameTitle}
+                        autoComplete="off"
+                        maxLength={50}
+                        placeholder={namePlaceholder}
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        onBlur={() => setNameTouched(true)}
+                        aria-invalid={(nameTouched && !name.trim()) || undefined}
+                      />
                     </div>
                   </li>
                 </ol>
@@ -345,7 +345,7 @@ export function CreateWizard({
               <>
                 <OptionsCard title={optionsTitle} label={optionsLabel} description={optionsDescription} options={options} enabled={enabled} toggle={toggle} />
                 <div className="mt-4 grid grid-cols-2 gap-2">
-                  <Button type="button" variant="elevated" size="compact" className="w-full justify-center" onClick={back}>Back</Button>
+                  <Button type="button" variant="elevated" size="compact" className="w-full justify-center" onClick={back}>{backLabel}</Button>
                   <Button type="submit" variant="primary" size="compact" className="w-full justify-center" disabled={creating || enabled.length === 0} aria-busy={creating || undefined}>
                     {creating ? pendingLabel : createLabel}
                   </Button>
@@ -361,26 +361,10 @@ export function CreateWizard({
           {(["left", "right", "bottom", "top"] as const).map((s) => <DashEdge key={s} side={s} />)}
           <div className="relative flex w-132 max-w-[calc(50vw-2rem)] flex-col items-center justify-center gap-5 px-4">
             {renderPreview(values)}
-            <figcaption className="text-center text-base text-subtle">This is a preview</figcaption>
+            {previewCaption && <figcaption className="text-center text-base text-subtle">{previewCaption}</figcaption>}
           </div>
         </figure>
       </div>
     </div>
-  )
-}
-
-export default function CreateWizardDemo() {
-  return (
-    <CreateWizard
-      onCreate={(_values, signal) =>
-        new Promise<void>((resolve, reject) => {
-          const t = setTimeout(resolve, 1500)
-          signal.addEventListener("abort", () => {
-            clearTimeout(t)
-            reject(signal.reason)
-          })
-        })
-      }
-    />
   )
 }

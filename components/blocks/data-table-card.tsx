@@ -1,11 +1,8 @@
 "use client"
 
-import { useRef, useState } from "react"
-import { ChevronDownIcon, EllipsisIcon, FilterIcon, PlusIcon, SearchIcon, Settings2Icon, UserRoundIcon, XIcon } from "lucide-react"
-import { Callout } from "@/components/blocks/callout"
-import { CreateUserDialog } from "@/components/blocks/create-user-dialog"
+import { useState } from "react"
+import { ChevronDownIcon, EllipsisIcon, FilterIcon, SearchIcon, Settings2Icon, XIcon } from "lucide-react"
 import { EmptyState } from "@/components/blocks/empty-state"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogPanel, DialogTitle } from "@/components/ui/dialog"
 import {
@@ -18,7 +15,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
-import { Switch } from "@/components/ui/switch"
 import { cn } from "@/lib/utils"
 
 /* ---------------------------------- Types ---------------------------------- */
@@ -48,9 +44,11 @@ export type RowAction = {
   label: string
   destructive?: boolean
   onSelect: () => void
-  /** When set, the action asks for confirmation in a dialog first. */
+  /** When set, the action asks for confirmation in a dialog first. Destructive actions always confirm (titled "<label>?" by default). */
   confirm?: { title: string; description?: React.ReactNode; confirmLabel?: string }
 }
+
+const confirmOf = (action: RowAction) => action.confirm ?? (action.destructive ? { title: `${action.label}?` } : undefined)
 
 type MenuCheckItem = { id: string; label: string; checked: boolean }
 
@@ -118,11 +116,12 @@ export function SortHeader({
   )
 }
 
-/** Row "⋯" menu. Actions with `confirm` open a confirmation dialog before running. */
+/** Row "⋯" menu. Destructive actions, and any with `confirm`, open a confirmation dialog before running. */
 export function RowActions({ actions, label = "Actions" }: { actions: RowAction[]; label?: string }) {
   // `current` stays set after closing so the dialog keeps its copy while it animates out.
   const [current, setCurrent] = useState<RowAction | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
+  const confirm = current ? confirmOf(current) : undefined
 
   return (
     <>
@@ -137,7 +136,7 @@ export function RowActions({ actions, label = "Actions" }: { actions: RowAction[
               variant={action.destructive ? "destructive" : "default"}
               className="text-[0.8125rem]/4 font-medium"
               onClick={() => {
-                if (!action.confirm) return action.onSelect()
+                if (!confirmOf(action)) return action.onSelect()
                 setCurrent(action)
                 setConfirmOpen(true)
               }}
@@ -152,8 +151,8 @@ export function RowActions({ actions, label = "Actions" }: { actions: RowAction[
         <DialogContent showCloseButton={false}>
           <DialogPanel>
             <DialogHeader>
-              <DialogTitle>{current?.confirm?.title}</DialogTitle>
-              {current?.confirm?.description && <DialogDescription>{current.confirm.description}</DialogDescription>}
+              <DialogTitle>{confirm?.title}</DialogTitle>
+              {confirm?.description && <DialogDescription>{confirm.description}</DialogDescription>}
             </DialogHeader>
           </DialogPanel>
           <DialogFooter>
@@ -167,7 +166,7 @@ export function RowActions({ actions, label = "Actions" }: { actions: RowAction[
                 setConfirmOpen(false)
               }}
             >
-              {current?.confirm?.confirmLabel ?? current?.label}
+              {confirm?.confirmLabel ?? current?.label}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -411,7 +410,7 @@ export function DataTableCard<T>({
               {rows.length === 0
                 ? (emptyState ?? <EmptyState title="Nothing here yet" />)
                 : (noResultsState ?? (
-                    <EmptyState icon={<SearchIcon className="size-5 text-subtle" />} title="No matching results" description="Try a different search or clear your filters." />
+                    <EmptyState icon={<SearchIcon aria-hidden="true" className="size-5 text-subtle" />} title="No matching results" description="Try a different search or clear your filters." />
                   ))}
             </td>
           </tr>
@@ -430,131 +429,6 @@ export function DataTableCard<T>({
           ))
         )}
       </TableCard>
-    </div>
-  )
-}
-
-/* ---------------------------------- Demo ----------------------------------- */
-
-type DemoUser = { id: string; firstName: string; lastName: string; email: string; createdAt: string; lastSignInAt: string | null }
-
-const dateFormat = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })
-const formatDate = (iso: string) => dateFormat.format(Date.parse(iso))
-
-const demoUsers: DemoUser[] = [
-  { id: "user_1", firstName: "Maya", lastName: "Okafor", email: "maya.okafor@acme.dev", createdAt: "2026-03-02T09:12:00Z", lastSignInAt: "2026-11-14T16:40:00Z" },
-  { id: "user_2", firstName: "Jonas", lastName: "Lindqvist", email: "jonas@acme.dev", createdAt: "2026-04-18T13:05:00Z", lastSignInAt: "2026-11-02T08:21:00Z" },
-  { id: "user_3", firstName: "", lastName: "", email: "qa-bot@acme.dev", createdAt: "2026-06-11T10:00:00Z", lastSignInAt: null },
-  { id: "user_4", firstName: "Priya", lastName: "Raman", email: "priya.raman@acme.dev", createdAt: "2026-08-23T17:45:00Z", lastSignInAt: "2026-10-29T11:02:00Z" },
-  { id: "user_5", firstName: "Leo", lastName: "Martins", email: "leo.martins@acme.dev", createdAt: "2026-10-05T07:30:00Z", lastSignInAt: null },
-]
-
-const fullName = (u: DemoUser) => [u.firstName, u.lastName].filter(Boolean).join(" ")
-const initials = (u: DemoUser) =>
-  (fullName(u) || u.email)
-    .split(/[\s@.]/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((s) => s[0]?.toUpperCase())
-    .join("")
-
-const userColumns: DataTableColumn<DemoUser>[] = [
-  {
-    id: "email",
-    header: "Test users",
-    sortValue: (u) => u.email,
-    headerClassName: "w-[40%]",
-    cell: (u) => {
-      const name = fullName(u)
-      return (
-        <div className="flex items-center gap-3">
-          <Avatar aria-hidden="true">
-            <AvatarFallback className="text-[0.6875rem] font-medium">{initials(u)}</AvatarFallback>
-          </Avatar>
-          <div className="min-w-0">
-            {name && <div className="truncate font-medium text-foreground">{name}</div>}
-            <div className={cn("truncate", !name && "font-medium text-foreground")}>{u.email}</div>
-          </div>
-        </div>
-      )
-    },
-  },
-  { id: "lastSignInAt", header: "Last signed in", hideable: true, sortValue: (u) => u.lastSignInAt, cell: (u) => (u.lastSignInAt ? formatDate(u.lastSignInAt) : "Never") },
-  { id: "createdAt", header: "Joined", hideable: true, sortValue: (u) => u.createdAt, cell: (u) => formatDate(u.createdAt) },
-]
-
-const userFilters: DataTableFilter<DemoUser>[] = [
-  { id: "signed-in", label: "Has signed in", predicate: (u) => u.lastSignInAt !== null },
-  { id: "never-signed-in", label: "Never signed in", predicate: (u) => u.lastSignInAt === null },
-]
-
-export default function DataTableCardDemo() {
-  const [users, setUsers] = useState<DemoUser[]>(demoUsers)
-  const [showEmpty, setShowEmpty] = useState(false)
-  const nextId = useRef(demoUsers.length + 1)
-  const rows = showEmpty ? [] : users
-
-  return (
-    <div className="mx-auto max-w-5xl p-6 sm:p-10">
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <h1 className="text-xl/7 font-semibold tracking-[-0.015em] text-foreground">Users</h1>
-        <label className="flex items-center gap-2 text-[0.8125rem]/4 text-subtle">
-          <Switch checked={showEmpty} onCheckedChange={setShowEmpty} />
-          Show empty state
-        </label>
-      </div>
-      <DataTableCard
-        columns={userColumns}
-        rows={rows}
-        getRowId={(u) => u.id}
-        searchText={(u) => `${fullName(u)} ${u.email}`}
-        searchLabel="Search users"
-        filters={userFilters}
-        defaultSort={{ key: "createdAt", dir: "desc" }}
-        rowActions={(u) => [
-          {
-            label: "Delete user",
-            destructive: true,
-            confirm: { title: "Delete user?", description: <>{u.email} will lose access immediately. This can&apos;t be undone.</>, confirmLabel: "Delete" },
-            onSelect: () => setUsers((list) => list.filter((x) => x.id !== u.id)),
-          },
-        ]}
-        primaryAction={
-          <CreateUserDialog
-            trigger={
-              <Button variant="primary" size="compact" className="gap-1 pl-2">
-                <PlusIcon aria-hidden="true" />
-                Create user
-              </Button>
-            }
-            onCreate={(u) => {
-              const id = `user_${nextId.current++}`
-              const createdAt = new Date().toISOString()
-              setShowEmpty(false)
-              setUsers((list) => [{ id, firstName: u.firstName, lastName: u.lastName, email: u.email, createdAt, lastSignInAt: null }, ...list])
-            }}
-          />
-        }
-        callout={
-          <Callout>
-            Use this development instance for internal and test users. When you&apos;re ready to invite real users, create your production instance.
-          </Callout>
-        }
-        emptyState={
-          <EmptyState
-            icon={<UserRoundIcon className="size-5 text-subtle" />}
-            title="No users yet"
-            description={
-              <>
-                Create a new user or learn how to{" "}
-                <a href="#" className="text-foreground underline decoration-edge/20 underline-offset-2 hover:decoration-foreground">
-                  migrate existing users
-                </a>
-              </>
-            }
-          />
-        }
-      />
     </div>
   )
 }

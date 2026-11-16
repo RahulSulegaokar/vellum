@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { EyeIcon, EyeOffIcon } from "lucide-react"
+import { ChevronRightIcon, EyeIcon, EyeOffIcon } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -30,25 +30,64 @@ export function ProviderGlyph({ label, className }: { label: string; className?:
   )
 }
 
-/** Default brand mark: a monogram tile plus the product name. */
-export function AuthLogo({ name = "Acme", href = "/" }: { name?: string; href?: string }) {
-  return (
-    <a
-      href={href}
-      aria-label={`${name} home`}
-      className="flex items-center gap-1.5 rounded-md text-[1.0625rem] font-semibold tracking-[-0.03em] text-foreground outline-none focus-visible:ring-3 focus-visible:ring-brand/40"
-    >
+/**
+ * Brand mark: a monogram tile plus the product name. Links to `href` when given.
+ * Pass `linkComponent` (e.g. your router's `Link`) to render the link with it; defaults to a plain `<a>`.
+ */
+export function AuthLogo({
+  name,
+  href,
+  linkComponent,
+}: {
+  name: string
+  href?: string
+  linkComponent?: React.ElementType
+}) {
+  const Link = linkComponent ?? "a"
+  const content = (
+    <>
       <span aria-hidden="true" className="grid size-5 place-items-center rounded-md bg-foreground text-[0.6875rem] font-bold text-background">
-        {name.charAt(0)}
+        {name.charAt(0).toUpperCase()}
       </span>
-      {name.toLowerCase()}
-    </a>
+      {name}
+    </>
+  )
+  const className = "flex items-center gap-1.5 rounded-md text-[1.0625rem] font-semibold tracking-[-0.03em] text-foreground outline-none focus-visible:ring-3 focus-visible:ring-brand/40"
+  if (!href) return <span className={className}>{content}</span>
+  return (
+    <Link href={href} aria-label={`${name} home`} className={className}>
+      {content}
+    </Link>
+  )
+}
+
+/** Footer line under an auth card: a prompt and a link ("Don't have an account? Sign up"). */
+export function AuthFooterLink({
+  prompt,
+  label,
+  href,
+  linkComponent,
+}: {
+  prompt?: React.ReactNode
+  label: React.ReactNode
+  href: string
+  linkComponent?: React.ElementType
+}) {
+  const Link = linkComponent ?? "a"
+  return (
+    <>
+      {prompt}
+      {prompt ? " " : null}
+      <Link href={href} className="rounded-sm font-medium text-foreground outline-none hover:underline focus-visible:ring-2 focus-visible:ring-brand/40">
+        {label}
+      </Link>
+    </>
   )
 }
 
 /** Muted shell around a white panel: logo, title and subtitle on top, a footer line and an optional slot below. */
 export function AuthCard({
-  logo = <AuthLogo />,
+  logo,
   title,
   subtitle,
   footerText,
@@ -88,15 +127,18 @@ export function AuthCard({
   )
 }
 
-/** Provider buttons: two side by side, otherwise stacked full width. The last-used one gets a small tag. */
+/** Provider buttons: two side by side, otherwise stacked full width. The most recently used one gets a small tag. */
 export function ProviderButtons({
   providers,
-  lastUsed,
+  recent,
+  recentLabel = "Recent",
   disabled,
   onSelect,
 }: {
   providers: AuthProvider[]
-  lastUsed?: string
+  /** Provider id that gets the `recentLabel` tag. */
+  recent?: string
+  recentLabel?: string
   disabled?: boolean
   onSelect?: (id: string) => void
 }) {
@@ -115,9 +157,9 @@ export function ProviderButtons({
         >
           {p.icon ?? <ProviderGlyph label={p.label} />}
           {grid ? p.label : `Continue with ${p.label}`}
-          {lastUsed === p.id && (
+          {recent === p.id && (
             <Badge variant="subtle" className="absolute -top-2 -right-1.5 bg-surface-muted">
-              Last used
+              {recentLabel}
             </Badge>
           )}
         </Button>
@@ -179,7 +221,7 @@ export function AuthField({
         )}
       </div>
       {error && (
-        <p id={errorId} className="text-[0.8125rem]/[1.125rem] text-destructive">
+        <p id={errorId} className="text-[0.8125rem]/[1.125rem] text-destructive-text">
           {error}
         </p>
       )}
@@ -187,17 +229,13 @@ export function AuthField({
   )
 }
 
-/** Full-width primary submit with a small play caret, swapped for a spinner while pending. */
+/** Full-width primary submit with a trailing chevron, swapped for a spinner while pending. */
 export function AuthSubmit({ pending, children }: { pending?: boolean; children: React.ReactNode }) {
   return (
     <Button type="submit" variant="primary" disabled={pending} className="w-full gap-1">
       {pending ? <Spinner className="size-3.5" /> : null}
       {children}
-      {!pending && (
-        <svg viewBox="0 0 16 16" aria-hidden="true" className="size-3.5 opacity-70">
-          <path fill="currentColor" stroke="currentColor" strokeLinejoin="round" strokeWidth="1.5" d="M9.5 8.25 6 6v4.5z" />
-        </svg>
-      )}
+      {!pending && <ChevronRightIcon aria-hidden="true" className="size-3.5 opacity-70" />}
     </Button>
   )
 }
@@ -217,28 +255,28 @@ export function usePending() {
   return [pending, run] as const
 }
 
-export const defaultProviders: AuthProvider[] = [
-  { id: "github", label: "GitHub" },
-  { id: "google", label: "Google" },
-]
-
 /* ---------------------------------- Sign in ---------------------------------- */
 
-/** Sign-in card: logo, provider buttons, email field, primary continue, an alternative method and a link to sign up. */
+/**
+ * Sign-in card: optional logo, provider buttons, email field, primary continue, an optional alternative method and a link to sign up.
+ * Pass `linkComponent` (e.g. your router's `Link`) to render the sign-up link with it; defaults to a plain `<a>`.
+ */
 export function AuthSignIn({
   logo,
-  title = "Sign in to Acme",
-  subtitle = "Welcome back! Sign in to continue",
-  providers = defaultProviders,
-  lastUsedProvider,
+  title = "Sign in",
+  subtitle,
+  providers = [],
+  recentProvider,
+  recentLabel,
   emailLabel = "Email address",
-  emailPlaceholder = "Enter your email address",
+  emailPlaceholder = "you@example.com",
   submitLabel = "Continue",
-  alternativeLabel = "Use a passkey instead",
+  alternativeLabel,
   onAlternative,
-  signUpHref = "#sign-up",
+  signUpHref,
   signUpPrompt = "Don't have an account?",
   signUpLabel = "Sign up",
+  linkComponent,
   error,
   footer,
   onSubmit,
@@ -248,18 +286,24 @@ export function AuthSignIn({
   logo?: React.ReactNode
   title?: string
   subtitle?: React.ReactNode
+  /** Social or SSO providers shown above the form. Empty hides the buttons and the divider. */
   providers?: AuthProvider[]
-  /** Provider id that gets the "Last used" tag. */
-  lastUsedProvider?: string
+  /** Provider id that gets the `recentLabel` tag. */
+  recentProvider?: string
+  /** Tag text for the recent provider. Defaults to "Recent". */
+  recentLabel?: string
   emailLabel?: string
   emailPlaceholder?: string
   submitLabel?: string
-  /** Text link under the form (passkey, magic link…). Pass an empty string to hide it. */
+  /** Text button under the form for another method (magic link, security key…). Shown only with `onAlternative`. */
   alternativeLabel?: string
   onAlternative?: () => void
+  /** Omit to hide the sign-up line. */
   signUpHref?: string
   signUpPrompt?: string
   signUpLabel?: string
+  /** Component used for links, e.g. Next.js or Inertia `Link`. Defaults to `"a"`. */
+  linkComponent?: React.ElementType
   /** Error shown under the email field. */
   error?: string
   /** Optional neutral slot under the footer line. */
@@ -268,6 +312,7 @@ export function AuthSignIn({
   onProvider?: (id: string) => void
   className?: string
 }) {
+  const id = React.useId()
   const [email, setEmail] = React.useState("")
   const [pending, run] = usePending()
   return (
@@ -277,18 +322,11 @@ export function AuthSignIn({
       subtitle={subtitle}
       className={className}
       footer={footer}
-      footerText={
-        <>
-          {signUpPrompt}{" "}
-          <a href={signUpHref} className="rounded-sm font-medium text-foreground outline-none hover:underline focus-visible:ring-2 focus-visible:ring-brand/40">
-            {signUpLabel}
-          </a>
-        </>
-      }
+      footerText={signUpHref ? <AuthFooterLink prompt={signUpPrompt} label={signUpLabel} href={signUpHref} linkComponent={linkComponent} /> : undefined}
     >
       {providers.length > 0 && (
         <>
-          <ProviderButtons providers={providers} lastUsed={lastUsedProvider} disabled={pending} onSelect={onProvider} />
+          <ProviderButtons providers={providers} recent={recentProvider} recentLabel={recentLabel} disabled={pending} onSelect={onProvider} />
           <AuthDivider />
         </>
       )}
@@ -300,7 +338,8 @@ export function AuthSignIn({
         }}
       >
         <AuthField
-          id="identifier"
+          id={`${id}-email`}
+          name="email"
           label={emailLabel}
           type="email"
           autoComplete="email"
@@ -312,25 +351,18 @@ export function AuthSignIn({
         />
         <AuthSubmit pending={pending}>{submitLabel}</AuthSubmit>
       </form>
-      {alternativeLabel && (
+      {alternativeLabel && onAlternative && (
         <div className="-mt-4 text-center">
           <button
             type="button"
             onClick={onAlternative}
-            className="cursor-pointer rounded-sm text-[0.8125rem] font-medium text-foreground outline-none hover:underline focus-visible:ring-2 focus-visible:ring-brand/40"
+            disabled={pending}
+            className="cursor-pointer rounded-sm text-[0.8125rem] font-medium text-foreground outline-none hover:underline focus-visible:ring-2 focus-visible:ring-brand/40 disabled:pointer-events-none disabled:opacity-50"
           >
             {alternativeLabel}
           </button>
         </div>
       )}
     </AuthCard>
-  )
-}
-
-export default function AuthSignInDemo() {
-  return (
-    <div className="flex justify-center bg-background p-6 sm:p-10">
-      <AuthSignIn lastUsedProvider="google" onSubmit={() => new Promise((r) => setTimeout(r, 800))} />
-    </div>
   )
 }

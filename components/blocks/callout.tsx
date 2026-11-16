@@ -2,7 +2,7 @@ import { InfoIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 /**
- * Inline notice for page-level context ("Use this development instance for test users…").
+ * Inline notice for page-level context ("Use this sandbox for test data; switch to live when you're ready.").
  * Tinted with the subtle token and a hairline inset ring; pass any icon to replace the info glyph.
  */
 export function Callout({
@@ -24,17 +24,6 @@ export function Callout({
     >
       {icon}
       <p className="text-pretty">{children}</p>
-    </div>
-  )
-}
-
-export default function CalloutDemo() {
-  return (
-    <div className="mx-auto max-w-2xl p-10">
-      <Callout>
-        Use this development instance for internal and test users. When you&apos;re ready to invite real users, create
-        your production instance.
-      </Callout>
     </div>
   )
 }

@@ -29,6 +29,7 @@ export const examples: Record<string, () => Promise<{ default: ComponentType }>>
   "dropdown-menu": () => import("@/components/examples/dropdown-menu-example"),
   "empty": () => import("@/components/examples/empty-example"),
   "field": () => import("@/components/examples/field-example"),
+  "form": () => import("@/components/examples/form-example"),
   "hover-card": () => import("@/components/examples/hover-card-example"),
   "input": () => import("@/components/examples/input-example"),
   "input-group": () => import("@/components/examples/input-group-example"),

@@ -7,14 +7,19 @@ colors:
   surface: "#ffffff"       # --surface, --card, --popover, --field
   surface-muted: "#f7f7f8" # --surface-muted (dialog shell, hover wash)
   muted-text: "#5e5f6e"    # --muted-foreground
-  subtle-text: "#747686"   # --subtle
-  placeholder: "#9394a1"   # --placeholder
+  subtle-text: "#6c6d7d"   # --subtle
+  placeholder: "#747583"   # --placeholder
   hairline: "rgb(19 19 22 / 0.05)"  # --hairline
   border: "#e3e3e7"        # --border
   accent: "#6c47ff"        # --brand (actions, checked states, focus)
   accent-edge: "#5b35f0"   # --brand-edge
   solid: "#42434d"         # --solid (default dark button)
-  danger: "#ef4444"
+  danger: "#ef4444"        # --destructive (fills, rings, icons)
+  danger-text: "#c10007"   # --destructive-text, also --destructive-strong behind white text
+  warning-text: "#ca3500"  # --warning-text
+  info-text: "#1447e6"     # --info-text
+  success-text: "#008236"  # --success-text
+  accent-text: "#6c47ff"   # --brand-text (#9479ff in dark)
   success: "#22c543"
   warning: "#f36b16"
 rounded:
@@ -52,7 +57,44 @@ This file is for people and for coding agents. The rules below override shadcn d
 | Hairline | `ring-1 ring-hairline` | Edges of popovers, cards, tags |
 | Edge | `ring-edge/{4,6,12,20}`, `border-edge/6` | Graded rings and dividers on dashboard surfaces |
 | Fields | `bg-field`, `ring-field-ring`, `--field-halo`, `ring-field-invalid` | Inputs, selects, OTP, textareas |
-| Status | `text-destructive`, `text-success`, `text-warning` | Errors, success, warnings |
+| Status text | `text-destructive-text`, `text-warning-text`, `text-info-text`, `text-success-text` | Any status-coloured text. `--destructive`, `--warning`, `--info` and `--success` are for fills, tints, rings and icons only |
+| Status tints | `bg-destructive/6`, `bg-warning/6`, `bg-info/6`, `bg-success/6` with a matching `ring-*/20` | Badges, banners, callouts |
+| Solid danger | `bg-destructive-strong text-destructive-foreground` | Solid red fills behind white text (counts, destructive buttons) |
+| Accent text | `text-brand-text` | Violet links and labels (`bg-brand` stays for fills) |
+
+## Contrast
+
+All text meets WCAG AA (4.5:1, or 3:1 at 18px and up) in light and dark. `npm run test:contrast` checks every text/background token pair the components use and runs in CI. When adding a token or a new pairing, add it to `tests/contrast.mjs`.
+
+- `--subtle` passes on white, the canvas and its own 4% tint. `--muted-foreground` is stronger; use it for avatar initials and anything on `--muted`.
+- `--placeholder` passes on fields.
+- Never set status-coloured text with the fill token (`text-destructive`); use the `-text` token.
+
+## Change the accent
+
+The violet accent is spread over a handful of tokens. To rebrand, set all of them in your global CSS, after the theme block:
+
+| Token | Light | Dark | Drives |
+|---|---|---|---|
+| `--brand` | `#6c47ff` | inherits light | Primary buttons, checked controls, progress, selection |
+| `--brand-edge` | `#5b35f0` | inherits light | 1px ring around brand fills (also used by `--control-shadow-checked`) |
+| `--brand-foreground` | `#ffffff` | `#ffffff` | Text and icons on brand fills |
+| `--brand-text` | `#6c47ff` | `#9479ff` | Violet text and links (must pass 4.5:1 on white and the dark canvas) |
+| `--ring` | `#6c47ff` | `#9785ff` | Focus rings |
+| `--sidebar-ring` | `#6c47ff` | `#9785ff` | Focus rings inside the sidebar |
+| `--sidebar-primary` | `#131316` (ink, not violet) | `#9785ff` | Active sidebar item fill |
+| `--chart-1`, `--chart-2` | `#6c47ff`, `#9785ff` | inherit light | First two chart series |
+
+```css
+:root { --brand: #0f9d58; --brand-edge: #0b7a44; --brand-text: #0b7a44; --ring: #0f9d58; --sidebar-ring: #0f9d58; --chart-1: #0f9d58; --chart-2: #5cc68d; }
+.dark { --brand-text: #5cc68d; --ring: #5cc68d; --sidebar-ring: #5cc68d; --sidebar-primary: #5cc68d; }
+```
+
+After changing them, run `npm run test:contrast` in a Vellum checkout with your values, or check `--brand-text` and `--brand-foreground` on `--brand` by hand.
+
+## Touch targets
+
+Controls stay visually dense (24 to 32px), but on touch screens (`pointer: coarse`) each `Button` gets an invisible hit area of at least 44×44px, centred on the button, so apps don't need to enlarge controls. Checkbox and radio already extend their hit area with a pseudo-element, and labels of fields, checkboxes, radios and switches are clickable. Keep about 8px between adjacent compact buttons so the extended areas don't overlap. The marketing `gloss` pills keep their 30px hit area.
 
 ## Elevation
 

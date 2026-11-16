@@ -1,7 +1,9 @@
 "use client"
 
+/** Feature section: eyebrow, title and body over a bento grid of feature cards, with an optional animated badge row. */
+
 import * as React from "react"
-import { FingerprintIcon, KeyRoundIcon, ShieldCheckIcon, UsersIcon } from "lucide-react"
+import { ArrowRightIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)"
@@ -22,7 +24,7 @@ function usePrefersReducedMotion() {
 
 /** Small label above a section title. */
 export function Eyebrow({ children, className }: { children: React.ReactNode; className?: string }) {
-  return <p className={cn("text-[0.8125rem] leading-6 font-medium text-brand", className)}>{children}</p>
+  return <p className={cn("text-[0.8125rem] leading-6 font-medium text-brand-text", className)}>{children}</p>
 }
 
 /** Section heading (an `h2`). */
@@ -39,24 +41,44 @@ export function SectionBody({ children, className }: { children: React.ReactNode
   return <p className={cn("mt-4 max-w-xl text-[0.9375rem] leading-6 text-pretty text-muted-foreground", className)}>{children}</p>
 }
 
-/** Bento card: a visual on top and copy at the bottom (or first with `copyFirst`). */
+export type FeatureLink = { label: string; href: string }
+
+/**
+ * Bento card: a visual on top and copy at the bottom (or first with `copyFirst`).
+ * An optional `link` renders under the copy through `linkComponent` (defaults to `"a"`).
+ */
 export function FeatureCard({
   title,
   body,
+  link,
+  linkComponent,
   children,
   copyFirst,
   className,
 }: {
   title: string
   body: string
+  link?: FeatureLink
+  /** Element or component used for `link`, e.g. your router's `Link`. Defaults to `"a"`. */
+  linkComponent?: React.ElementType
   children?: React.ReactNode
   copyFirst?: boolean
   className?: string
 }) {
+  const Link = linkComponent ?? "a"
   const copy = (
     <div className="relative z-10 p-6 sm:p-8">
       <h3 className="text-[0.8125rem] leading-6 font-medium text-foreground">{title}</h3>
       <p className="mt-2 max-w-96 text-[0.8125rem] leading-5 text-muted-foreground">{body}</p>
+      {link && (
+        <Link
+          href={link.href}
+          className="group/link mt-3 inline-flex items-center gap-1 rounded-sm text-[0.8125rem] leading-5 font-medium text-brand-text outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+        >
+          {link.label}
+          <ArrowRightIcon aria-hidden="true" className="size-3.5 transition-transform group-hover/link:translate-x-0.5" />
+        </Link>
+      )}
     </div>
   )
   return (
@@ -69,7 +91,7 @@ export function FeatureCard({
 }
 
 /** Browser chrome: three dots and a URL pill, with the page below. Wrap screenshots or mock UI in it. */
-export function BrowserFrame({ url = "acme.app", className, children }: { url?: string; className?: string; children: React.ReactNode }) {
+export function BrowserFrame({ url, className, children }: { url?: string; className?: string; children: React.ReactNode }) {
   return (
     <div className={cn("relative flex flex-col overflow-hidden rounded-lg bg-surface-muted shadow-card ring-1 ring-hairline dark:shadow-card-dark", className)}>
       <div className="relative z-20 flex w-full items-center justify-center bg-accent px-3 py-2 shadow-[0_0.5px_0_0_var(--color-hairline)]">
@@ -78,8 +100,8 @@ export function BrowserFrame({ url = "acme.app", className, children }: { url?: 
             <span key={d} className="size-1.5 rounded-full bg-subtle/25" />
           ))}
         </div>
-        <div className="flex min-w-0 items-center justify-center rounded-full bg-subtle/10 px-6 py-0.5 sm:px-16">
-          <span className="truncate text-[0.5625rem] leading-3.5 tracking-[0.01em] text-placeholder">{url}</span>
+        <div className="flex h-3.5 min-w-0 items-center justify-center rounded-full bg-subtle/10 px-6 py-0.5 sm:px-16">
+          {url && <span className="truncate text-[0.5625rem] leading-3.5 tracking-[0.01em] text-placeholder">{url}</span>}
         </div>
       </div>
       {children}
@@ -87,7 +109,7 @@ export function BrowserFrame({ url = "acme.app", className, children }: { url?: 
   )
 }
 
-/** "Secure and compliant" row whose badges light up one after another (static under reduced motion). */
+/** A label beside a row of short wordmarks that light up one after another (all lit under reduced motion). */
 export function ComplianceBadges({ label, badges, interval = 2200, className }: { label: string; badges: string[]; interval?: number; className?: string }) {
   const reduced = usePrefersReducedMotion()
   const [tick, setTick] = React.useState(0)
@@ -126,24 +148,41 @@ export function ComplianceBadges({ label, badges, interval = 2200, className }: 
   )
 }
 
-export type Feature = { title: string; body: string; visual?: React.ReactNode; copyFirst?: boolean; className?: string }
+export type Feature = {
+  title: string
+  body: string
+  /** Optional "Learn more"-style link under the copy. */
+  link?: FeatureLink
+  visual?: React.ReactNode
+  copyFirst?: boolean
+  /** Column span and other layout classes, e.g. `md:col-span-4` on the 6-column grid. */
+  className?: string
+}
 
-/** Feature section: eyebrow, title and body, a bento grid of feature cards, and an optional compliance badge row. */
+/**
+ * Feature section: eyebrow, title and body, a bento grid of feature cards, and an optional badge row.
+ *
+ * Feature links render through `linkComponent`, which defaults to `"a"`; pass your router's `Link`
+ * for client-side navigation.
+ */
 export function FeatureGrid({
-  eyebrow = "Platform",
-  title = "Everything your users touch, ready on day one",
-  description = "Accounts, workspaces and permissions arrive as tested building blocks. Wire them in, then customize every screen.",
-  features = defaultFeatures,
-  compliance = { label: "Secure, private and compliant", badges: ["SOC 2", "GDPR", "HIPAA", "ISO 27001"] },
+  eyebrow,
+  title,
+  description,
+  features,
+  compliance,
+  linkComponent,
   tone = "light",
   className,
 }: {
   eyebrow?: React.ReactNode
-  title?: React.ReactNode
+  title: React.ReactNode
   description?: React.ReactNode
-  features?: Feature[]
-  /** Pass `null` to hide the badge row. */
+  features: Feature[]
+  /** Label and wordmarks for the animated badge row (certifications, standards, platforms). Hidden when omitted or `null`. */
   compliance?: { label: string; badges: string[] } | null
+  /** Element or component used for feature links, e.g. your router's `Link`. Defaults to `"a"`. */
+  linkComponent?: React.ElementType
   tone?: "light" | "dark"
   className?: string
 }) {
@@ -156,109 +195,20 @@ export function FeatureGrid({
       </div>
       <div className="mt-10 grid grid-cols-1 gap-4 md:grid-cols-6">
         {features.map((f) => (
-          <FeatureCard key={f.title} title={f.title} body={f.body} copyFirst={f.copyFirst} className={f.className}>
+          <FeatureCard
+            key={f.title}
+            title={f.title}
+            body={f.body}
+            link={f.link}
+            linkComponent={linkComponent}
+            copyFirst={f.copyFirst}
+            className={f.className}
+          >
             {f.visual}
           </FeatureCard>
         ))}
       </div>
       {compliance && <ComplianceBadges label={compliance.label} badges={compliance.badges} className="mt-16 sm:mt-24" />}
     </section>
-  )
-}
-
-/* ------------------------------- Demo visuals ------------------------------- */
-
-function SkeletonLine({ className }: { className?: string }) {
-  return <div className={cn("h-2 rounded-full bg-subtle/12", className)} />
-}
-
-function SignInMock() {
-  return (
-    <div className="w-full px-6 pt-8 sm:px-8">
-      <BrowserFrame url="app.acme.example/sign-in" className="mx-auto max-w-md">
-        <div className="flex flex-col items-center gap-3 px-8 py-8">
-          <div className="size-6 rounded-full bg-foreground" />
-          <SkeletonLine className="w-28" />
-          <div className="mt-2 h-7 w-full rounded-md bg-field ring-1 ring-field-ring" />
-          <div className="h-7 w-full rounded-md bg-solid" />
-        </div>
-      </BrowserFrame>
-    </div>
-  )
-}
-
-function MembersMock() {
-  const rows = [
-    { name: "Maya L.", role: "Admin" },
-    { name: "Daniel O.", role: "Member" },
-    { name: "Priya R.", role: "Member" },
-  ]
-  return (
-    <ul className="w-full space-y-2 px-6 pt-8 sm:px-8">
-      {rows.map((r) => (
-        <li key={r.name} className="flex items-center gap-3 rounded-lg bg-surface-muted px-3 py-2 ring-1 ring-hairline">
-          <span className="flex size-6 items-center justify-center rounded-full bg-accent text-[0.625rem] font-medium text-foreground">{r.name[0]}</span>
-          <span className="text-xs font-medium text-foreground">{r.name}</span>
-          <span className="ml-auto text-[0.6875rem] text-subtle">{r.role}</span>
-        </li>
-      ))}
-    </ul>
-  )
-}
-
-function IconCluster() {
-  const icons = [<ShieldCheckIcon key="s" />, <KeyRoundIcon key="k" />, <FingerprintIcon key="f" />, <UsersIcon key="u" />]
-  return (
-    <div className="grid grid-cols-2 gap-3 pt-8">
-      {icons.map((icon, i) => (
-        <span key={i} className="flex size-12 items-center justify-center rounded-xl bg-surface-muted text-foreground shadow-surface ring-1 ring-hairline [&_svg]:size-5">
-          {icon}
-        </span>
-      ))}
-    </div>
-  )
-}
-
-const defaultFeatures: Feature[] = [
-  {
-    title: "Prebuilt sign-in",
-    body: "Drop in complete sign-in and sign-up screens that match your brand, with email, passkeys and social providers.",
-    visual: <SignInMock />,
-    className: "md:col-span-4",
-  },
-  {
-    title: "Workspaces and roles",
-    body: "Invite members, assign roles and scope data per workspace.",
-    visual: <MembersMock />,
-    className: "md:col-span-2",
-  },
-  {
-    title: "Security by default",
-    body: "Bot protection, session limits and breach checks are on from the start.",
-    visual: <IconCluster />,
-    className: "md:col-span-2",
-  },
-  {
-    title: "Works with your stack",
-    body: "SDKs for popular frameworks and a typed REST API, so Acme fits whatever you already run.",
-    copyFirst: true,
-    visual: (
-      <div className="flex w-full flex-wrap justify-center gap-2 px-6 pb-8 sm:px-8">
-        {["TypeScript", "Go", "Python", "Ruby", "REST", "Webhooks", "CLI"].map((s) => (
-          <span key={s} className="rounded-md bg-surface-muted px-2.5 py-1 font-mono text-xs text-muted-foreground ring-1 ring-hairline">
-            {s}
-          </span>
-        ))}
-      </div>
-    ),
-    className: "md:col-span-4",
-  },
-]
-
-export default function FeatureGridDemo() {
-  return (
-    <div className="mx-auto max-w-5xl p-6 sm:p-10">
-      <FeatureGrid />
-    </div>
   )
 }

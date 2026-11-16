@@ -1,23 +1,7 @@
 "use client"
 
-import {
-  BotIcon,
-  BoxIcon,
-  BrushIcon,
-  Building2Icon,
-  ChevronDownIcon,
-  CodeIcon,
-  FingerprintIcon,
-  LayoutGridIcon,
-  MenuIcon,
-  PanelsTopLeftIcon,
-  ReceiptIcon,
-  SearchIcon,
-  SettingsIcon,
-  ShieldCheckIcon,
-  UploadIcon,
-} from "lucide-react"
-import { useEffect, useId, useMemo, useState } from "react"
+import { ChevronDownIcon, MenuIcon, SearchIcon } from "lucide-react"
+import { useEffect, useId, useMemo, useRef, useState } from "react"
 import { Dialog, DialogContent, DialogPanel, DialogTitle } from "@/components/ui/dialog"
 import { Kbd, KbdGroup } from "@/components/ui/kbd"
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
@@ -26,17 +10,62 @@ import { cn } from "@/lib/utils"
 /* ---------------------------------- Types ---------------------------------- */
 
 export type SettingsNavLink = { label: string; href: string }
-export type SettingsNavGroup = { label: string; icon?: React.ReactNode; href?: string; children?: SettingsNavLink[] }
+/** A top-level entry: either a plain link (`href`) or a collapsible group of links (`children`). */
+export type SettingsNavGroup =
+  | { label: string; icon?: React.ReactNode; href: string; children?: undefined }
+  | { label: string; icon?: React.ReactNode; href?: undefined; children: SettingsNavLink[] }
 export type SettingsNavSection = { title: string; items: SettingsNavGroup[] }
 export type SettingsNavResult = SettingsNavLink & { group: string }
-type NavigateHandler = (link: SettingsNavLink, event?: React.MouseEvent<HTMLAnchorElement>) => void
+export type SettingsNavigateHandler = (link: SettingsNavLink, event?: React.MouseEvent<HTMLElement>) => void
+type NavigateHandler = SettingsNavigateHandler
+
+/* -------------------------------- Shortcut --------------------------------- */
+
+function isEditable(target: EventTarget | null) {
+  const el = target as HTMLElement | null
+  if (!el || typeof el.closest !== "function") return false
+  return el.isContentEditable || !!el.closest("input, textarea, select, [contenteditable]:not([contenteditable='false'])")
+}
+
+/**
+ * Opt-in ⌘K / Ctrl+K listener on the window. Ignores key presses that start in an editable element
+ * (inputs, textareas, selects, contenteditable). Register it once, near the app root.
+ */
+export function useSettingsFindShortcut(onOpen: () => void, enabled = true) {
+  const callback = useRef(onOpen)
+  useEffect(() => {
+    callback.current = onOpen
+  })
+  useEffect(() => {
+    if (!enabled) return
+    const onKey = (e: KeyboardEvent) => {
+      if (!(e.metaKey || e.ctrlKey) || e.altKey || e.shiftKey || e.key.toLowerCase() !== "k") return
+      if (isEditable(e.target)) return
+      e.preventDefault()
+      callback.current()
+    }
+    window.addEventListener("keydown", onKey)
+    return () => window.removeEventListener("keydown", onKey)
+  }, [enabled])
+}
 
 /* --------------------------------- Pieces ---------------------------------- */
 
 const row =
   "relative isolate grid w-full grid-cols-[1rem_1fr] items-center gap-2 rounded-md px-2 py-1.5 text-left text-[0.8125rem]/5 text-foreground outline-none transition-colors before:absolute before:inset-x-0 before:inset-y-px before:-z-1 before:rounded-[inherit] before:bg-subtle/16 before:opacity-0 before:transition before:duration-50 hover:before:opacity-50 aria-[current=page]:before:opacity-100 focus-visible:ring-2 focus-visible:ring-brand/40 [&_svg]:size-4 [&_svg]:shrink-0"
 
-function NavGroup({ group, current, onNavigate }: { group: SettingsNavGroup; current?: string; onNavigate?: NavigateHandler }) {
+function NavGroup({
+  group,
+  current,
+  onNavigate,
+  linkComponent,
+}: {
+  group: SettingsNavGroup
+  current?: string
+  onNavigate?: NavigateHandler
+  linkComponent?: React.ElementType
+}) {
+  const Link = linkComponent ?? "a"
   const hasActive = group.children?.some((c) => c.href === current) ?? false
   const [open, setOpen] = useState(hasActive)
   // Re-open the group when navigation lands on one of its children.
@@ -47,18 +76,18 @@ function NavGroup({ group, current, onNavigate }: { group: SettingsNavGroup; cur
   }
 
   if (!group.children) {
-    const href = group.href ?? "#"
+    const href = group.href
     return (
       <li>
-        <a
+        <Link
           href={href}
-          onClick={(e) => onNavigate?.({ label: group.label, href }, e)}
+          onClick={(e: React.MouseEvent<HTMLElement>) => onNavigate?.({ label: group.label, href }, e)}
           aria-current={href === current ? "page" : undefined}
           className={row}
         >
           <span className="flex text-muted-foreground">{group.icon}</span>
           <span>{group.label}</span>
-        </a>
+        </Link>
       </li>
     )
   }
@@ -84,13 +113,18 @@ function NavGroup({ group, current, onNavigate }: { group: SettingsNavGroup; cur
             const active = leaf.href === current
             return (
               <li key={`${leaf.label}-${i}`}>
-                <a href={leaf.href} onClick={(e) => onNavigate?.(leaf, e)} aria-current={active ? "page" : undefined} className={row}>
+                <Link
+                  href={leaf.href}
+                  onClick={(e: React.MouseEvent<HTMLElement>) => onNavigate?.(leaf, e)}
+                  aria-current={active ? "page" : undefined}
+                  className={row}
+                >
                   <span aria-hidden="true" className="relative flex h-full justify-center place-self-stretch">
                     <span className={cn("absolute -inset-y-1.5 w-px bg-subtle/16", i === 0 && "top-0", i === children.length - 1 && "bottom-0")} />
                     {active && <span className="absolute inset-y-0 w-px bg-foreground" />}
                   </span>
                   <span>{leaf.label}</span>
-                </a>
+                </Link>
               </li>
             )
           })}
@@ -100,11 +134,15 @@ function NavGroup({ group, current, onNavigate }: { group: SettingsNavGroup; cur
   )
 }
 
-/** Grouped settings navigation: section headings, plain links and collapsible groups with a guide rail. */
+/**
+ * Grouped settings navigation: section headings, plain links and collapsible groups with a guide rail.
+ * Links render as `<a>` unless you pass `linkComponent` (for example Next's or Inertia's `Link`); it receives `href`.
+ */
 export function SettingsNav({
   sections,
   current,
   onNavigate,
+  linkComponent,
   label = "Settings",
   className,
 }: {
@@ -112,6 +150,8 @@ export function SettingsNav({
   /** href of the current page; matching links get `aria-current="page"`. */
   current?: string
   onNavigate?: NavigateHandler
+  /** Component used for every link; defaults to `"a"`. */
+  linkComponent?: React.ElementType
   label?: string
   className?: string
 }) {
@@ -122,7 +162,7 @@ export function SettingsNav({
           <h3 className="flex items-center gap-2 px-2 text-xs/4 font-medium text-subtle">{s.title}</h3>
           <ul className="mt-2">
             {s.items.map((g) => (
-              <NavGroup key={g.label} group={g} current={current} onNavigate={onNavigate} />
+              <NavGroup key={g.label} group={g} current={current} onNavigate={onNavigate} linkComponent={linkComponent} />
             ))}
           </ul>
         </div>
@@ -135,11 +175,11 @@ export function SettingsNav({
 
 function flatten(sections: SettingsNavSection[]): SettingsNavResult[] {
   return sections.flatMap((s) =>
-    s.items.flatMap((g) => (g.children ? g.children.map((c) => ({ ...c, group: g.label })) : [{ label: g.label, href: g.href ?? "#", group: s.title }]))
+    s.items.flatMap((g) => (g.children ? g.children.map((c) => ({ ...c, group: g.label })) : [{ label: g.label, href: g.href, group: s.title }]))
   )
 }
 
-/** ⌘K "Find a setting" dialog: a filtering combobox over every link in the settings navigation. */
+/** "Find a setting" dialog: a filtering combobox over every link in the settings navigation. */
 export function SettingsFindDialog({
   sections,
   open,
@@ -150,7 +190,7 @@ export function SettingsFindDialog({
   sections: SettingsNavSection[]
   open: boolean
   onOpenChange: (open: boolean) => void
-  /** Called with the chosen link. Without it, the browser navigates to the link's href (unless it is "#"). */
+  /** Called with the chosen link. Without it, the browser navigates to the link's href. */
   onSelect?: (link: SettingsNavResult) => void
   placeholder?: string
 }) {
@@ -178,7 +218,7 @@ export function SettingsFindDialog({
   const choose = (link: SettingsNavResult) => {
     close()
     if (onSelect) onSelect(link)
-    else if (link.href !== "#") window.location.assign(link.href)
+    else window.location.assign(link.href)
   }
 
   return (
@@ -249,7 +289,7 @@ export function SettingsFindDialog({
                 )}
               >
                 <span className="truncate">{r.label}</span>
-                <span className="shrink-0 text-xs text-placeholder">{r.group}</span>
+                <span className="shrink-0 text-xs text-subtle">{r.group}</span>
               </li>
             ))}
           </ul>
@@ -261,36 +301,43 @@ export function SettingsFindDialog({
 
 /* -------------------------------- Sidebar ---------------------------------- */
 
-/** Desktop settings sidebar: a "Find…" box that opens the ⌘K dialog above the grouped, collapsible settings navigation. */
+/**
+ * Desktop settings sidebar: a "Find…" box that opens the find dialog above the grouped, collapsible settings navigation.
+ * ⌘K is off by default: set `shortcut` to listen on the window, or call `useSettingsFindShortcut` yourself and
+ * control the dialog with `findOpen` / `onFindOpenChange`. Links render as `<a>` unless you pass `linkComponent`.
+ */
 export function SettingsSidebar({
   sections,
   current,
   onNavigate,
+  linkComponent,
   label,
-  shortcut = true,
+  shortcut = false,
+  findOpen: findOpenProp,
+  onFindOpenChange,
   className,
 }: {
   sections: SettingsNavSection[]
   current?: string
   onNavigate?: NavigateHandler
+  /** Component used for every link; defaults to `"a"`. */
+  linkComponent?: React.ElementType
   label?: string
-  /** Listen for ⌘K / Ctrl+K on the window to open the find dialog. */
+  /** Listen for ⌘K / Ctrl+K on the window (outside editable fields) to open the find dialog. */
   shortcut?: boolean
+  /** Controlled open state of the find dialog. */
+  findOpen?: boolean
+  onFindOpenChange?: (open: boolean) => void
   className?: string
 }) {
-  const [findOpen, setFindOpen] = useState(false)
+  const [findOpenState, setFindOpenState] = useState(false)
+  const findOpen = findOpenProp ?? findOpenState
+  const setFindOpen = (open: boolean) => {
+    setFindOpenState(open)
+    onFindOpenChange?.(open)
+  }
 
-  useEffect(() => {
-    if (!shortcut) return
-    const onKey = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
-        e.preventDefault()
-        setFindOpen(true)
-      }
-    }
-    window.addEventListener("keydown", onKey)
-    return () => window.removeEventListener("keydown", onKey)
-  }, [shortcut])
+  useSettingsFindShortcut(() => setFindOpen(true), shortcut)
 
   return (
     <aside data-slot="settings-sidebar" className={cn("max-lg:hidden lg:w-58 lg:flex-none", className)}>
@@ -299,7 +346,7 @@ export function SettingsSidebar({
         onClick={() => setFindOpen(true)}
         aria-haspopup="dialog"
         aria-keyshortcuts={shortcut ? "Meta+K Control+K" : undefined}
-        className="mb-7 flex w-full items-center justify-between rounded-md bg-field px-2.5 text-[0.8125rem] text-placeholder shadow-control transition outline-none hover:shadow-control-hover focus-visible:outline-3 focus-visible:outline-brand/40"
+        className="mb-7 flex w-full items-center justify-between rounded-md bg-field px-2.5 text-[0.8125rem] text-subtle shadow-control transition outline-none hover:shadow-control-hover focus-visible:outline-3 focus-visible:outline-brand/40"
       >
         <span className="flex items-center">
           <SearchIcon aria-hidden="true" className="size-4 text-subtle" />
@@ -312,7 +359,7 @@ export function SettingsSidebar({
           </KbdGroup>
         )}
       </button>
-      <SettingsNav sections={sections} current={current} onNavigate={onNavigate} label={label} />
+      <SettingsNav sections={sections} current={current} onNavigate={onNavigate} linkComponent={linkComponent} label={label} />
       <SettingsFindDialog
         sections={sections}
         open={findOpen}
@@ -323,12 +370,13 @@ export function SettingsSidebar({
   )
 }
 
-/** Below lg: a menu button with the current section name that slides the same navigation in from the left. */
+/** Below lg: a menu button with the current section name that slides the same navigation in from the left. Links render as `<a>` unless you pass `linkComponent`. */
 export function SettingsMobileNav({
   sections,
   current,
   currentLabel,
   onNavigate,
+  linkComponent,
   label,
   className,
 }: {
@@ -337,6 +385,8 @@ export function SettingsMobileNav({
   /** Shown next to the menu button, usually the current page title. */
   currentLabel: string
   onNavigate?: NavigateHandler
+  /** Component used for every link; defaults to `"a"`. */
+  linkComponent?: React.ElementType
   label?: string
   className?: string
 }) {
@@ -361,6 +411,7 @@ export function SettingsMobileNav({
               sections={sections}
               current={current}
               label={label}
+              linkComponent={linkComponent}
               onNavigate={(link, e) => {
                 onNavigate?.(link, e)
                 setOpen(false)
@@ -370,76 +421,5 @@ export function SettingsMobileNav({
         </SheetContent>
       </Sheet>
     </aside>
-  )
-}
-
-/* ---------------------------------- Demo ----------------------------------- */
-
-const demoSections: SettingsNavSection[] = [
-  {
-    title: "Configure",
-    items: [
-      {
-        label: "User & authentication",
-        icon: <FingerprintIcon strokeWidth={1.5} />,
-        children: [
-          { label: "Sign-in methods", href: "#sign-in-methods" },
-          { label: "SSO connections", href: "#sso" },
-          { label: "Multi-factor", href: "#multi-factor" },
-          { label: "Access mode", href: "#access-mode" },
-          { label: "Legal", href: "#legal" },
-        ],
-      },
-      { label: "Agents", icon: <BotIcon strokeWidth={1.5} />, children: [{ label: "MCP servers", href: "#mcp" }, { label: "Feedback", href: "#feedback" }] },
-      { label: "Sessions", icon: <BoxIcon strokeWidth={1.5} />, children: [{ label: "Sessions", href: "#sessions" }, { label: "Token templates", href: "#tokens" }] },
-      { label: "Organizations", icon: <Building2Icon strokeWidth={1.5} />, children: [{ label: "Settings", href: "#org-settings" }, { label: "Roles & permissions", href: "#roles" }] },
-      { label: "Billing", icon: <ReceiptIcon strokeWidth={1.5} />, children: [{ label: "Settings", href: "#billing-settings" }, { label: "Plans", href: "#plans" }, { label: "Discounts", href: "#discounts" }] },
-      { label: "Protect", icon: <ShieldCheckIcon strokeWidth={1.5} />, children: [{ label: "Protections", href: "#protections" }, { label: "Blocklist", href: "#blocklist" }] },
-      { label: "Account portal", icon: <PanelsTopLeftIcon strokeWidth={1.5} />, href: "#portal" },
-      { label: "Features", icon: <LayoutGridIcon strokeWidth={1.5} />, href: "#features" },
-      { label: "Customization", icon: <BrushIcon strokeWidth={1.5} />, children: [{ label: "Avatars", href: "#avatars" }, { label: "Emails", href: "#emails" }, { label: "SMS", href: "#sms" }] },
-      {
-        label: "Developers",
-        icon: <CodeIcon strokeWidth={1.5} />,
-        children: [
-          { label: "Webhooks", href: "#webhooks" },
-          { label: "Domains", href: "#domains" },
-          { label: "API keys", href: "#api-keys" },
-          { label: "OAuth applications", href: "#oauth" },
-          { label: "Integrations", href: "#integrations" },
-        ],
-      },
-    ],
-  },
-  {
-    title: "Environment",
-    items: [
-      { label: "Settings", icon: <SettingsIcon strokeWidth={1.5} />, href: "#environment-settings" },
-      { label: "Updates", icon: <UploadIcon strokeWidth={1.5} />, href: "#updates" },
-    ],
-  },
-  { title: "Application", items: [{ label: "Settings", icon: <SettingsIcon strokeWidth={1.5} />, href: "#application-settings" }] },
-]
-
-export default function SettingsSidebarDemo() {
-  const [current, setCurrent] = useState("#sign-in-methods")
-  const title = flatten(demoSections).find((l) => l.href === current)?.label ?? "Settings"
-  const navigate: NavigateHandler = (link, e) => {
-    e?.preventDefault()
-    setCurrent(link.href)
-  }
-
-  return (
-    <div className="mx-auto w-[calc(100%-2.5rem)] max-w-6xl pt-8 pb-10 lg:pt-10">
-      <div className="flex gap-4 max-lg:flex-col lg:gap-10">
-        <SettingsSidebar sections={demoSections} current={current} onNavigate={navigate} />
-        <SettingsMobileNav sections={demoSections} current={current} currentLabel={title} onNavigate={navigate} />
-        <main className="min-w-0 flex-1">
-          <h1 className="text-xl/7 font-semibold tracking-[-0.015em] text-foreground">{title}</h1>
-          <p className="mt-1 text-sm text-subtle">Press ⌘K to jump to any setting.</p>
-          <div className="mt-8 h-72 rounded-xl bg-surface shadow-card" />
-        </main>
-      </div>
-    </div>
   )
 }

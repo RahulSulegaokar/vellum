@@ -1,45 +1,42 @@
+/** Closing call-to-action card: title, short pitch and up to two link actions over soft line art. */
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
-/** Large round mark used as the card's decorative art. */
-function MarkArt({ className }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className={className}>
-      <circle cx="12" cy="12" r="10" className="fill-surface" />
-      <path d="M7.5 15.5 12 7l4.5 8.5" fill="none" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="stroke-surface-muted" />
-    </svg>
-  )
-}
+export type CtaAction = { label: string; href: string }
 
-/** Closing call-to-action card: title, short pitch and actions over soft line art. */
+/**
+ * Closing call-to-action card: title, short pitch and actions over soft line art.
+ *
+ * `primaryAction` and `secondaryAction` render through `linkComponent`, which defaults to `"a"`; pass your
+ * router's `Link` for client-side navigation. For anything else (a form, a button that opens a dialog) use `actions`.
+ */
 export function CtaSection({
-  title = "Start building with Acme today",
-  description = (
-    <>
-      Set up accounts and workspaces in minutes. <strong className="font-medium text-foreground">Free for your first 5,000 users</strong>, no
-      credit card required.
-    </>
-  ),
-  actions = (
-    <>
-      <Button size="lg" nativeButton={false} render={<a href="#start" />}>
-        Start for free
-      </Button>
-      <Button variant="elevated" size="lg" nativeButton={false} render={<a href="#sales" />}>
-        Talk to sales
-      </Button>
-    </>
-  ),
+  title,
+  description,
+  primaryAction,
+  secondaryAction,
+  actions,
   art = true,
+  mark,
+  linkComponent,
   className,
 }: {
-  title?: React.ReactNode
+  title: React.ReactNode
   description?: React.ReactNode
+  primaryAction?: CtaAction
+  secondaryAction?: CtaAction
+  /** Extra content in the action row, rendered after the link actions. */
   actions?: React.ReactNode
-  /** Show the line art and mark on the right. */
+  /** Show the line art and the round disc on the right. */
   art?: boolean
+  /** Your brand mark or an icon, centered on the disc. Nothing renders on the disc when omitted. */
+  mark?: React.ReactNode
+  /** Element or component used for links, e.g. your router's `Link`. Defaults to `"a"`. */
+  linkComponent?: React.ElementType
   className?: string
 }) {
+  const Link = linkComponent ?? "a"
+  const hasActions = primaryAction || secondaryAction || actions
   return (
     <section
       className={cn(
@@ -60,7 +57,9 @@ export function CtaSection({
           </div>
           <div aria-hidden="true" className="pointer-events-none absolute -top-36 right-[calc(50%-16rem)] size-128 sm:-right-32 lg:-right-20 xl:right-3">
             <div className="absolute top-24 left-14 size-102 [mask:radial-gradient(closest-side,black_45%,transparent)]">
-              <MarkArt className="size-full drop-shadow-[0_24px_40px_rgb(0_0_0/0.12)]" />
+              <div className="grid size-full place-items-center rounded-full bg-surface p-[22%] text-surface-muted drop-shadow-[0_24px_40px_rgb(0_0_0/0.12)] [&_svg]:size-full">
+                {mark}
+              </div>
             </div>
           </div>
         </>
@@ -68,16 +67,22 @@ export function CtaSection({
       <div className="relative px-6 pt-20 pb-14 sm:px-10 sm:pb-20 lg:px-18">
         <h2 className="max-w-80 text-2xl font-semibold tracking-[-0.02em] text-balance text-foreground sm:text-3xl">{title}</h2>
         {description && <p className="mt-4 max-w-104 text-base/6 text-muted-foreground">{description}</p>}
-        {actions && <div className="relative z-10 mt-6 flex flex-wrap items-center gap-3">{actions}</div>}
+        {hasActions && (
+          <div className="relative z-10 mt-6 flex flex-wrap items-center gap-3">
+            {primaryAction && (
+              <Button size="lg" nativeButton={false} render={<Link href={primaryAction.href} />}>
+                {primaryAction.label}
+              </Button>
+            )}
+            {secondaryAction && (
+              <Button variant="elevated" size="lg" nativeButton={false} render={<Link href={secondaryAction.href} />}>
+                {secondaryAction.label}
+              </Button>
+            )}
+            {actions}
+          </div>
+        )}
       </div>
     </section>
-  )
-}
-
-export default function CtaSectionDemo() {
-  return (
-    <div className="mx-auto max-w-5xl p-6 sm:p-10">
-      <CtaSection />
-    </div>
   )
 }

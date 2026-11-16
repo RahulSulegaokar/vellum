@@ -12,7 +12,7 @@ const badgeVariants = cva(
         secondary:
           "bg-secondary text-secondary-foreground [a]:hover:bg-secondary/80",
         destructive:
-          "bg-destructive/10 text-destructive focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20",
+          "bg-destructive/10 text-destructive-text focus-visible:ring-destructive/20 dark:bg-destructive/20 dark:focus-visible:ring-destructive/40 [a]:hover:bg-destructive/20",
         outline:
           "border-border text-foreground [a]:hover:bg-muted [a]:hover:text-muted-foreground",
         ghost:
@@ -21,9 +21,9 @@ const badgeVariants = cva(
         /** Subtle tag, e.g. "Optional". */
         subtle: "h-auto rounded-sm border-0 bg-linear-to-t from-black/2 px-1.5 py-0.5 text-[0.6875rem]/3 font-medium ring-1 ring-inset bg-subtle/4 text-subtle ring-subtle/16",
         /** Subtle info tag, e.g. "Recommended". */
-        "subtle-info": "h-auto rounded-sm border-0 bg-linear-to-t from-black/2 px-1.5 py-0.5 text-[0.6875rem]/3 font-medium ring-1 ring-inset bg-blue-500/4 text-blue-600 ring-blue-500/16",
+        "subtle-info": "h-auto rounded-sm border-0 bg-linear-to-t from-black/2 px-1.5 py-0.5 text-[0.6875rem]/3 font-medium ring-1 ring-inset bg-info/6 text-info-text ring-info/16",
         /** Subtle warning tag, e.g. "Development". */
-        "subtle-warning": "h-auto rounded-sm border-0 bg-linear-to-t from-black/2 px-1.5 py-0.5 text-[0.6875rem]/3 font-medium ring-1 ring-inset bg-orange-500/4 text-orange-600 ring-orange-500/16",
+        "subtle-warning": "h-auto rounded-sm border-0 bg-linear-to-t from-black/2 px-1.5 py-0.5 text-[0.6875rem]/3 font-medium ring-1 ring-inset bg-warning/6 text-warning-text ring-warning/20",
       },
     },
     defaultVariants: {

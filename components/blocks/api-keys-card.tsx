@@ -24,7 +24,7 @@ import { cn } from "@/lib/utils"
 export type ApiKey = {
   id: string
   name: string
-  /** Visible prefix, e.g. "ak_live_". */
+  /** Visible prefix, e.g. "key_live_". Use "" for none. */
   prefix: string
   /** Last four characters; the rest is masked. */
   last4: string
@@ -65,7 +65,7 @@ function CopyButton({ value, label }: { value: string; label: string }) {
         }
       }}
     >
-      {copied ? <CheckIcon className="text-green-600" /> : <CopyIcon />}
+      {copied ? <CheckIcon className="text-success" /> : <CopyIcon />}
     </Button>
   )
 }
@@ -111,7 +111,7 @@ function CreateKeyDialog({
                   <CopyButton value={created.secret} label="Copy API key" />
                 </div>
                 <p className="flex items-start gap-2 text-[0.8125rem]/[1.125rem] text-subtle">
-                  <TriangleAlertIcon className="mt-0.5 size-3.5 shrink-0 text-orange-600" aria-hidden="true" />
+                  <TriangleAlertIcon className="mt-0.5 size-3.5 shrink-0 text-warning" aria-hidden="true" />
                   Store it somewhere safe, like a secrets manager or environment variable.
                 </p>
               </DialogSection>
@@ -157,7 +157,7 @@ function CreateKeyDialog({
                   required
                 />
                 {error && (
-                  <p id={`${id}-error`} className="text-[0.8125rem] text-destructive">
+                  <p id={`${id}-error`} className="text-[0.8125rem] text-destructive-text">
                     {error}
                   </p>
                 )}
@@ -186,14 +186,18 @@ function RevokeKeyDialog({
   onOpenChange: (open: boolean) => void
   onConfirm: (key: ApiKey) => void
 }) {
+  // Keep the last key so the copy doesn't blank out while the dialog animates out.
+  const [last, setLast] = React.useState(apiKey)
+  if (apiKey && apiKey !== last) setLast(apiKey)
+  const shown = apiKey ?? last
   return (
     <Dialog open={apiKey !== null} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogPanel>
           <DialogHeader>
-            <DialogTitle>Revoke “{apiKey?.name}”?</DialogTitle>
+            <DialogTitle>Revoke “{shown?.name}”?</DialogTitle>
             <DialogDescription>
-              Requests using <code className="font-mono text-foreground">{apiKey ? maskKey(apiKey) : ""}</code> will start failing immediately. This can&apos;t be
+              Requests using <code className="font-mono text-foreground">{shown ? maskKey(shown) : ""}</code> will start failing immediately. This can&apos;t be
               undone.
             </DialogDescription>
           </DialogHeader>
@@ -213,14 +217,14 @@ function RevokeKeyDialog({
 export function ApiKeysCard({
   title = "API keys",
   description = "Keys authenticate requests from your servers. Keep them secret.",
-  keys: keysProp = demoKeys,
+  keys: keysProp,
   onCreate,
   onRevoke,
   className,
 }: {
   title?: string
   description?: React.ReactNode
-  keys?: ApiKey[]
+  keys: ApiKey[]
   /** Create the key on your backend and resolve with it, including the full secret. Omit to hide "Create key". */
   onCreate?: (name: string) => Promise<CreatedApiKey>
   onRevoke?: (id: string) => void | Promise<void>
@@ -275,8 +279,8 @@ export function ApiKeysCard({
                   <div>{k.lastUsedAt ? `Last used ${formatDate(k.lastUsedAt)}` : "Never used"}</div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <CopyButton value={maskKey(k)} label={`Copy key ID for ${k.name}`} />
-                  <Button variant="ghost" size="compact-sm" className="text-destructive hover:text-destructive" onClick={() => setRevoking(k)}>
+                  <CopyButton value={k.id} label={`Copy key ID for ${k.name}`} />
+                  <Button variant="ghost" size="compact-sm" className="text-destructive-text hover:text-destructive-text" aria-label={`Revoke ${k.name}`} onClick={() => setRevoking(k)}>
                     Revoke
                   </Button>
                 </div>
@@ -306,35 +310,5 @@ export function ApiKeysCard({
         }}
       />
     </section>
-  )
-}
-
-const demoKeys: ApiKey[] = [
-  { id: "key_1", name: "Production", prefix: "ak_live_", last4: "3f9a", environment: "live", createdAt: "2026-06-02T00:00:00Z", lastUsedAt: "2026-11-16T00:00:00Z" },
-  { id: "key_2", name: "Staging", prefix: "ak_test_", last4: "b21c", environment: "test", createdAt: "2026-08-19T00:00:00Z", lastUsedAt: "2026-11-14T00:00:00Z" },
-  { id: "key_3", name: "CI runner", prefix: "ak_test_", last4: "77e0", environment: "test", createdAt: "2026-10-01T00:00:00Z" },
-]
-
-/** Demo-only key factory; runs in the click handler, never during render. */
-async function demoCreate(name: string): Promise<CreatedApiKey> {
-  await new Promise((r) => setTimeout(r, 600))
-  const bytes = crypto.getRandomValues(new Uint8Array(16))
-  const hex = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("")
-  return {
-    id: `key_${hex.slice(0, 8)}`,
-    name,
-    prefix: "ak_test_",
-    last4: hex.slice(-4),
-    environment: "test",
-    createdAt: new Date().toISOString(),
-    secret: `ak_test_${hex}`,
-  }
-}
-
-export default function ApiKeysCardDemo() {
-  return (
-    <div className="mx-auto max-w-3xl p-6 sm:p-10">
-      <ApiKeysCard onCreate={demoCreate} />
-    </div>
   )
 }

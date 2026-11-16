@@ -64,6 +64,46 @@ function SearchField({ value, onChange, placeholder, label }: { value: string; o
   )
 }
 
+type PendingRemoval = { kind: "member"; id: string; label: string } | { kind: "invitation"; id: string; label: string }
+
+function ConfirmRemoveDialog({
+  target,
+  onOpenChange,
+  onConfirm,
+}: {
+  target: PendingRemoval | null
+  onOpenChange: (open: boolean) => void
+  onConfirm: (target: PendingRemoval) => void
+}) {
+  // Keep the last target so the copy doesn't change while the dialog animates out.
+  const [last, setLast] = React.useState(target)
+  if (target && target !== last) setLast(target)
+  const shown = target ?? last
+  const member = shown?.kind === "member"
+  return (
+    <Dialog open={target !== null} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md" showCloseButton={false}>
+        <DialogPanel>
+          <DialogHeader>
+            <DialogTitle>{member ? `Remove ${shown?.label}?` : "Revoke invitation?"}</DialogTitle>
+            <DialogDescription>
+              {member
+                ? "They'll lose access to this workspace right away. You can invite them again later."
+                : `The invitation link sent to ${shown?.label ?? ""} will stop working. You can send a new one later.`}
+            </DialogDescription>
+          </DialogHeader>
+        </DialogPanel>
+        <DialogFooter>
+          <DialogClose render={<Button type="button" variant="elevated" size="compact" />}>Cancel</DialogClose>
+          <Button type="button" variant="destructive" size="compact" onClick={() => target && onConfirm(target)}>
+            {member ? "Remove member" : "Revoke invitation"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 function InviteDialog({
   open,
   onOpenChange,
@@ -152,13 +192,16 @@ function InviteDialog({
   )
 }
 
-/** Workspace members: Members/Invitations tabs, search, invite dialog, and a table with per-member role select and actions. */
+/**
+ * Workspace members: Members/Invitations tabs, search, invite dialog, and a table with per-member role select and
+ * an actions menu. Removing a member or revoking an invitation asks for confirmation first.
+ */
 export function MembersCard({
   title = "Members",
-  members: membersProp = demoMembers,
-  invitations: invitationsProp = demoInvitations,
-  roles = ["Admin", "Member"],
-  currentUserId = "m_1",
+  members: membersProp,
+  invitations: invitationsProp = [],
+  roles,
+  currentUserId,
   onInvite,
   onRoleChange,
   onRemove,
@@ -166,10 +209,11 @@ export function MembersCard({
   className,
 }: {
   title?: string
-  members?: Member[]
+  members: Member[]
+  /** Pending invitations; none by default. */
   invitations?: Invitation[]
   /** Role names offered in the selects. */
-  roles?: string[]
+  roles: string[]
   /** The signed-in member; their row can't be removed or re-roled. */
   currentUserId?: string
   onInvite?: (values: { emails: string[]; role: string }) => void | Promise<void>
@@ -178,11 +222,12 @@ export function MembersCard({
   onRevokeInvitation?: (invitationId: string) => void
   className?: string
 }) {
-  // Local copies so the demo responds; pass callbacks to persist changes.
+  // Local copies so the list responds right away; pass callbacks to persist changes.
   const [members, setMembers] = React.useState(membersProp)
   const [invitations, setInvitations] = React.useState(invitationsProp)
   const [query, setQuery] = React.useState("")
   const [inviteOpen, setInviteOpen] = React.useState(false)
+  const [removing, setRemoving] = React.useState<PendingRemoval | null>(null)
   const titleId = React.useId()
 
   const q = query.trim().toLowerCase()
@@ -229,7 +274,7 @@ export function MembersCard({
                         <div className="flex items-center gap-2.5">
                           <Avatar size="sm">
                             {m.imageUrl && <AvatarImage src={m.imageUrl} alt="" />}
-                            <AvatarFallback className="bg-solid text-[0.625rem] font-semibold text-solid-foreground">{initials(m.name)}</AvatarFallback>
+                            <AvatarFallback className="bg-muted text-[0.625rem] font-semibold text-muted-foreground">{initials(m.name)}</AvatarFallback>
                           </Avatar>
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5 truncate font-medium text-foreground">
@@ -272,14 +317,8 @@ export function MembersCard({
                             <MoreHorizontalIcon />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-40">
-                            <DropdownMenuItem
-                              variant="destructive"
-                              onClick={() => {
-                                setMembers((list) => list.filter((x) => x.id !== m.id))
-                                onRemove?.(m.id)
-                              }}
-                            >
-                              Remove member
+                            <DropdownMenuItem variant="destructive" onClick={() => setRemoving({ kind: "member", id: m.id, label: m.name })}>
+                              Remove member…
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -319,14 +358,7 @@ export function MembersCard({
                         <div className="text-xs text-subtle">Invited {formatDate(i.invitedAt)}</div>
                       </div>
                       <Badge variant="subtle">{i.role}</Badge>
-                      <Button
-                        variant="ghost"
-                        size="compact-sm"
-                        onClick={() => {
-                          setInvitations((list) => list.filter((x) => x.id !== i.id))
-                          onRevokeInvitation?.(i.id)
-                        }}
-                      >
+                      <Button variant="ghost" size="compact-sm" aria-label={`Revoke invitation for ${i.email}`} onClick={() => setRemoving({ kind: "invitation", id: i.id, label: i.email })}>
                         Revoke
                       </Button>
                     </li>
@@ -342,10 +374,25 @@ export function MembersCard({
         roles={roles}
         onInvite={async (values) => {
           await onInvite?.(values)
+          const invitedAt = new Date().toISOString()
           setInvitations((list) => [
             ...list,
-            ...values.emails.map((email, n) => ({ id: `inv_${list.length + n}_${email}`, email, role: values.role, invitedAt: "2026-11-17T00:00:00Z" })),
+            ...values.emails.map((email, n) => ({ id: `inv_${list.length + n}_${email}`, email, role: values.role, invitedAt })),
           ])
+        }}
+      />
+      <ConfirmRemoveDialog
+        target={removing}
+        onOpenChange={(open) => !open && setRemoving(null)}
+        onConfirm={(t) => {
+          setRemoving(null)
+          if (t.kind === "member") {
+            setMembers((list) => list.filter((x) => x.id !== t.id))
+            onRemove?.(t.id)
+          } else {
+            setInvitations((list) => list.filter((x) => x.id !== t.id))
+            onRevokeInvitation?.(t.id)
+          }
         }}
       />
     </section>
@@ -355,13 +402,13 @@ export function MembersCard({
 /** Roles list: search, a create action and a table of role name, key and permission count. */
 export function RolesCard({
   title = "Roles & permissions",
-  roles = demoRoles,
+  roles,
   onCreateRole,
   onSelectRole,
   className,
 }: {
   title?: string
-  roles?: Role[]
+  roles: Role[]
   onCreateRole?: () => void
   onSelectRole?: (key: string) => void
   className?: string
@@ -413,26 +460,5 @@ export function RolesCard({
         </ul>
       </div>
     </section>
-  )
-}
-
-const demoMembers: Member[] = [
-  { id: "m_1", name: "Ada Park", email: "ada.park@example.com", role: "Admin", joinedAt: "2026-01-04T00:00:00Z" },
-  { id: "m_2", name: "Ben Ortiz", email: "ben.ortiz@example.com", role: "Member", joinedAt: "2026-02-12T00:00:00Z" },
-  { id: "m_3", name: "Cleo Ng", email: "cleo.ng@example.com", role: "Member", joinedAt: "2026-03-02T00:00:00Z" },
-]
-const demoInvitations: Invitation[] = [{ id: "inv_1", email: "dev.rao@example.com", role: "Member", invitedAt: "2026-11-10T00:00:00Z" }]
-const demoRoles: Role[] = [
-  { name: "Member", key: "workspace:member", permissions: 2, description: "Read access to workspace resources" },
-  { name: "Admin", key: "workspace:admin", permissions: 9, description: "Full access, including members and billing" },
-  { name: "Billing manager", key: "workspace:billing", permissions: 4 },
-]
-
-export default function MembersCardDemo() {
-  return (
-    <div className="mx-auto flex max-w-5xl flex-col gap-8 p-6 sm:p-10">
-      <MembersCard />
-      <RolesCard onCreateRole={() => {}} />
-    </div>
   )
 }

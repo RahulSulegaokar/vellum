@@ -1,11 +1,9 @@
 "use client"
 
-import { ChevronDownIcon } from "lucide-react"
-import { useId, useMemo, useState } from "react"
+import { useId } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
@@ -83,7 +81,7 @@ export function SettingsSwitchRow({
 
 export type SettingsOption = { value: string; label: string; description?: string }
 
-/** Nested multi-select under a switch row ("Verification methods"); keeps at least `min` options selected. */
+/** Nested multi-select under a switch row ("Include in the digest"); keeps at least `min` options selected. */
 export function SettingsCheckboxGroup({
   label,
   description,
@@ -205,7 +203,7 @@ export function SettingsCard({
 export type SettingsTab = {
   value: string
   label: string
-  /** Show a green dot before the label when this method is turned on. */
+  /** Show a green dot before the label when this section is turned on. */
   enabled?: boolean
   content: React.ReactNode
 }
@@ -297,150 +295,6 @@ export function SettingsSaveBar({
           Save changes
         </Button>
       </div>
-    </div>
-  )
-}
-
-/* ---------------------------------- Demo ----------------------------------- */
-
-type DemoState = Record<string, boolean>
-
-const demoDefaults: DemoState = {
-  "email.signUp": true,
-  "email.required": true,
-  "email.verify": true,
-  "email.signIn": true,
-  "email.signInCode": true,
-  "email.signInLink": false,
-  "phone.signUp": false,
-  "phone.required": false,
-  "phone.verify": true,
-  "phone.signIn": false,
-  "phone.signInCode": true,
-  "password.signUp": true,
-  "password.breach": true,
-  "password.number": false,
-}
-
-const verificationOptions: SettingsOption[] = [
-  { value: "code", label: "Email verification code", description: "Confirm by entering a one-time code sent to the address" },
-  { value: "link", label: "Email verification link", description: "Confirm by clicking a link sent to the address" },
-]
-
-export default function SettingsCardDemo() {
-  const [saved, setSaved] = useState({ state: demoDefaults, methods: ["code"] })
-  const [state, setState] = useState(demoDefaults)
-  const [methods, setMethods] = useState(["code"])
-  const set = (key: string) => (v: boolean) => setState((s) => ({ ...s, [key]: v }))
-  const row = (key: string) => ({ checked: state[key], onCheckedChange: set(key) })
-  const dirty = useMemo(
-    () => Object.keys(state).some((k) => state[k] !== saved.state[k]) || [...methods].sort().join() !== [...saved.methods].sort().join(),
-    [state, methods, saved]
-  )
-
-  const tabs: SettingsTab[] = [
-    {
-      value: "email",
-      label: "Email",
-      enabled: state["email.signUp"] || state["email.signIn"],
-      content: (
-        <>
-          <SettingsCard title="Sign-up with email" description="Let people create an account with their email address" {...row("email.signUp")}>
-            <SettingsSwitchRow
-              title="Require email address"
-              description="Everyone must give an email to sign up and keep at least one on their account"
-              {...row("email.required")}
-            />
-            <SettingsSwitchRow
-              title="Verify at sign-up"
-              badge="Recommended"
-              description="Ask people to confirm their email before their account is created"
-              {...row("email.verify")}
-            >
-              <SettingsCollapse open={state["email.verify"]}>
-                <SettingsCheckboxGroup
-                  label="Verification methods"
-                  description="Choose how an email address gets confirmed"
-                  options={verificationOptions}
-                  value={methods}
-                  onValueChange={setMethods}
-                />
-              </SettingsCollapse>
-            </SettingsSwitchRow>
-          </SettingsCard>
-          <SettingsCard title="Sign-in with email" description="Let people sign in using their email address" {...row("email.signIn")}>
-            <SettingsSwitchRow title="Email verification code" description="People can sign in with a one-time code sent by email" {...row("email.signInCode")} />
-            <SettingsSwitchRow title="Email verification link" description="People can sign in by clicking a link sent by email" {...row("email.signInLink")} />
-          </SettingsCard>
-        </>
-      ),
-    },
-    {
-      value: "phone",
-      label: "Phone",
-      enabled: state["phone.signUp"] || state["phone.signIn"],
-      content: (
-        <>
-          <SettingsCard title="Sign-up with phone" description="Let people create an account with their phone number" {...row("phone.signUp")}>
-            <SettingsSwitchRow title="Require phone number" description="Everyone must give a phone number to sign up" {...row("phone.required")} />
-            <SettingsSwitchRow
-              title="Verify at sign-up"
-              badge="Recommended"
-              description="Confirm the number with a text message code before the account is created"
-              {...row("phone.verify")}
-            />
-          </SettingsCard>
-          <SettingsCard title="Sign-in with phone" description="Let people sign in using their phone number" {...row("phone.signIn")}>
-            <SettingsSwitchRow title="SMS verification code" description="People can sign in with a one-time code sent by text message" {...row("phone.signInCode")} />
-          </SettingsCard>
-        </>
-      ),
-    },
-    {
-      value: "password",
-      label: "Password",
-      enabled: state["password.signUp"],
-      content: (
-        <SettingsCard title="Sign-up with password" description="Ask people to set a password when they create an account" {...row("password.signUp")}>
-          <SettingsSwitchRow
-            title="Reject leaked passwords"
-            badge="Recommended"
-            description="Block passwords that have shown up in known data breaches"
-            {...row("password.breach")}
-          />
-          <SettingsSwitchRow title="Require a number" description="Passwords must include at least one digit" {...row("password.number")} />
-        </SettingsCard>
-      ),
-    },
-  ]
-
-  return (
-    <div className="mx-auto w-[calc(100%-2.5rem)] max-w-3xl pt-8 pb-24 lg:pt-10">
-      <SettingsPage
-        title="Sign-in methods"
-        defaultValue="email"
-        tabs={tabs}
-        actions={
-          <DropdownMenu>
-            <DropdownMenuTrigger render={<Button variant="elevated" size="compact" className="group/preview gap-1 pr-1.5" />}>
-              Preview
-              <ChevronDownIcon aria-hidden="true" className="text-subtle transition-transform group-data-popup-open/preview:rotate-180" />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" sideOffset={6} className="w-44">
-              <DropdownMenuItem className="text-[0.8125rem]/5 font-medium">Sign-in page</DropdownMenuItem>
-              <DropdownMenuItem className="text-[0.8125rem]/5 font-medium">Sign-up page</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        }
-      />
-      <SettingsSaveBar
-        open={dirty}
-        onDiscard={() => {
-          setState(saved.state)
-          setMethods(saved.methods)
-        }}
-        onSave={() => setSaved({ state, methods })}
-      />
     </div>
   )
 }

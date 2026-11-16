@@ -7,9 +7,9 @@
     "lucide-react"
   ],
   "registryDependencies": [
-    "RahulSulegaokar/vellum/dialog",
-    "RahulSulegaokar/vellum/input-group",
-    "RahulSulegaokar/vellum/vellum-theme",
+    "RahulSulegaokar/vellum/dialog#v0.3.0",
+    "RahulSulegaokar/vellum/input-group#v0.3.0",
+    "RahulSulegaokar/vellum/vellum-theme#v0.3.0",
     "utils"
   ],
   "files": [
