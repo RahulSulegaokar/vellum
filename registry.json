@@ -1456,8 +1456,7 @@
       "files": [
         {
           "path": "components/blocks/account-menu.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/account-menu.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1482,8 +1481,7 @@
       "files": [
         {
           "path": "components/blocks/account-profile.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/account-profile.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1509,8 +1507,7 @@
       "files": [
         {
           "path": "components/blocks/api-keys-card.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/api-keys-card.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1527,8 +1524,7 @@
       "files": [
         {
           "path": "components/blocks/auth-page.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/auth-page.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1552,8 +1548,7 @@
       "files": [
         {
           "path": "components/blocks/auth-sign-in.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/auth-sign-in.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1569,8 +1564,7 @@
       "files": [
         {
           "path": "components/blocks/auth-sign-up.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/auth-sign-up.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1589,8 +1583,7 @@
       "files": [
         {
           "path": "components/blocks/auth-waitlist.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/auth-waitlist.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1609,8 +1602,7 @@
       "files": [
         {
           "path": "components/blocks/callout.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/callout.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1635,8 +1627,7 @@
       "files": [
         {
           "path": "components/blocks/create-user-dialog.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/create-user-dialog.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1659,8 +1650,7 @@
       "files": [
         {
           "path": "components/blocks/create-wizard.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/create-wizard.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1677,8 +1667,7 @@
       "files": [
         {
           "path": "components/blocks/cta-section.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/cta-section.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1701,8 +1690,7 @@
       "files": [
         {
           "path": "components/blocks/dashboard-shell.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/dashboard-shell.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1730,8 +1718,7 @@
       "files": [
         {
           "path": "components/blocks/data-table-card.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/data-table-card.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1755,8 +1742,7 @@
       "files": [
         {
           "path": "components/blocks/date-range-picker.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/date-range-picker.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1776,8 +1762,7 @@
       "files": [
         {
           "path": "components/blocks/empty-state.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/empty-state.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1794,8 +1779,7 @@
       "files": [
         {
           "path": "components/blocks/faq-section.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/faq-section.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1814,8 +1798,7 @@
       "files": [
         {
           "path": "components/blocks/feature-grid.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/feature-grid.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1836,8 +1819,7 @@
       "files": [
         {
           "path": "components/blocks/feature-upsell.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/feature-upsell.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1862,8 +1844,7 @@
       "files": [
         {
           "path": "components/blocks/filter-bar.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/filter-bar.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1880,8 +1861,7 @@
       "files": [
         {
           "path": "components/blocks/hero-section.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/hero-section.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1903,8 +1883,7 @@
       "files": [
         {
           "path": "components/blocks/integration-cards.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/integration-cards.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1923,8 +1902,7 @@
       "files": [
         {
           "path": "components/blocks/invite-member-dialog.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/invite-member-dialog.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1953,8 +1931,7 @@
       "files": [
         {
           "path": "components/blocks/members-card.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/members-card.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -1976,8 +1953,7 @@
       "files": [
         {
           "path": "components/blocks/pricing-plans.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/pricing-plans.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -2002,8 +1978,7 @@
       "files": [
         {
           "path": "components/blocks/settings-card.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/settings-card.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -2025,8 +2000,7 @@
       "files": [
         {
           "path": "components/blocks/settings-sidebar.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/settings-sidebar.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -2045,8 +2019,7 @@
       "files": [
         {
           "path": "components/blocks/site-footer.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/site-footer.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -2067,8 +2040,7 @@
       "files": [
         {
           "path": "components/blocks/site-header.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/site-header.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -2085,8 +2057,7 @@
       "files": [
         {
           "path": "components/blocks/testimonials-section.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/testimonials-section.tsx"
+          "type": "registry:component"
         }
       ]
     },
@@ -2111,8 +2082,7 @@
       "files": [
         {
           "path": "components/blocks/workspace-switcher.tsx",
-          "type": "registry:component",
-          "target": "components/blocks/workspace-switcher.tsx"
+          "type": "registry:component"
         }
       ]
     },

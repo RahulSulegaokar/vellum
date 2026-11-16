@@ -43,7 +43,7 @@ Sizes: dashboards use `compact` (28px). Dense headers use `compact-sm` (24px); t
 - **Dashboard page:** `mx-auto w-[calc(100%-2.5rem)] max-w-6xl pt-8 pb-10`, `text-xl font-semibold` title, 32px between sections.
 - **Floating layers** (menus, popovers, selects, toasts) already carry `shadow-popover ring-1 ring-hairline`; don't add borders.
 
-Prefer a Vellum block over hand-building a screen section. Install it (`npx shadcn@latest add RahulSulegaokar/vellum/<block>`), then edit its copy and data: each block file exports named, prop-driven components plus a `default` demo showing typical usage. Blocks land in `components/blocks/`.
+Prefer a Vellum block over hand-building a screen section. Install it (`npx shadcn@latest add RahulSulegaokar/vellum/<block>`), then edit its copy and data: each block file exports named, prop-driven components plus a `default` demo showing typical usage. Blocks land in a `blocks` folder under the project's components alias (for example `resources/js/components/blocks/` in Laravel); find the real paths with `npx shadcn@latest info`.
 
 ## Blocks
 

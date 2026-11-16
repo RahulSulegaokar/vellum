@@ -75,11 +75,13 @@ npx shadcn@latest add RahulSulegaokar/vellum/dialog --diff
 npx shadcn@latest add RahulSulegaokar/vellum/dialog --overwrite
 ```
 
-To get updates as a weekly pull request, copy [`templates/vellum-update.yml`](templates/vellum-update.yml) into your project's `.github/workflows/`. It re-installs every Vellum component you already have, and opens a PR if anything changed. Local edits to those files show up in the PR diff, so you can keep or drop them. It doesn't re-install the theme, so your token choices are never overwritten. To take a new release's token values, re-run step 1 by hand.
+To get updates as a weekly pull request, copy [`templates/vellum-update.yml`](templates/vellum-update.yml) into your project's `.github/workflows/`. It reads your folders from `npx shadcn info` (so it works with any layout: Next.js, Laravel, Vite), re-installs every Vellum component, hook and block you already have, plus the Vellum skill if installed, and opens a PR if anything changed. Local edits to those files show up in the PR diff, so you can keep or drop them. It never re-installs the theme, so your token choices are not overwritten; to take a new release's token values, re-run step 1 by hand.
+
+> **Public repo required.** The `RahulSulegaokar/vellum/<item>` addresses (and the dependencies between items) are fetched from GitHub without credentials, so they only work while the repo is public. If you keep a private fork, host its built registry (`npm run registry:build` writes `public/r`) behind your own URL and reference items by that URL or a namespace in `components.json` instead.
 
 ## Blocks
 
-Ready-made screen sections built from the components. Each installs into `components/blocks/<name>.tsx`; it exports prop-driven components plus a default demo.
+Ready-made screen sections built from the components. Each installs into a `blocks` folder under your components alias (`components/blocks/<name>.tsx` in Next.js, `resources/js/components/blocks/<name>.tsx` in Laravel); it exports prop-driven components plus a default demo.
 
 ```bash
 npx shadcn@latest add RahulSulegaokar/vellum/data-table-card
@@ -126,7 +128,7 @@ npx shadcn@latest add RahulSulegaokar/vellum/data-table-card
 
 ## For AI agents
 
-- `npx skills add RahulSulegaokar/vellum` installs the Vellum skill (setup, variant choice, composition and styling rules).
+- `npx skills add RahulSulegaokar/vellum --skill vellum` installs the Vellum skill (setup, variant choice, composition and styling rules).
 - Or install it with the registry: `npx shadcn@latest add RahulSulegaokar/vellum/vellum-skill` (writes `.claude/skills/vellum/SKILL.md`).
 - `npx shadcn@latest add RahulSulegaokar/vellum/vellum-design` adds the full design spec as `DESIGN.md`.
 

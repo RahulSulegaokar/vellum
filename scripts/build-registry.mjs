@@ -91,7 +91,9 @@ for (const f of readdirSync(join(ROOT, "components/ui")).filter((f) => f.endsWit
 }
 
 /* ---------------------------------- Blocks ---------------------------------- */
-// One file per block in components/blocks; installs to the same path in the consumer project.
+// One file per block in components/blocks. No target: the CLI places it at <components alias>/blocks/<name>.tsx,
+// which follows the consumer's alias (components/blocks in Next, resources/js/components/blocks in Laravel),
+// so block-to-block imports like "@/components/blocks/callout" keep resolving.
 const blockFiles = readdirSync(join(ROOT, "components/blocks")).filter((f) => f.endsWith(".tsx")).sort()
 for (const f of blockFiles) {
   const name = f.replace(/\.tsx$/, "")
@@ -105,7 +107,7 @@ for (const f of blockFiles) {
     ...(description && { description }),
     ...(deps.length && { dependencies: deps }),
     registryDependencies: reg.filter((r) => r !== at(name)),
-    files: [{ path: `components/blocks/${f}`, type: "registry:component", target: `components/blocks/${f}` }],
+    files: [{ path: `components/blocks/${f}`, type: "registry:component" }],
   })
 }
 writeFileSync(
