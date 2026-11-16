@@ -1,5 +1,6 @@
 import Link from "next/link"
 import { examples } from "@/components/examples"
+import { blocks } from "@/components/examples/blocks"
 
 const install = "npx shadcn@latest add RahulSulegaokar/vellum/vellum-theme\nnpx shadcn@latest add RahulSulegaokar/vellum/button"
 
@@ -22,6 +23,17 @@ export default function Home() {
         {names.map((n) => (
           <li key={n}>
             <Link href={`/components/${n}`} className="block rounded-md px-3 py-2 text-sm ring-1 ring-hairline hover:bg-accent">
+              {n}
+            </Link>
+          </li>
+        ))}
+      </ul>
+      <h2 className="mt-12 text-lg font-semibold">Blocks ({Object.keys(blocks).length})</h2>
+      <p className="mt-1 text-sm text-subtle">Ready-made screen sections built from the components. Install one and edit its copy and data.</p>
+      <ul className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
+        {Object.keys(blocks).map((n) => (
+          <li key={n}>
+            <Link href={`/blocks/${n}`} className="block rounded-md px-3 py-2 text-sm ring-1 ring-hairline hover:bg-accent">
               {n}
             </Link>
           </li>

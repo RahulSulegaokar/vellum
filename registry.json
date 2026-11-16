@@ -1436,6 +1436,711 @@
           "type": "registry:ui"
         }
       ]
+    },
+    {
+      "name": "account-menu",
+      "type": "registry:block",
+      "title": "Account Menu",
+      "description": "The menu body on its own: user summary, manage/sign-out actions, other signed-in accounts and \"Add account\".",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/avatar",
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/popover",
+        "RahulSulegaokar/vellum/separator",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/account-menu.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/account-menu.tsx"
+        }
+      ]
+    },
+    {
+      "name": "account-profile",
+      "type": "registry:block",
+      "title": "Account Profile",
+      "description": "Settings shell: title and vertical nav on the muted rail, the active section in a white panel. Nav scrolls horizontally on narrow screens.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/auth-sign-in",
+        "RahulSulegaokar/vellum/avatar",
+        "RahulSulegaokar/vellum/badge",
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/dropdown-menu",
+        "RahulSulegaokar/vellum/empty-state",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/account-profile.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/account-profile.tsx"
+        }
+      ]
+    },
+    {
+      "name": "api-keys-card",
+      "type": "registry:block",
+      "title": "Api Keys Card",
+      "description": "Visible prefix, e.g. \"ak_live_\".",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/badge",
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/dialog",
+        "RahulSulegaokar/vellum/empty-state",
+        "RahulSulegaokar/vellum/input",
+        "RahulSulegaokar/vellum/label",
+        "RahulSulegaokar/vellum/spinner",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/api-keys-card.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/api-keys-card.tsx"
+        }
+      ]
+    },
+    {
+      "name": "auth-page",
+      "type": "registry:block",
+      "title": "Auth Page",
+      "description": "Full-page auth layout: soft centered glow on the canvas, a centered card slot and a copyright/links footer.",
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/auth-sign-in",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/auth-page.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/auth-page.tsx"
+        }
+      ]
+    },
+    {
+      "name": "auth-sign-in",
+      "type": "registry:block",
+      "title": "Auth Sign In",
+      "description": "Glyph shown before the label. Defaults to a monogram of the label.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/badge",
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/input",
+        "RahulSulegaokar/vellum/label",
+        "RahulSulegaokar/vellum/spinner",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/auth-sign-in.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/auth-sign-in.tsx"
+        }
+      ]
+    },
+    {
+      "name": "auth-sign-up",
+      "type": "registry:block",
+      "title": "Auth Sign Up",
+      "description": "Sign-up card: logo, provider buttons, email and password (with show/hide), primary continue and a link to sign in.",
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/auth-sign-in",
+        "RahulSulegaokar/vellum/vellum-theme"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/auth-sign-up.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/auth-sign-up.tsx"
+        }
+      ]
+    },
+    {
+      "name": "auth-waitlist",
+      "type": "registry:block",
+      "title": "Auth Waitlist",
+      "description": "Waitlist card: email field and a join button, swapping to a confirmation once submitted.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/auth-sign-in",
+        "RahulSulegaokar/vellum/vellum-theme"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/auth-waitlist.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/auth-waitlist.tsx"
+        }
+      ]
+    },
+    {
+      "name": "callout",
+      "type": "registry:block",
+      "title": "Callout",
+      "description": "Inline notice for page-level context (\"Use this development instance for test users…\").",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/callout.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/callout.tsx"
+        }
+      ]
+    },
+    {
+      "name": "create-user-dialog",
+      "type": "registry:block",
+      "title": "Create User Dialog",
+      "description": "\"Create new user\" dialog with Create / Invite tabs, optional name fields, password visibility toggle and inline validation.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/badge",
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/checkbox",
+        "RahulSulegaokar/vellum/dialog",
+        "RahulSulegaokar/vellum/input",
+        "RahulSulegaokar/vellum/tabs",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/create-user-dialog.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/create-user-dialog.tsx"
+        }
+      ]
+    },
+    {
+      "name": "create-wizard",
+      "type": "registry:block",
+      "title": "Create Wizard",
+      "description": "\"identifier\" options become the preview's text field; the rest render as provider buttons.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/input",
+        "RahulSulegaokar/vellum/radio-group",
+        "RahulSulegaokar/vellum/switch",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/create-wizard.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/create-wizard.tsx"
+        }
+      ]
+    },
+    {
+      "name": "cta-section",
+      "type": "registry:block",
+      "title": "Cta Section",
+      "description": "Large round mark used as the card's decorative art.",
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/cta-section.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/cta-section.tsx"
+        }
+      ]
+    },
+    {
+      "name": "dashboard-shell",
+      "type": "registry:block",
+      "title": "Dashboard Shell",
+      "description": "Breadcrumb-style menu trigger: flat until hovered or open, then a raised white chip.",
+      "dependencies": [
+        "@base-ui/react",
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/badge",
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/dropdown-menu",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/dashboard-shell.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/dashboard-shell.tsx"
+        }
+      ]
+    },
+    {
+      "name": "data-table-card",
+      "type": "registry:block",
+      "title": "Data Table Card",
+      "description": "Makes the column sortable. Return `null` for \"no value\" (sorts as lowest).",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/avatar",
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/callout",
+        "RahulSulegaokar/vellum/create-user-dialog",
+        "RahulSulegaokar/vellum/dialog",
+        "RahulSulegaokar/vellum/dropdown-menu",
+        "RahulSulegaokar/vellum/empty-state",
+        "RahulSulegaokar/vellum/input",
+        "RahulSulegaokar/vellum/switch",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/data-table-card.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/data-table-card.tsx"
+        }
+      ]
+    },
+    {
+      "name": "date-range-picker",
+      "type": "registry:block",
+      "title": "Date Range Picker",
+      "description": "Length of the window ending at \"now\", in milliseconds.",
+      "dependencies": [
+        "lucide-react",
+        "react-day-picker"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/calendar",
+        "RahulSulegaokar/vellum/native-select",
+        "RahulSulegaokar/vellum/popover",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/date-range-picker.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/date-range-picker.tsx"
+        }
+      ]
+    },
+    {
+      "name": "empty-state",
+      "type": "registry:block",
+      "title": "Empty State",
+      "description": "Centered empty state: icon tile, title, supporting copy and optional actions. Sits inside a card or table body.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/empty-state.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/empty-state.tsx"
+        }
+      ]
+    },
+    {
+      "name": "faq-section",
+      "type": "registry:block",
+      "title": "Faq Section",
+      "description": "Accordion list of questions, one open at a time. Use inside your own section layout.",
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/accordion",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/faq-section.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/faq-section.tsx"
+        }
+      ]
+    },
+    {
+      "name": "feature-grid",
+      "type": "registry:block",
+      "title": "Feature Grid",
+      "description": "Small label above a section title.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/feature-grid.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/feature-grid.tsx"
+        }
+      ]
+    },
+    {
+      "name": "feature-upsell",
+      "type": "registry:block",
+      "title": "Feature Upsell",
+      "description": "Illustration for the 244×151 card; `active` is true for the centered card.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/empty-state",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/feature-upsell.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/feature-upsell.tsx"
+        }
+      ]
+    },
+    {
+      "name": "filter-bar",
+      "type": "registry:block",
+      "title": "Filter Bar",
+      "description": "Fixed choices render as a checkbox list; omit for a free-text field.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/checkbox",
+        "RahulSulegaokar/vellum/date-range-picker",
+        "RahulSulegaokar/vellum/input",
+        "RahulSulegaokar/vellum/popover",
+        "RahulSulegaokar/vellum/sheet",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/filter-bar.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/filter-bar.tsx"
+        }
+      ]
+    },
+    {
+      "name": "hero-section",
+      "type": "registry:block",
+      "title": "Hero Section",
+      "description": "Pill that copies a prompt to the clipboard: stacked bubbles, label and a copy glyph that swaps to a check.",
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/hero-section.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/hero-section.tsx"
+        }
+      ]
+    },
+    {
+      "name": "integration-cards",
+      "type": "registry:block",
+      "title": "Integration Cards",
+      "description": "Secondary line under the name, usually the partner's domain.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/callout",
+        "RahulSulegaokar/vellum/switch",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/integration-cards.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/integration-cards.tsx"
+        }
+      ]
+    },
+    {
+      "name": "invite-member-dialog",
+      "type": "registry:block",
+      "title": "Invite Member Dialog",
+      "description": "Invite-member dialog: email and role fields with inline validation, Cancel / Invite footer.",
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/dialog",
+        "RahulSulegaokar/vellum/input",
+        "RahulSulegaokar/vellum/select",
+        "RahulSulegaokar/vellum/vellum-theme"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/invite-member-dialog.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/invite-member-dialog.tsx"
+        }
+      ]
+    },
+    {
+      "name": "members-card",
+      "type": "registry:block",
+      "title": "Members Card",
+      "description": "ISO date, formatted deterministically.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/avatar",
+        "RahulSulegaokar/vellum/badge",
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/dialog",
+        "RahulSulegaokar/vellum/dropdown-menu",
+        "RahulSulegaokar/vellum/empty-state",
+        "RahulSulegaokar/vellum/input",
+        "RahulSulegaokar/vellum/label",
+        "RahulSulegaokar/vellum/select",
+        "RahulSulegaokar/vellum/tabs",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/members-card.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/members-card.tsx"
+        }
+      ]
+    },
+    {
+      "name": "pricing-plans",
+      "type": "registry:block",
+      "title": "Pricing Plans",
+      "description": "Per-month prices; leave both `null` for a free or custom plan and set `label` (\"Free\", \"Custom\").",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/badge",
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/segmented-control",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/pricing-plans.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/pricing-plans.tsx"
+        }
+      ]
+    },
+    {
+      "name": "settings-card",
+      "type": "registry:block",
+      "title": "Settings Card",
+      "description": "Height-animated disclosure region; content is `inert` while closed.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/badge",
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/checkbox",
+        "RahulSulegaokar/vellum/dropdown-menu",
+        "RahulSulegaokar/vellum/switch",
+        "RahulSulegaokar/vellum/tabs",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/settings-card.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/settings-card.tsx"
+        }
+      ]
+    },
+    {
+      "name": "settings-sidebar",
+      "type": "registry:block",
+      "title": "Settings Sidebar",
+      "description": "Grouped settings navigation: section headings, plain links and collapsible groups with a guide rail.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/dialog",
+        "RahulSulegaokar/vellum/kbd",
+        "RahulSulegaokar/vellum/sheet",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/settings-sidebar.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/settings-sidebar.tsx"
+        }
+      ]
+    },
+    {
+      "name": "site-footer",
+      "type": "registry:block",
+      "title": "Site Footer",
+      "description": "One dotted hairline that runs past its box by 1.25rem and fades out at both ends.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/site-footer.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/site-footer.tsx"
+        }
+      ]
+    },
+    {
+      "name": "site-header",
+      "type": "registry:block",
+      "title": "Site Header",
+      "description": "Default logo: a round mark and a lowercase wordmark. Pass your own through `logo`.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/navigation-menu",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/site-header.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/site-header.tsx"
+        }
+      ]
+    },
+    {
+      "name": "testimonials-section",
+      "type": "registry:block",
+      "title": "Testimonials Section",
+      "description": "True when the viewer asked for reduced motion; false during server render.",
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/avatar",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/testimonials-section.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/testimonials-section.tsx"
+        }
+      ]
+    },
+    {
+      "name": "workspace-switcher",
+      "type": "registry:block",
+      "title": "Workspace Switcher",
+      "description": "Your role in it (\"Admin\", \"Member\"). Omit for a personal workspace.",
+      "dependencies": [
+        "lucide-react"
+      ],
+      "registryDependencies": [
+        "RahulSulegaokar/vellum/avatar",
+        "RahulSulegaokar/vellum/button",
+        "RahulSulegaokar/vellum/input",
+        "RahulSulegaokar/vellum/label",
+        "RahulSulegaokar/vellum/popover",
+        "RahulSulegaokar/vellum/spinner",
+        "RahulSulegaokar/vellum/vellum-theme",
+        "utils"
+      ],
+      "files": [
+        {
+          "path": "components/blocks/workspace-switcher.tsx",
+          "type": "registry:component",
+          "target": "components/blocks/workspace-switcher.tsx"
+        }
+      ]
+    },
+    {
+      "name": "vellum-skill",
+      "type": "registry:file",
+      "title": "Vellum skill",
+      "description": "Agent skill: how to build UI with Vellum (setup, variants, composition, styling rules).",
+      "files": [
+        {
+          "path": "skills/vellum/SKILL.md",
+          "type": "registry:file",
+          "target": ".claude/skills/vellum/SKILL.md"
+        }
+      ]
+    },
+    {
+      "name": "vellum-design",
+      "type": "registry:file",
+      "title": "Vellum DESIGN.md",
+      "description": "The Vellum design spec (tokens, elevation, shapes, variant rules, do's and don'ts).",
+      "files": [
+        {
+          "path": "DESIGN.md",
+          "type": "registry:file",
+          "target": "DESIGN.md"
+        }
+      ]
     }
   ]
 }

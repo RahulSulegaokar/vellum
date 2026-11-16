@@ -2,6 +2,12 @@
 
 Each entry lists what consumers will see in `npx shadcn add RahulSulegaokar/vellum/<item> --diff`.
 
+## v0.2.0 (2026-11-17)
+
+- 30 blocks: dashboard (shell, settings sidebar and cards, data table, filters, date range, dialogs, create wizard, integrations, feature upsell, callout, empty state), auth and account (sign-in, sign-up, waitlist, auth page, account menu and profile, workspace switcher, members, API keys) and marketing (header, hero, feature grid, pricing, testimonials, FAQ, CTA, footer).
+- `vellum-skill` and `vellum-design` items, `DESIGN.md` and `skills/vellum/SKILL.md` for AI agents.
+- Gallery pages and light/dark screenshot checks for every block.
+
 ## v0.1.0 (2026-11-17)
 
 First release.

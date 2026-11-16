@@ -1,0 +1,103 @@
+---
+name: vellum
+description: Build UI with the Vellum design system (a themeable shadcn-compatible registry on Base UI). Use when a project's components come from RahulSulegaokar/vellum, when components/ui files mention vellum tokens (bg-surface, ring-hairline, shadow-popover, variant="elevated"/"compact"), or when asked to build screens, dashboards, settings pages, dialogs, auth or marketing sections "in the Vellum style". Covers installing items and blocks, choosing variants, composing layouts and the styling rules.
+---
+
+# Vellum
+
+Vellum is a shadcn-compatible component registry: calm, dense product UI with white surfaces on a pale canvas, hairline rings, soft layered shadows and one violet accent. Components live in the project's `components/ui` after install and read every color, ring, shadow and radius from theme tokens.
+
+## Setup in a project
+
+1. The project must use shadcn with Tailwind v4 (`components.json` exists). If not: `npx shadcn@latest init`.
+2. Install the theme once (overwrites shadcn's default tokens):
+   `npx shadcn@latest add RahulSulegaokar/vellum/vellum-theme`
+3. Add what you need. Components and blocks pull their own dependencies:
+   `npx shadcn@latest add RahulSulegaokar/vellum/button RahulSulegaokar/vellum/dialog`
+4. List everything available: `npx shadcn@latest list RahulSulegaokar/vellum`. Read an item before adding: `npx shadcn@latest view RahulSulegaokar/vellum/<name>`.
+5. Update an item: `npx shadcn@latest add RahulSulegaokar/vellum/<name> --diff`, then `--overwrite`.
+
+Never install the bare shadcn version of a component that came from Vellum (`npx shadcn add button`): it would overwrite the Vellum file. Always use the `RahulSulegaokar/vellum/` address.
+
+## Choose the variant
+
+| Need | Use |
+|---|---|
+| The one main action in a view or dialog | `<Button variant="primary" size="compact">` |
+| Secondary action, toolbar button, Cancel | `<Button variant="elevated" size="compact">` |
+| Marketing CTA | `<Button>` (dark solid) or `variant="gloss"` / `"gloss-solid"` with `size="pill"` |
+| Quiet icon action | `<Button variant="ghost" size="icon-compact">` |
+| Form field in a dashboard or dialog | `<Input variant="compact" />`, `<SelectTrigger variant="elevated">` |
+| Form field on a marketing/contact page | `<Input />`, `<Textarea />`, `<SelectTrigger>` |
+| Neutral tag | `<Badge variant="subtle">` (`subtle-info`, `subtle-warning` for emphasis) |
+| Page-level nav inside a dashboard | `<TabsList variant="underline">` |
+| 2 to 4 exclusive options in a toolbar | `<SegmentedControl>` |
+| On/off setting with description | `Switch` inside a settings row (see blocks) |
+
+Sizes: dashboards use `compact` (28px). Dense headers use `compact-sm` (24px); touch toolbars use `compact-md` (32px). Don't mix sizes within one toolbar or form.
+
+## Compose
+
+- **Dialog:** `DialogContent` (muted shell) > `DialogPanel` (white) > `DialogHeader` + `DialogSection`s; `DialogFooter` on the shell with `elevated` Cancel and `primary` confirm.
+- **Card:** `rounded-xl bg-surface shadow-card`, 20 to 24px padding, title left and actions right in the header row.
+- **Dashboard page:** `mx-auto w-[calc(100%-2.5rem)] max-w-6xl pt-8 pb-10`, `text-xl font-semibold` title, 32px between sections.
+- **Floating layers** (menus, popovers, selects, toasts) already carry `shadow-popover ring-1 ring-hairline`; don't add borders.
+
+Prefer a Vellum block over hand-building a screen section. Install it (`npx shadcn@latest add RahulSulegaokar/vellum/<block>`), then edit its copy and data: each block file exports named, prop-driven components plus a `default` demo showing typical usage. Blocks land in `components/blocks/`.
+
+## Blocks
+
+**Dashboard**
+
+- `dashboard-shell`: Breadcrumb-style menu trigger: flat until hovered or open, then a raised white chip.
+- `settings-sidebar`: Grouped settings navigation: section headings, plain links and collapsible groups with a guide rail.
+- `settings-card`: Height-animated disclosure region; content is `inert` while closed.
+- `data-table-card`: Makes the column sortable. Return `null` for "no value" (sorts as lowest).
+- `filter-bar`: Fixed choices render as a checkbox list; omit for a free-text field.
+- `date-range-picker`: Length of the window ending at "now", in milliseconds.
+- `create-user-dialog`: "Create new user" dialog with Create / Invite tabs, optional name fields, password visibility toggle and inline validation.
+- `invite-member-dialog`: Invite-member dialog: email and role fields with inline validation, Cancel / Invite footer.
+- `create-wizard`: "identifier" options become the preview's text field; the rest render as provider buttons.
+- `integration-cards`: Secondary line under the name, usually the partner's domain.
+- `feature-upsell`: Illustration for the 244×151 card; `active` is true for the centered card.
+- `callout`: Inline notice for page-level context ("Use this development instance for test users…").
+- `empty-state`: Centered empty state: icon tile, title, supporting copy and optional actions. Sits inside a card or table body.
+
+**Auth and account**
+
+- `auth-page`: Full-page auth layout: soft centered glow on the canvas, a centered card slot and a copyright/links footer.
+- `auth-sign-in`: Glyph shown before the label. Defaults to a monogram of the label.
+- `auth-sign-up`: Sign-up card: logo, provider buttons, email and password (with show/hide), primary continue and a link to sign in.
+- `auth-waitlist`: Waitlist card: email field and a join button, swapping to a confirmation once submitted.
+- `account-menu`: The menu body on its own: user summary, manage/sign-out actions, other signed-in accounts and "Add account".
+- `account-profile`: Settings shell: title and vertical nav on the muted rail, the active section in a white panel. Nav scrolls horizontally on narrow screens.
+- `workspace-switcher`: Your role in it ("Admin", "Member"). Omit for a personal workspace.
+- `members-card`: ISO date, formatted deterministically.
+- `api-keys-card`: Visible prefix, e.g. "ak_live_".
+
+**Marketing**
+
+- `site-header`: Default logo: a round mark and a lowercase wordmark. Pass your own through `logo`.
+- `hero-section`: Pill that copies a prompt to the clipboard: stacked bubbles, label and a copy glyph that swaps to a check.
+- `feature-grid`: Small label above a section title.
+- `pricing-plans`: Per-month prices; leave both `null` for a free or custom plan and set `label` ("Free", "Custom").
+- `testimonials-section`: True when the viewer asked for reduced motion; false during server render.
+- `faq-section`: Accordion list of questions, one open at a time. Use inside your own section layout.
+- `cta-section`: Large round mark used as the card's decorative art.
+- `site-footer`: One dotted hairline that runs past its box by 1.25rem and fades out at both ends.
+
+
+## Styling rules
+
+- Use token utilities only: `bg-background`, `bg-surface`, `bg-surface-muted`, `bg-field`, `text-foreground`, `text-muted-foreground`, `text-subtle`, `ring-hairline`, `ring-edge/{4,6,12,20}`, `bg-brand`, `text-brand-foreground`, `shadow-popover|card|surface|dialog|control|chip`. Never hard-code `gray-*`, `white`, hex or `rgb()` colors; if something is missing, add a token to the theme instead.
+- Violet (`brand`) marks actions, checked/selected/progress states and focus only. Never on large backgrounds.
+- One `primary` button per view.
+- Edges are rings, not borders, on shadowed surfaces.
+- To remove or change a token shadow pass another token shadow or `shadow-none!`; plain `shadow-none` in `className` does not override it because `cn()` treats custom shadow names as colors.
+- Radius: `rounded-md` controls and fields, `rounded-lg` popovers and menus, `rounded-xl` cards and dialogs. Change the whole scale with `--radius`, not per component.
+
+## Theming a project
+
+Override tokens in the project's global CSS `:root` / `.dark` (for example `--brand`, `--brand-edge`, `--radius`, `--surface-muted`). Re-running the explicit theme install (`vellum-theme`) resets them to Vellum's values; component installs never touch values that already exist.
+
+The full design spec, with every token, is `DESIGN.md` in https://github.com/RahulSulegaokar/vellum.

@@ -1,0 +1,336 @@
+"use client"
+
+import * as React from "react"
+import { ChevronsUpDownIcon, PlusIcon, SettingsIcon, UploadIcon } from "lucide-react"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Spinner } from "@/components/ui/spinner"
+import { cn } from "@/lib/utils"
+
+export type Workspace = {
+  id: string
+  name: string
+  /** Your role in it ("Admin", "Member"). Omit for a personal workspace. */
+  role?: string
+  imageUrl?: string
+}
+
+function WorkspaceAvatar({ workspace, className }: { workspace: Pick<Workspace, "name" | "imageUrl">; className?: string }) {
+  return (
+    <Avatar className={cn("rounded-md after:rounded-md", className)}>
+      {workspace.imageUrl && <AvatarImage src={workspace.imageUrl} alt="" className="rounded-md" />}
+      <AvatarFallback className="rounded-md bg-solid text-[0.6875rem] font-semibold text-solid-foreground">
+        {workspace.name.charAt(0).toUpperCase()}
+      </AvatarFallback>
+    </Avatar>
+  )
+}
+
+/** Workspace list: the active one with "Manage", the others as switch targets, then "Create workspace". */
+export function WorkspaceList({
+  workspaces,
+  activeId,
+  createLabel = "Create workspace",
+  onSwitch,
+  onManage,
+  onCreate,
+  className,
+}: {
+  workspaces: Workspace[]
+  activeId: string
+  createLabel?: string
+  onSwitch?: (id: string) => void
+  onManage?: (id: string) => void
+  onCreate?: () => void
+  className?: string
+}) {
+  const active = workspaces.find((w) => w.id === activeId)
+  const others = workspaces.filter((w) => w.id !== activeId)
+  return (
+    <div data-slot="workspace-list" className={cn("flex flex-col", className)}>
+      {active && (
+        <div className="flex items-center gap-3 border-b border-edge/6 px-4 py-3.5">
+          <WorkspaceAvatar workspace={active} className="size-9" />
+          <div className="min-w-0 flex-1">
+            <div className="truncate text-sm/[1.125rem] font-medium text-foreground">{active.name}</div>
+            {active.role && <div className="text-[0.8125rem]/[1.125rem] text-muted-foreground">{active.role}</div>}
+          </div>
+          {onManage && (
+            <Button variant="elevated" size="compact-sm" onClick={() => onManage(active.id)}>
+              <SettingsIcon className="size-3.5" aria-hidden="true" />
+              Manage
+            </Button>
+          )}
+        </div>
+      )}
+      {others.length > 0 && (
+        <ul className="flex flex-col border-b border-edge/6 p-1" aria-label="Switch workspace">
+          {others.map((w) => (
+            <li key={w.id}>
+              <button
+                type="button"
+                onClick={() => onSwitch?.(w.id)}
+                className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left outline-none hover:bg-surface-muted focus-visible:bg-surface-muted focus-visible:ring-2 focus-visible:ring-brand/40"
+              >
+                <WorkspaceAvatar workspace={w} className="size-9" />
+                <span className="min-w-0">
+                  <span className="block truncate text-sm/[1.125rem] font-medium text-foreground">{w.name}</span>
+                  {w.role && <span className="block text-[0.8125rem]/[1.125rem] text-muted-foreground">{w.role}</span>}
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {onCreate && (
+        <div className="p-1">
+          <button
+            type="button"
+            onClick={onCreate}
+            className="flex h-12 w-full items-center gap-3 rounded-md px-3 text-sm font-medium text-muted-foreground outline-none hover:bg-surface-muted hover:text-foreground focus-visible:bg-surface-muted focus-visible:ring-2 focus-visible:ring-brand/40"
+          >
+            <span className="flex w-9 justify-center">
+              <span className="grid size-6 place-items-center rounded-full border border-dashed border-edge/20 bg-surface-muted">
+                <PlusIcon className="size-3" aria-hidden="true" />
+              </span>
+            </span>
+            {createLabel}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/** Workspace switcher: a compact trigger showing the active workspace that opens a list to switch, manage or create. */
+export function WorkspaceSwitcher({
+  workspaces = demoWorkspaces,
+  activeId,
+  defaultActiveId,
+  defaultOpen,
+  onSwitch,
+  onManage,
+  onCreate,
+  createLabel,
+  className,
+}: {
+  workspaces?: Workspace[]
+  /** Controlled active workspace id. */
+  activeId?: string
+  defaultActiveId?: string
+  defaultOpen?: boolean
+  onSwitch?: (id: string) => void
+  onManage?: (id: string) => void
+  onCreate?: () => void
+  createLabel?: string
+  className?: string
+}) {
+  const [open, setOpen] = React.useState(defaultOpen ?? false)
+  const [internal, setInternal] = React.useState(defaultActiveId ?? workspaces[0]?.id ?? "")
+  const current = activeId ?? internal
+  const active = workspaces.find((w) => w.id === current)
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger
+        render={<Button variant="elevated" size="compact" className={cn("max-w-64 gap-2 pr-1.5 pl-1.5", className)} />}
+        aria-label={active ? `Switch workspace, current: ${active.name}` : "Switch workspace"}
+      >
+        {active && <WorkspaceAvatar workspace={active} className="size-5" />}
+        <span className="truncate">{active?.name ?? "Select workspace"}</span>
+        <ChevronsUpDownIcon className="size-3.5 text-subtle" aria-hidden="true" />
+      </PopoverTrigger>
+      <PopoverContent align="start" sideOffset={6} className="w-90 max-w-[calc(100vw-2rem)] gap-0 p-0">
+        <WorkspaceList
+          workspaces={workspaces}
+          activeId={current}
+          createLabel={createLabel}
+          onSwitch={(id) => {
+            setInternal(id)
+            setOpen(false)
+            onSwitch?.(id)
+          }}
+          onManage={
+            onManage &&
+            ((id) => {
+              setOpen(false)
+              onManage(id)
+            })
+          }
+          onCreate={
+            onCreate &&
+            (() => {
+              setOpen(false)
+              onCreate()
+            })
+          }
+        />
+      </PopoverContent>
+    </Popover>
+  )
+}
+
+function slugify(value: string) {
+  return value
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+}
+
+/** Create-workspace form: logo upload, name and a slug that follows the name until edited. */
+export function CreateWorkspaceForm({
+  title = "Create workspace",
+  submitLabel = "Create workspace",
+  slugPrefix = "acme.app/",
+  maxLogoSizeMb = 10,
+  onSubmit,
+  onCancel,
+  className,
+}: {
+  title?: string
+  submitLabel?: string
+  /** Shown before the slug field. */
+  slugPrefix?: string
+  maxLogoSizeMb?: number
+  onSubmit?: (values: { name: string; slug: string; logo?: File }) => void | Promise<void>
+  onCancel?: () => void
+  className?: string
+}) {
+  const id = React.useId()
+  const fileRef = React.useRef<HTMLInputElement>(null)
+  const [name, setName] = React.useState("")
+  const [slug, setSlug] = React.useState("")
+  const [slugEdited, setSlugEdited] = React.useState(false)
+  const [logo, setLogo] = React.useState<{ file: File; url: string } | null>(null)
+  const [logoError, setLogoError] = React.useState<string | null>(null)
+  const [pending, setPending] = React.useState(false)
+
+  React.useEffect(() => () => {
+    if (logo) URL.revokeObjectURL(logo.url)
+  }, [logo])
+
+  const effectiveSlug = slugEdited ? slug : slugify(name)
+  const canSubmit = name.trim().length > 0 && effectiveSlug.length > 0 && !pending
+
+  return (
+    <form
+      data-slot="create-workspace-form"
+      className={cn("w-full max-w-100 rounded-xl bg-surface-muted shadow-dialog ring-1 ring-edge/6", className)}
+      onSubmit={async (e) => {
+        e.preventDefault()
+        if (!canSubmit) return
+        setPending(true)
+        try {
+          await onSubmit?.({ name: name.trim(), slug: effectiveSlug, logo: logo?.file })
+        } finally {
+          setPending(false)
+        }
+      }}
+    >
+      <div className="flex flex-col gap-6 rounded-xl bg-surface p-6 shadow-surface ring-1 ring-edge/4 sm:p-8">
+        <h2 className="text-[1.0625rem]/6 font-bold tracking-[-0.01em] text-foreground">{title}</h2>
+        <div className="flex items-center gap-4">
+          <span className="grid size-16 shrink-0 place-items-center overflow-hidden rounded-md border border-dashed border-edge/20 bg-surface-muted text-subtle">
+            {logo ? (
+              <WorkspaceAvatar workspace={{ name: name || "W", imageUrl: logo.url }} className="size-full rounded-none" />
+            ) : (
+              <UploadIcon className="size-5" aria-hidden="true" />
+            )}
+          </span>
+          <div className="flex flex-col items-start gap-2">
+            <div className="flex gap-2">
+              <Button type="button" variant="elevated" size="compact" onClick={() => fileRef.current?.click()}>
+                Upload
+              </Button>
+              {logo && (
+                <Button type="button" variant="ghost" size="compact" onClick={() => setLogo(null)}>
+                  Remove
+                </Button>
+              )}
+            </div>
+            <p id={`${id}-logo-hint`} className={cn("text-xs", logoError ? "text-destructive" : "text-subtle")}>
+              {logoError ?? `Recommended size 1:1, up to ${maxLogoSizeMb}MB.`}
+            </p>
+            <input
+              ref={fileRef}
+              type="file"
+              accept="image/*"
+              className="sr-only"
+              tabIndex={-1}
+              aria-label="Workspace logo"
+              aria-describedby={`${id}-logo-hint`}
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                e.target.value = ""
+                if (!file) return
+                if (file.size > maxLogoSizeMb * 1024 * 1024) {
+                  setLogoError(`That file is over ${maxLogoSizeMb}MB.`)
+                  return
+                }
+                setLogoError(null)
+                setLogo({ file, url: URL.createObjectURL(file) })
+              }}
+            />
+          </div>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={`${id}-name`} className="text-[0.8125rem]">
+            Name
+          </Label>
+          <Input id={`${id}-name`} variant="compact" placeholder="Workspace name" value={name} onChange={(e) => setName(e.target.value)} required autoComplete="organization" />
+        </div>
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={`${id}-slug`} className="text-[0.8125rem]">
+            Slug URL
+          </Label>
+          <div className="flex items-center rounded-md">
+            <span className="flex h-8 items-center rounded-l-md bg-surface-muted px-2.5 text-sm text-subtle ring-1 ring-edge/12">{slugPrefix}</span>
+            <Input
+              id={`${id}-slug`}
+              variant="compact"
+              placeholder="my-workspace"
+              className="rounded-l-none"
+              value={effectiveSlug}
+              onChange={(e) => {
+                setSlugEdited(true)
+                setSlug(slugify(e.target.value))
+              }}
+              required
+            />
+          </div>
+        </div>
+      </div>
+      <div className="flex justify-end gap-3 p-4">
+        {onCancel && (
+          <Button type="button" variant="elevated" size="compact" onClick={onCancel}>
+            Cancel
+          </Button>
+        )}
+        <Button type="submit" variant="primary" size="compact" disabled={!canSubmit}>
+          {pending && <Spinner className="size-3.5" />}
+          {submitLabel}
+        </Button>
+      </div>
+    </form>
+  )
+}
+
+const demoWorkspaces: Workspace[] = [
+  { id: "ws_northwind", name: "Northwind", role: "Admin" },
+  { id: "ws_personal", name: "Personal workspace" },
+  { id: "ws_globex", name: "Globex", role: "Member" },
+]
+
+export default function WorkspaceSwitcherDemo() {
+  return (
+    <div className="mx-auto grid max-w-5xl items-start gap-10 p-6 sm:p-10 md:grid-cols-2">
+      <div className="min-h-80">
+        <WorkspaceSwitcher defaultOpen onManage={() => {}} onCreate={() => {}} />
+      </div>
+      <CreateWorkspaceForm onCancel={() => {}} onSubmit={() => new Promise((r) => setTimeout(r, 800))} />
+    </div>
+  )
+}

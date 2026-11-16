@@ -77,6 +77,59 @@ npx shadcn@latest add RahulSulegaokar/vellum/dialog --overwrite
 
 To get updates as a weekly pull request, copy [`templates/vellum-update.yml`](templates/vellum-update.yml) into your project's `.github/workflows/`. It re-installs every Vellum component you already have, and opens a PR if anything changed. Local edits to those files show up in the PR diff, so you can keep or drop them. It doesn't re-install the theme, so your token choices are never overwritten. To take a new release's token values, re-run step 1 by hand.
 
+## Blocks
+
+Ready-made screen sections built from the components. Each installs into `components/blocks/<name>.tsx`; it exports prop-driven components plus a default demo.
+
+```bash
+npx shadcn@latest add RahulSulegaokar/vellum/data-table-card
+```
+
+**Dashboard**
+
+- `dashboard-shell`: Breadcrumb-style menu trigger: flat until hovered or open, then a raised white chip.
+- `settings-sidebar`: Grouped settings navigation: section headings, plain links and collapsible groups with a guide rail.
+- `settings-card`: Height-animated disclosure region; content is `inert` while closed.
+- `data-table-card`: Makes the column sortable. Return `null` for "no value" (sorts as lowest).
+- `filter-bar`: Fixed choices render as a checkbox list; omit for a free-text field.
+- `date-range-picker`: Length of the window ending at "now", in milliseconds.
+- `create-user-dialog`: "Create new user" dialog with Create / Invite tabs, optional name fields, password visibility toggle and inline validation.
+- `invite-member-dialog`: Invite-member dialog: email and role fields with inline validation, Cancel / Invite footer.
+- `create-wizard`: "identifier" options become the preview's text field; the rest render as provider buttons.
+- `integration-cards`: Secondary line under the name, usually the partner's domain.
+- `feature-upsell`: Illustration for the 244×151 card; `active` is true for the centered card.
+- `callout`: Inline notice for page-level context ("Use this development instance for test users…").
+- `empty-state`: Centered empty state: icon tile, title, supporting copy and optional actions. Sits inside a card or table body.
+
+**Auth and account**
+
+- `auth-page`: Full-page auth layout: soft centered glow on the canvas, a centered card slot and a copyright/links footer.
+- `auth-sign-in`: Glyph shown before the label. Defaults to a monogram of the label.
+- `auth-sign-up`: Sign-up card: logo, provider buttons, email and password (with show/hide), primary continue and a link to sign in.
+- `auth-waitlist`: Waitlist card: email field and a join button, swapping to a confirmation once submitted.
+- `account-menu`: The menu body on its own: user summary, manage/sign-out actions, other signed-in accounts and "Add account".
+- `account-profile`: Settings shell: title and vertical nav on the muted rail, the active section in a white panel. Nav scrolls horizontally on narrow screens.
+- `workspace-switcher`: Your role in it ("Admin", "Member"). Omit for a personal workspace.
+- `members-card`: ISO date, formatted deterministically.
+- `api-keys-card`: Visible prefix, e.g. "ak_live_".
+
+**Marketing**
+
+- `site-header`: Default logo: a round mark and a lowercase wordmark. Pass your own through `logo`.
+- `hero-section`: Pill that copies a prompt to the clipboard: stacked bubbles, label and a copy glyph that swaps to a check.
+- `feature-grid`: Small label above a section title.
+- `pricing-plans`: Per-month prices; leave both `null` for a free or custom plan and set `label` ("Free", "Custom").
+- `testimonials-section`: True when the viewer asked for reduced motion; false during server render.
+- `faq-section`: Accordion list of questions, one open at a time. Use inside your own section layout.
+- `cta-section`: Large round mark used as the card's decorative art.
+- `site-footer`: One dotted hairline that runs past its box by 1.25rem and fades out at both ends.
+
+## For AI agents
+
+- `npx skills add RahulSulegaokar/vellum` installs the Vellum skill (setup, variant choice, composition and styling rules).
+- Or install it with the registry: `npx shadcn@latest add RahulSulegaokar/vellum/vellum-skill` (writes `.claude/skills/vellum/SKILL.md`).
+- `npx shadcn@latest add RahulSulegaokar/vellum/vellum-design` adds the full design spec as `DESIGN.md`.
+
 ## Variants beyond shadcn
 
 - **Button:**
