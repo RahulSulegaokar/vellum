@@ -1,0 +1,17 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "label",
+  "title": "Label",
+  "registryDependencies": [
+    "RahulSulegaokar/vellum/vellum-theme",
+    "utils"
+  ],
+  "files": [
+    {
+      "path": "components/ui/label.tsx",
+      "content": "\"use client\"\n\nimport * as React from \"react\"\nimport { cn } from \"@/lib/utils\"\n\n/** Field label; pass `optional` to append the small \"Optional\" tag. Children render directly (no wrapper) so shadcn's `has-[>…]` / `peer` selectors keep working. */\nfunction Label({ className, children, optional, ...props }: React.ComponentProps<\"label\"> & { optional?: boolean }) {\n  return (\n    <label\n      data-slot=\"label\"\n      className={cn(\n        \"flex cursor-default items-center gap-1.5 text-sm/5 font-medium text-foreground select-none group-data-[disabled=true]:pointer-events-none group-data-[disabled=true]:opacity-50 peer-disabled:cursor-not-allowed peer-disabled:opacity-50\",\n        className\n      )}\n      {...props}\n    >\n      {children}\n      {optional && (\n        <span className=\"rounded bg-accent px-1.5 py-0.5 text-2xs/[0.875rem] tracking-[0.015em] text-muted-foreground ring-1 ring-hairline ring-inset\">Optional</span>\n      )}\n    </label>\n  )\n}\n\nexport { Label }\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

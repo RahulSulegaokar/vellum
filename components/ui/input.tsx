@@ -1,0 +1,17 @@
+import * as React from "react"
+import { Input as InputPrimitive } from "@base-ui/react/input"
+import { cn } from "@/lib/utils"
+
+/** Shared field surface: white, hairline ring + soft shadow, 4px halo on focus, red ring when aria-invalid. */
+export const fieldClass =
+  "block w-full appearance-none rounded-md bg-field px-3 py-1.5 text-left text-[1rem]/5 text-foreground shadow ring-1 shadow-field-shadow ring-field-ring transition outline-none placeholder:text-placeholder sm:text-sm/5 focus:ring-0 focus:[box-shadow:0_0_0_1px_var(--field-ring-focus),0_0_0_4px_var(--field-halo)] aria-invalid:ring-field-invalid aria-invalid:focus:ring-0 aria-invalid:focus:[box-shadow:0_0_0_1px_var(--field-invalid),0_0_0_4px_var(--field-invalid-halo)] disabled:border disabled:border-dashed disabled:border-input disabled:bg-surface-muted disabled:px-[calc(--spacing(3)-1px)] disabled:py-[calc(--spacing(1.5)-1px)] disabled:shadow-none disabled:ring-0"
+
+/** Compact field: 32px, softer ring that darkens on hover, 3px gray halo on focus, red ring when invalid. */
+export const compactFieldClass =
+  "block w-full rounded-md bg-field px-2.5 py-1.5 text-sm/5 text-foreground outline-none transition placeholder:text-placeholder ring-1 ring-edge/12 shadow-[0_2px_2px_-1px_rgb(0_0_0/0.06),0_4px_4px_-2px_rgb(0_0_0/0.04)] hover:ring-edge/24 hover:shadow-[0_2px_2px_-1px_rgb(0_0_0/0.1),0_4px_4px_-2px_rgb(0_0_0/0.06)] focus:ring-edge/12 focus:shadow-[0_0_0_3px_rgb(0_0_0/0.08),0_4px_4px_-1px_rgb(0_0_0/0.08),0_4px_4px_-2px_rgb(0_0_0/0.04)] aria-invalid:ring-2 aria-invalid:ring-red-500 disabled:cursor-not-allowed disabled:opacity-40 read-only:bg-subtle/8 read-only:shadow-none"
+
+function Input({ className, type, variant = "field", ...props }: React.ComponentProps<"input"> & { variant?: "field" | "compact" }) {
+  return <InputPrimitive type={type} data-slot="input" className={cn(variant === "compact" ? compactFieldClass : fieldClass, className)} {...props} />
+}
+
+export { Input }

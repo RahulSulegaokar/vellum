@@ -1,0 +1,10 @@
+Vellum includes code derived from shadcn/ui (https://github.com/shadcn-ui/ui):
+
+  The components in components/ui/ are modified versions of shadcn/ui
+  components (base-nova style), and components/examples/ contains shadcn/ui
+  example code used for the gallery.
+
+  MIT License, Copyright (c) 2023 shadcn
+
+Vellum is an independent project and is not affiliated with shadcn/ui or any
+other company.

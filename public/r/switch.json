@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "switch",
+  "title": "Switch",
+  "dependencies": [
+    "@base-ui/react"
+  ],
+  "registryDependencies": [
+    "RahulSulegaokar/vellum/vellum-theme",
+    "utils"
+  ],
+  "files": [
+    {
+      "path": "components/ui/switch.tsx",
+      "content": "\"use client\"\n\nimport { Switch as SwitchPrimitive } from \"@base-ui/react/switch\"\nimport { cn } from \"@/lib/utils\"\n\n/**\n * Switch with 2px track padding.\n * default: 24px track, 12px thumb sliding 8px. sm: 20px track, 10px thumb sliding 6px.\n * Off: control-off track, soft-shadowed thumb. On: brand purple track, flat thumb.\n */\nfunction Switch({\n  className,\n  size = \"default\",\n  ...props\n}: SwitchPrimitive.Root.Props & {\n  size?: \"sm\" | \"default\"\n}) {\n  return (\n    <SwitchPrimitive.Root\n      data-slot=\"switch\"\n      data-size={size}\n      className={cn(\n        \"group/switch relative inline-flex shrink-0 items-center justify-start rounded-full p-0.5 ring-1 transition outline-none data-[size=default]:w-6 data-[size=sm]:w-5\",\n        \"bg-control-off ring-edge/20 data-checked:bg-brand data-checked:ring-brand-edge-strong\",\n        \"focus-visible:outline-3 focus-visible:outline-brand/40 data-disabled:cursor-not-allowed data-disabled:opacity-40\",\n        className\n      )}\n      {...props}\n    >\n      <SwitchPrimitive.Thumb\n        data-slot=\"switch-thumb\"\n        className={cn(\n          \"relative rounded-full bg-surface bg-linear-to-b from-black/0 to-black/2 ring-1 transition-all duration-120\",\n          \"group-data-[size=default]/switch:size-3 group-data-[size=sm]/switch:size-2.5\",\n          \"ring-edge/4 shadow-thumb\",\n          \"data-checked:shadow-none data-checked:ring-edge/12 group-data-[size=default]/switch:data-checked:ml-2 group-data-[size=sm]/switch:data-checked:ml-1.5\"\n        )}\n      />\n    </SwitchPrimitive.Root>\n  )\n}\n\nexport { Switch }\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

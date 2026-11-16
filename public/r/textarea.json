@@ -1,0 +1,18 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "textarea",
+  "title": "Textarea",
+  "registryDependencies": [
+    "RahulSulegaokar/vellum/input",
+    "RahulSulegaokar/vellum/vellum-theme",
+    "utils"
+  ],
+  "files": [
+    {
+      "path": "components/ui/textarea.tsx",
+      "content": "import * as React from \"react\"\nimport { cn } from \"@/lib/utils\"\nimport { fieldClass } from \"@/components/ui/input\"\n\nfunction Textarea({ className, ...props }: React.ComponentProps<\"textarea\">) {\n  return <textarea data-slot=\"textarea\" className={cn(fieldClass, \"min-h-[calc(128/16*1rem)]\", className)} {...props} />\n}\n\nexport { Textarea }\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

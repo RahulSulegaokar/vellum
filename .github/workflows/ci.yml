@@ -1,0 +1,24 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Registry is in sync with the source files
+        run: npm run registry:generate && git diff --exit-code registry.json app/theme.css
+      - run: npm run registry:validate
+      - run: npm run registry:build
+      - run: npm run typecheck
+      - run: npm run lint
+      - run: npm run build

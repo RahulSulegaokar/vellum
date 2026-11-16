@@ -1,0 +1,20 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "segmented-control",
+  "title": "Segmented Control",
+  "dependencies": [
+    "@base-ui/react"
+  ],
+  "registryDependencies": [
+    "RahulSulegaokar/vellum/vellum-theme",
+    "utils"
+  ],
+  "files": [
+    {
+      "path": "components/ui/segmented-control.tsx",
+      "content": "\"use client\"\n\nimport * as React from \"react\"\nimport { Toggle as TogglePrimitive } from \"@base-ui/react/toggle\"\nimport { ToggleGroup as ToggleGroupPrimitive } from \"@base-ui/react/toggle-group\"\nimport { cn } from \"@/lib/utils\"\n\n/**\n * Segmented control: a tinted 6px-radius track; the selected segment\n * lifts onto a white chip with a hairline ring and two soft drops. Single-select.\n */\nfunction SegmentedControl({\n  className,\n  value,\n  onValueChange,\n  ...props\n}: Omit<ToggleGroupPrimitive.Props, \"value\" | \"onValueChange\" | \"multiple\"> & {\n  value: string\n  onValueChange: (value: string) => void\n}) {\n  return (\n    <ToggleGroupPrimitive\n      data-slot=\"segmented-control\"\n      value={[value]}\n      onValueChange={(next) => {\n        // Ignore attempts to deselect the active segment.\n        if (next.length) onValueChange(next[next.length - 1] as string)\n      }}\n      className={cn(\"isolate flex w-full items-stretch gap-0.5 rounded-md bg-subtle/8 ring-1 ring-subtle/16 sm:w-fit max-sm:*:flex-1\", className)}\n      {...props}\n    />\n  )\n}\n\nfunction SegmentedControlItem({ className, children, ...props }: TogglePrimitive.Props) {\n  return (\n    <TogglePrimitive\n      data-slot=\"segmented-control-item\"\n      className={cn(\n        \"group/segment relative inline-flex items-center justify-center gap-1 rounded-md px-2 py-1.5 text-[0.8125rem]/4 font-medium text-subtle outline-none\",\n        \"focus-visible:ring-2 focus-visible:ring-brand/50 data-disabled:cursor-not-allowed data-disabled:opacity-40 data-pressed:text-foreground\",\n        className\n      )}\n      {...props}\n    >\n      {/* hover wash */}\n      <span aria-hidden=\"true\" className=\"absolute inset-0 -z-20 rounded-[inherit] bg-subtle/8 opacity-0 transition-opacity group-hover/segment:opacity-100 group-data-pressed/segment:opacity-0\" />\n      {/* selected chip */}\n      <span\n        aria-hidden=\"true\"\n        className=\"absolute inset-0 -z-10 rounded-[inherit] bg-surface bg-linear-to-b from-black/0 to-black/2 opacity-0 shadow-chip transition-opacity group-data-pressed/segment:opacity-100 dark:bg-none\"\n      />\n      <span className=\"px-1 whitespace-nowrap\">{children}</span>\n    </TogglePrimitive>\n  )\n}\n\nexport { SegmentedControl, SegmentedControlItem }\n",
+      "type": "registry:ui"
+    }
+  ],
+  "type": "registry:ui"
+}

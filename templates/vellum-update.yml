@@ -1,0 +1,38 @@
+# Copy into a project that installed Vellum components, at .github/workflows/vellum-update.yml.
+# Every Monday it re-installs each Vellum component already present in components/ui and opens a
+# pull request if anything changed, so updates arrive as a reviewable diff.
+name: Vellum update
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Re-install Vellum items present in this project
+        run: |
+          available=$(curl -fsSL https://raw.githubusercontent.com/RahulSulegaokar/vellum/main/registry.json | node -e 'let s="";process.stdin.on("data",d=>s+=d).on("end",()=>console.log(JSON.parse(s).items.filter(i=>i.type==="registry:ui").map(i=>i.name).join(" ")))')
+          items="RahulSulegaokar/vellum/vellum-theme"
+          for name in $available; do
+            [ -f "components/ui/$name.tsx" ] && items="$items RahulSulegaokar/vellum/$name"
+          done
+          npx shadcn@latest add $items --overwrite --yes
+      - uses: peter-evans/create-pull-request@v7
+        with:
+          branch: vellum-update
+          title: "chore: update Vellum components"
+          commit-message: "chore: update Vellum components"
+          body: "Automated re-install of the Vellum components used in this project. Review the diff before merging."
