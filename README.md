@@ -31,6 +31,8 @@ Pulled in this way, the theme only adds missing tokens. It never overwrites valu
 
 Pin a release by appending a tag: `RahulSulegaokar/vellum/button#v0.1.0`.
 
+> The shadcn CLI also adds lines like `--rule-shadow: var(--rule-shadow);` to `@theme inline` for every token that isn't a colour. They're harmless, because the real values in `:root` win, and you can delete them.
+
 > With a brand-new `create-next-app` project, `shadcn init` may write `--font-sans: var(--font-sans)` while the layout defines `--font-geist-sans`. Point one at the other, or the page falls back to a serif font. This is unrelated to Vellum.
 
 ## Theming
