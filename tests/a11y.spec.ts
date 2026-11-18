@@ -16,7 +16,7 @@ type Shot = { width: number; height: number; at: (x: number, y: number) => RGB }
 /** Screenshot a page region and decode it in the browser, so no image library is needed. */
 async function shoot(page: Page, clip: { x: number; y: number; width: number; height: number }): Promise<Shot> {
   const png = await page.screenshot({ clip, animations: "disabled", caret: "hide", style: "nextjs-portal { display: none !important; }" })
-  const { width, height, data } = await page.evaluate(async (b64) => {
+  const { width, data } = await page.evaluate(async (b64) => {
     const img = new Image()
     img.src = `data:image/png;base64,${b64}`
     await img.decode()
