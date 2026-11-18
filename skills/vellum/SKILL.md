@@ -106,6 +106,9 @@ import { Link } from "@inertiajs/react"
 - Edges are rings, not borders, on shadowed surfaces.
 - To remove or change a token shadow pass another token shadow or `shadow-none!`; plain `shadow-none` in `className` does not override it because `cn()` treats custom shadow names as colors.
 - Radius: `rounded-md` controls and fields, `rounded-lg` popovers and menus, `rounded-xl` cards and dialogs. Change the whole scale with `--radius`, not per component.
+- Accessibility is built in: an opaque 2px `--ring` focus outline, a 44px touch area on coarse pointers, 16px field text on touch screens, forced-colours and reduced-motion support. Don't add `outline-none` or translucent `ring-*/40` focus styles of your own, and leave 44px minus the control height between neighbouring controls (12px between 32px controls, 16px between `compact` ones). Controls use `::after` (tabs triggers `::before`) for the touch area: don't put your own pseudo-element there.
+- Translate built-in strings with props, never by editing the file: `closeLabel` (dialog, sheet, dialog footer), `optionalLabel` (label), `copyLabel`/`copiedLabel`, `label` (breadcrumb and pagination ellipsis, pagination previous/next, carousel buttons, sidebar trigger), `triggerLabel`/`clearLabel` (combobox input), `removeLabel` (combobox chip), and each block's `labels` prop.
+- `FormControl` keeps the field's own `data-slot` (`input`, `textarea`, `select-trigger`) and adds `data-form-control`; target `[data-form-control]` for any field inside a form item.
 
 ## Theming a project
 

@@ -8,7 +8,7 @@ colors:
   surface-muted: "#f7f7f8" # --surface-muted (dialog shell, hover wash)
   muted-text: "#5e5f6e"    # --muted-foreground
   subtle-text: "#6c6d7d"   # --subtle
-  placeholder: "#747583"   # --placeholder
+  placeholder: "#6d6e7c"   # --placeholder
   hairline: "rgb(19 19 22 / 0.05)"  # --hairline
   border: "#e3e3e7"        # --border
   accent: "#6c47ff"        # --brand (actions, checked states, focus)
@@ -66,9 +66,13 @@ This file is for people and for coding agents. The rules below override shadcn d
 
 All text meets WCAG AA (4.5:1, or 3:1 at 18px and up) in light and dark. `npm run test:contrast` checks every text/background token pair the components use and runs in CI. When adding a token or a new pairing, add it to `tests/contrast.mjs`.
 
-- `--subtle` passes on white, the canvas and its own 4% tint. `--muted-foreground` is stronger; use it for avatar initials and anything on `--muted`.
-- `--placeholder` passes on fields.
+- `--subtle` passes on white, the canvas and its own 4% tint. It must not sit on `--muted` (4.40:1); `--muted-foreground` is stronger: use it for avatar initials and anything on `--muted`.
+- `--brand-text` and `--success-text` are for white, the canvas and tints of 4% or less (not `--muted`).
+- `--placeholder` passes on fields and on the command palette's tinted input (4.5:1 or more).
 - Never set status-coloured text with the fill token (`text-destructive`); use the `-text` token.
+- Focus rings (`--ring`) reach 3:1 on every surface; the test checks them too, with Vellum's violet and with a green accent fixture, so a rebrand is covered.
+- `node tests/contrast.mjs --json` prints every pair and its ratio, for apps that extend the list with their own tokens.
+- Known gaps, reported by the test and not yet fixed (each would visibly change a control at rest): control boundaries under 3:1 (unchecked checkbox, radio, field ring, switch-off track), the checked fill and progress fill against dark surfaces, the `gloss` pill label on its sheen, and success text on a success banner placed directly on the canvas.
 
 ## Change the accent
 
@@ -80,10 +84,15 @@ The violet accent is spread over a handful of tokens. To rebrand, set all of the
 | `--brand-edge` | `#5b35f0` | inherits light | 1px ring around brand fills (also used by `--control-shadow-checked`) |
 | `--brand-foreground` | `#ffffff` | `#ffffff` | Text and icons on brand fills |
 | `--brand-text` | `#6c47ff` | `#9479ff` | Violet text and links (must pass 4.5:1 on white and the dark canvas) |
-| `--ring` | `#6c47ff` | `#9785ff` | Focus rings |
-| `--sidebar-ring` | `#6c47ff` | `#9785ff` | Focus rings inside the sidebar |
+| `--ring` | `#6c47ff` | `#9480ff` | Focus rings (3:1 on every surface, white fills included) |
+| `--sidebar-ring` | `#6c47ff` | `#9480ff` | Focus rings inside the sidebar |
 | `--sidebar-primary` | `#131316` (ink, not violet) | `#9785ff` | Active sidebar item fill |
+| `--brand-edge-strong` | `color-mix(in oklab, #4a2bc7 88%, transparent)` | inherits light | Ring around the checked switch |
+| `--sidebar-primary-foreground` | `#ffffff` | `#ffffff` | Text on the active sidebar item |
+| `--success-text` | `#008236` | `#7bf1a8` | Success text (apps with a green accent often want one green) |
 | `--chart-1`, `--chart-2` | `#6c47ff`, `#9785ff` | inherit light | First two chart series |
+
+`--brand`, `--brand-edge`, `--brand-edge-strong`, `--chart-1` and `--chart-2` have no dark values of their own: dark mode uses the light ones unless you set them in `.dark`. The machine-readable list is `accentTokens` in `registry/themes/vellum.tokens.json`, so an app can check that no violet is left.
 
 ```css
 :root { --brand: #0f9d58; --brand-edge: #0b7a44; --brand-text: #0b7a44; --ring: #0f9d58; --sidebar-ring: #0f9d58; --chart-1: #0f9d58; --chart-2: #5cc68d; }
@@ -94,7 +103,19 @@ After changing them, run `npm run test:contrast` in a Vellum checkout with your 
 
 ## Touch targets
 
-Controls stay visually dense (24 to 32px), but on touch screens (`pointer: coarse`) each `Button` gets an invisible hit area of at least 44×44px, centred on the button, so apps don't need to enlarge controls. Checkbox and radio already extend their hit area with a pseudo-element, and labels of fields, checkboxes, radios and switches are clickable. Keep about 8px between adjacent compact buttons so the extended areas don't overlap. The marketing `gloss` pills keep their 30px hit area.
+Controls stay visually dense (24 to 32px), but on touch screens (`pointer: coarse`) every control gets an invisible hit area of at least 44×44px, centred on it, without changing its size or look: buttons and icon buttons, checkbox, radio, switch, toggle and toggle-group items, segmented-control items, tabs triggers, the select trigger, the slider thumb, breadcrumb links, the accordion trigger and the banner's dismiss button. Labels of fields, checkboxes, radios and switches are clickable too. Underline tabs get 4px of room above and below on touch screens so their scrolling list doesn't clip the areas. The marketing `gloss` pills keep their 30px hit area; text fields keep 32px (their label is part of the target).
+
+The areas are drawn with a pseudo-element: `::after` on most controls, `::before` on tabs triggers (their `::after` is the underline). If you add your own `::before`/`::after` to a control, check it doesn't replace these.
+
+**Spacing:** for the areas not to overlap, leave at least 44px minus the control height between neighbours: 12px between 32px controls, 16px between 28px (`compact`) and 20px between 24px (`compact-sm`). Icon-only buttons in a row want a 44px pitch.
+
+## Focus, forced colours and motion
+
+- **Focus:** every interactive control shows an opaque 2px outline in `--ring`, 2px outside it (fields: on their edge; controls in a scrolling list, such as tabs: drawn inside, so the scroll doesn't clip it). Some controls keep a soft halo under it. The slider draws it on the thumb (Base UI focuses a hidden input inside it). Don't replace it with a translucent ring.
+- **Forced colours (Windows high contrast):** field and button edges, the switch, checkbox, checked radio dot, progress and slider fills, the selected tab, toggle and segment, and every floating layer keep a visible edge or system-colour fill (`Canvas`, `CanvasText`, `Highlight`). Nothing changes outside that mode.
+- **Reduced motion:** with `prefers-reduced-motion: reduce`, dialogs, sheets, popovers, menus, selects, tooltips, accordions, the drawer, toasts and small state transitions (switch, checkbox, progress) don't animate.
+- **Field text** is 16px on touch screens at any width (so iOS doesn't zoom on focus) and 14px from the `sm` breakpoint with a mouse.
+- **Translated labels:** every built-in string is a prop with English as its default (`closeLabel`, `optionalLabel`, `copyLabel`/`copiedLabel`, `label`, `triggerLabel`, `clearLabel`, `removeLabel`, `mobileTitle`…); the README lists them.
 
 ## Elevation
 
@@ -120,6 +141,7 @@ Controls stay visually dense (24 to 32px), but on touch screens (`pointer: coars
 - **Tabs.** `variant="underline"` for page-level navigation in dashboards; default (chip) tabs for switching views inside a card. Use `SegmentedControl` for 2 to 4 mutually exclusive options in a toolbar.
 - **Dialogs.** A muted shell (`DialogContent`) holding a white `DialogPanel` with `DialogHeader` and one or more `DialogSection`s; the `DialogFooter` sits on the shell with `elevated` Cancel and `primary` confirm, both `size="compact"`.
 - **Checked state.** Checkbox, radio, switch, slider, calendar selection, progress and choice cards are violet. Nothing else is violet except focus.
+- **Tags** (`subtle`, `subtle-info`, `subtle-warning`) are flat tints: they pass 4.5:1 on panels and on the canvas.
 
 ## Layout
 
