@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
+import { useScrollRegion } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 
 /* ---------------------------------- Types ---------------------------------- */
@@ -50,6 +51,8 @@ export type RowAction = {
 
 /** Built-in strings of DataTableCard, TableToolbar and RowActions; pass `labels` to translate them. */
 export const dataTableCardLabels = {
+  /** Name of the scrolling table region on narrow screens. */
+  table: "Table",
   confirmTitle: (action: string) => `${action}?`,
   cancel: "Cancel",
   clearSearch: "Clear search",
@@ -82,12 +85,24 @@ export const tableRowClass = "transition-colors hover:bg-subtle/4"
  * Table card: the header row sits on a muted strip; a raised, ringed, rounded body
  * is painted behind the rows starting at the header height.
  */
-export function TableCard({ head, children, className }: { head: React.ReactNode; children: React.ReactNode; className?: string }) {
+export function TableCard({
+  head,
+  children,
+  label,
+  className,
+}: {
+  head: React.ReactNode
+  children: React.ReactNode
+  /** Name of the table's scrolling region when it is wider than the card (screen readers announce it). */
+  label?: string
+  className?: string
+}) {
+  const region = useScrollRegion(label)
   return (
     <section className={cn("relative isolate overflow-hidden rounded-2xl bg-surface-muted p-1 [--head:2.4375rem]", className)}>
       <div className="relative -mt-1">
         <div aria-hidden="true" className="absolute inset-0 top-(--head) -z-1 rounded-xl bg-surface shadow-card ring-1 ring-edge/4" />
-        <div className="overflow-x-auto">
+        <div {...region} className="overflow-x-auto outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">
           <table className="w-full border-separate border-spacing-0 whitespace-nowrap">
             <thead className="text-xs/4 font-medium">{head}</thead>
             <tbody className="[&>tr:last-child>td]:border-0">{children}</tbody>
@@ -423,6 +438,7 @@ export function DataTableCard<T>({
       {callout && <div className="mb-6">{callout}</div>}
 
       <TableCard
+        label={t.table}
         head={
           <tr>
             {visible.map((c) =>

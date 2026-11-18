@@ -8,7 +8,12 @@ import { cn } from "@/lib/utils"
  * region (tabindex 0, role "region") so keyboard users can scroll it. `label` names it; by default it uses the
  * table's caption, then "Table".
  */
-function Table({ className, label, ...props }: React.ComponentProps<"table"> & { label?: string }) {
+/**
+ * Props for a sideways-scrolling wrapper: while its content is wider than it is, it becomes a focusable, named
+ * region (tabindex 0, role "region") so keyboard users can scroll it. The name is `label`, else the caption of a
+ * table inside it, else "Table". Spread the result on the wrapper: `<div {...useScrollRegion(label)}>`.
+ */
+function useScrollRegion(label?: string) {
   const ref = React.useRef<HTMLDivElement>(null)
   const [overflows, setOverflows] = React.useState(false)
   const [caption, setCaption] = React.useState<string | undefined>()
@@ -25,12 +30,17 @@ function Table({ className, label, ...props }: React.ComponentProps<"table"> & {
     if (el.firstElementChild) observer.observe(el.firstElementChild)
     return () => observer.disconnect()
   }, [])
+  return { ref, ...(overflows ? { tabIndex: 0, role: "region", "aria-label": label ?? caption ?? "Table" } : {}) }
+}
+
+/** A scrolling table; see `useScrollRegion` for how it becomes a named, focusable region when it overflows. */
+function Table({ className, label, ...props }: React.ComponentProps<"table"> & { label?: string }) {
+  const region = useScrollRegion(label)
   return (
     <div
-      ref={ref}
+      {...region}
       data-slot="table-container"
       className="relative w-full overflow-x-auto outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
-      {...(overflows ? { tabIndex: 0, role: "region", "aria-label": label ?? caption ?? "Table" } : {})}
     >
       <table
         data-slot="table"
@@ -135,4 +145,5 @@ export {
   TableRow,
   TableCell,
   TableCaption,
+  useScrollRegion,
 }

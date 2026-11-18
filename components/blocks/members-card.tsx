@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useScrollRegion } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 
 export type Member = {
@@ -280,6 +281,7 @@ export function MembersCard({
   className?: string
 }) {
   const t = { ...membersCardLabels, ...labels }
+  const membersRegion = useScrollRegion(t.members.trim())
   // Local copies so the list responds right away; pass callbacks to persist changes.
   const [members, setMembers] = React.useState(membersProp)
   const [invitations, setInvitations] = React.useState(invitationsProp)
@@ -313,7 +315,7 @@ export function MembersCard({
           </Button>
         </div>
         <TabsContent value="members">
-          <div className="overflow-x-auto rounded-lg ring-1 ring-edge/6">
+          <div {...membersRegion} className="overflow-x-auto rounded-lg ring-1 ring-edge/6 outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">
             <table className="w-full min-w-120 text-[0.8125rem]">
               <thead>
                 <tr className="border-b border-edge/6 text-left text-xs text-subtle">
