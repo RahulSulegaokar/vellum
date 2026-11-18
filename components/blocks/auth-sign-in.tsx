@@ -11,6 +11,15 @@ import { cn } from "@/lib/utils"
 
 /* ------------------------------ Shared auth pieces ------------------------------ */
 
+/** Built-in strings of the auth blocks (sign-in, sign-up, waitlist); pass `labels` to translate them. */
+export const authSignInLabels = {
+  home: (name: string) => `${name} home`,
+  continueWith: (provider: string) => `Continue with ${provider}`,
+  showPassword: "Show password",
+  hidePassword: "Hide password",
+}
+export type AuthSignInLabels = typeof authSignInLabels
+
 export type AuthProvider = {
   id: string
   label: string
@@ -38,11 +47,15 @@ export function AuthLogo({
   name,
   href,
   linkComponent,
+  labels,
 }: {
   name: string
   href?: string
   linkComponent?: React.ElementType
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<AuthSignInLabels>
 }) {
+  const t = { ...authSignInLabels, ...labels }
   const Link = linkComponent ?? "a"
   const content = (
     <>
@@ -55,7 +68,7 @@ export function AuthLogo({
   const className = "flex items-center gap-1.5 rounded-md text-[1.0625rem] font-semibold tracking-[-0.03em] text-foreground outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
   if (!href) return <span className={className}>{content}</span>
   return (
-    <Link href={href} aria-label={`${name} home`} className={className}>
+    <Link href={href} aria-label={t.home(name)} className={className}>
       {content}
     </Link>
   )
@@ -134,6 +147,7 @@ export function ProviderButtons({
   recentLabel = "Recent",
   disabled,
   onSelect,
+  labels,
 }: {
   providers: AuthProvider[]
   /** Provider id that gets the `recentLabel` tag. */
@@ -141,7 +155,10 @@ export function ProviderButtons({
   recentLabel?: string
   disabled?: boolean
   onSelect?: (id: string) => void
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<AuthSignInLabels>
 }) {
+  const t = { ...authSignInLabels, ...labels }
   if (providers.length === 0) return null
   const grid = providers.length === 2
   return (
@@ -156,7 +173,7 @@ export function ProviderButtons({
           className="relative w-full gap-2 overflow-visible"
         >
           {p.icon ?? <ProviderGlyph label={p.label} />}
-          {grid ? p.label : `Continue with ${p.label}`}
+          {grid ? p.label : t.continueWith(p.label)}
           {recent === p.id && (
             <Badge variant="subtle" className="absolute -top-2 -right-1.5 bg-surface-muted">
               {recentLabel}
@@ -187,8 +204,16 @@ export function AuthField({
   error,
   className,
   "aria-describedby": describedBy,
+  labels,
   ...props
-}: Omit<React.ComponentProps<"input">, "id"> & { id: string; label: string; error?: string }) {
+}: Omit<React.ComponentProps<"input">, "id"> & {
+  id: string
+  label: string
+  error?: string
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<AuthSignInLabels>
+}) {
+  const t = { ...authSignInLabels, ...labels }
   const [show, setShow] = React.useState(false)
   const pw = type === "password"
   const errorId = `${id}-error`
@@ -211,7 +236,7 @@ export function AuthField({
         {pw && (
           <button
             type="button"
-            aria-label={show ? "Hide password" : "Show password"}
+            aria-label={show ? t.hidePassword : t.showPassword}
             aria-pressed={show}
             onClick={() => setShow((s) => !s)}
             className="absolute top-1/2 right-1 grid size-6 -translate-y-1/2 cursor-pointer place-items-center rounded-md text-placeholder transition-colors outline-none hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
@@ -281,6 +306,7 @@ export function AuthSignIn({
   footer,
   onSubmit,
   onProvider,
+  labels,
   className,
 }: {
   logo?: React.ReactNode
@@ -310,6 +336,8 @@ export function AuthSignIn({
   footer?: React.ReactNode
   onSubmit?: (values: { email: string }) => void | Promise<void>
   onProvider?: (id: string) => void
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<AuthSignInLabels>
   className?: string
 }) {
   const id = React.useId()
@@ -326,7 +354,7 @@ export function AuthSignIn({
     >
       {providers.length > 0 && (
         <>
-          <ProviderButtons providers={providers} recent={recentProvider} recentLabel={recentLabel} disabled={pending} onSelect={onProvider} />
+          <ProviderButtons providers={providers} recent={recentProvider} recentLabel={recentLabel} disabled={pending} onSelect={onProvider} labels={labels} />
           <AuthDivider />
         </>
       )}
@@ -347,6 +375,7 @@ export function AuthSignIn({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           error={error}
+          labels={labels}
           required
         />
         <AuthSubmit pending={pending}>{submitLabel}</AuthSubmit>

@@ -11,6 +11,13 @@ import { cn } from "@/lib/utils"
 
 export type Billing = "monthly" | "annual"
 
+/** Built-in strings of PricingPlans and PlanCard; pass `labels` to translate them. */
+export const pricingPlansLabels = {
+  billedAnnually: "per month, billed annually",
+  billedMonthly: "per month, billed monthly",
+}
+export type PricingPlansLabels = typeof pricingPlansLabels
+
 export type PricingPlan = {
   name: string
   /** Per-month prices; leave both `null` for a free or custom plan and set `label` ("Free", "Custom"). */
@@ -59,13 +66,17 @@ export function PlanCard({
   billing,
   popularLabel = "Most popular",
   linkComponent,
+  labels,
 }: {
   plan: PricingPlan
   billing: Billing
   popularLabel?: string
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<PricingPlansLabels>
   /** Element or component used for the CTA link, e.g. your router's `Link`. Defaults to `"a"`. */
   linkComponent?: React.ElementType
 }) {
+  const t = { ...pricingPlansLabels, ...labels }
   const Link = linkComponent ?? "a"
   const amount = billing === "annual" ? plan.price.annual : plan.price.monthly
   const paid = amount !== null
@@ -85,7 +96,7 @@ export function PlanCard({
           {paid ? <RollingNumber value={amount} /> : <span>{plan.price.label}</span>}
         </div>
         <div className="mt-0.5 text-[0.8125rem]/5 text-subtle">
-          {paid ? (billing === "annual" ? "per month, billed annually" : "per month, billed monthly") : plan.note}
+          {paid ? (billing === "annual" ? t.billedAnnually : t.billedMonthly) : plan.note}
         </div>
         <p className="mt-3 text-[0.8125rem]/5 text-pretty text-muted-foreground">{plan.blurb}</p>
         <Button
@@ -131,6 +142,7 @@ export function PricingPlans({
   billingLabel = "Billing period",
   popularLabel,
   linkComponent,
+  labels,
   className,
 }: {
   title: React.ReactNode
@@ -147,6 +159,8 @@ export function PricingPlans({
   popularLabel?: string
   /** Element or component used for links, e.g. your router's `Link`. Defaults to `"a"`. */
   linkComponent?: React.ElementType
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<PricingPlansLabels>
   className?: string
 }) {
   const [billing, setBilling] = React.useState<Billing>(defaultBilling)
@@ -167,7 +181,7 @@ export function PricingPlans({
       </div>
       <div className={cn("mt-10 grid w-full grid-cols-1 gap-4", cols)}>
         {plans.map((p) => (
-          <PlanCard key={p.name} plan={p} billing={billing} popularLabel={popularLabel} linkComponent={linkComponent} />
+          <PlanCard key={p.name} plan={p} billing={billing} popularLabel={popularLabel} linkComponent={linkComponent} labels={labels} />
         ))}
       </div>
     </section>

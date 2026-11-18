@@ -49,8 +49,13 @@ function Carousel({
   plugins,
   className,
   children,
+  roleDescription = "carousel",
   ...props
-}: React.ComponentProps<"div"> & CarouselProps) {
+}: React.ComponentProps<"div"> &
+  CarouselProps & {
+    /** Spoken role of the region (translate it here). */
+    roleDescription?: string
+  }) {
   const [carouselRef, api] = useEmblaCarousel(
     {
       ...opts,
@@ -124,7 +129,7 @@ function Carousel({
         onKeyDownCapture={handleKeyDown}
         className={cn("relative", className)}
         role="region"
-        aria-roledescription="carousel"
+        aria-roledescription={roleDescription}
         data-slot="carousel"
         {...props}
       >
@@ -155,13 +160,20 @@ function CarouselContent({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-function CarouselItem({ className, ...props }: React.ComponentProps<"div">) {
+function CarouselItem({
+  className,
+  roleDescription = "slide",
+  ...props
+}: React.ComponentProps<"div"> & {
+  /** Spoken role of each slide (translate it here). */
+  roleDescription?: string
+}) {
   const { orientation } = useCarousel()
 
   return (
     <div
       role="group"
-      aria-roledescription="slide"
+      aria-roledescription={roleDescription}
       data-slot="carousel-item"
       className={cn(
         "min-w-0 shrink-0 grow-0 basis-full",
