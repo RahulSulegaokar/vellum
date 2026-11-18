@@ -113,18 +113,24 @@ jobs:
           echo "blocks=$(cat "$RUNNER_TEMP/vellum-blocks.txt")" >> "$GITHUB_OUTPUT"
       - name: Re-install them from that release
         if: steps.ref.outputs.skip != 'true' && steps.items.outputs.list != ''
-        run: npx "$SHADCN_CLI" add ${{ steps.items.outputs.list }} --overwrite --yes
+        env:
+          ITEMS: ${{ steps.items.outputs.list }}
+        # The list arrives through the environment and is split into arguments here, never pasted into the script.
+        run: |
+          read -r -a items <<< "$ITEMS"
+          npx "$SHADCN_CLI" add "${items[@]}" --overwrite --yes
       - name: Re-install blocks, or list what would change in them
         if: steps.ref.outputs.skip != 'true' && steps.items.outputs.blocks != ''
         env:
           BLOCKS: ${{ steps.items.outputs.blocks }}
         run: |
+          read -r -a blocks <<< "$BLOCKS"
           if [ "$UPDATE_BLOCKS" = "true" ]; then
-            npx "$SHADCN_CLI" add $BLOCKS --overwrite --yes
+            npx "$SHADCN_CLI" add "${blocks[@]}" --overwrite --yes
           else
             {
               echo "### Blocks (not overwritten: \`UPDATE_BLOCKS\` is false)"
-              for b in $BLOCKS; do
+              for b in "${blocks[@]}"; do
                 echo; echo "<details><summary>${b%%#*}</summary>"; echo; echo '```diff'
                 npx "$SHADCN_CLI" add "$b" --diff 2>&1 || true
                 echo '```'; echo "</details>"

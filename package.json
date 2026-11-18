@@ -15,7 +15,9 @@
     "registry:build": "shadcn build registry.json --output public/r",
     "test:visual": "playwright test",
     "registry:generate": "node scripts/build-registry.mjs",
-    "test:contrast": "node tests/contrast.mjs"
+    "test:contrast": "node tests/contrast.mjs",
+    "test:install": "node scripts/check-install.mjs",
+    "test:strings": "node tests/strings.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.9.0",

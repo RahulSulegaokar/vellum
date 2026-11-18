@@ -24,8 +24,12 @@ jobs:
     env:
       SHADCN_CLI: shadcn@4.23.0
       TAG: ${{ inputs.tag || github.ref_name }}
+    defaults:
+      run:
+        shell: bash # bash -eo pipefail: a failing npx is not hidden by tee
     steps:
-      - uses: actions/setup-node@v4
+      # Pinned by commit (v4.4.0); bump deliberately.
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
         with:
           node-version: 24
       - name: Make an empty ${{ matrix.layout }} project
@@ -34,6 +38,8 @@ jobs:
           npm init -y > /dev/null
           npm install --ignore-scripts --no-audit --no-fund tailwindcss@4 react@19 react-dom@19 > /dev/null
           if [ "${{ matrix.layout }}" = "laravel" ]; then base=resources/js; css=resources/css/app.css; else base=src; css=src/index.css; fi
+          echo "BASE=$base" >> "$GITHUB_ENV"
+          echo "CSS=$css" >> "$GITHUB_ENV"
           mkdir -p "$(dirname "$css")" "$base/lib"
           echo '@import "tailwindcss";' > "$css"
           printf 'export function cn(...c: string[]) { return c.filter(Boolean).join(" ") }\n' > "$base/lib/utils.ts"
@@ -47,6 +53,9 @@ jobs:
         working-directory: app
         run: |
           npx "$SHADCN_CLI" add "RahulSulegaokar/vellum/dialog#$TAG" --dry-run --yes 2>&1 | tee ../dry-run.txt
-          for item in dialog button vellum-theme; do
-            grep -q "$item" ../dry-run.txt || { echo "$item did not resolve from $TAG"; exit 1; }
+          # The files the CLI would write (exact paths, so its own error text can't match), and the CSS file the
+          # theme's tokens go into.
+          for path in "$BASE/components/ui/dialog.tsx" "$BASE/components/ui/button.tsx" "$CSS"; do
+            grep -qF -- "$path" ../dry-run.txt || { echo "$path is not in the dry run for $TAG"; exit 1; }
           done
+          if grep -qiE "was not found|something went wrong" ../dry-run.txt; then echo "the dry run reported an error"; exit 1; fi
