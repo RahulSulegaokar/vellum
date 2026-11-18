@@ -3,8 +3,17 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-/** Field label; pass `optional` to append the small "Optional" tag. Children render directly (no wrapper) so shadcn's `has-[>…]` / `peer` selectors keep working. */
-function Label({ className, children, optional, ...props }: React.ComponentProps<"label"> & { optional?: boolean }) {
+/**
+ * Field label; pass `optional` to append the small "Optional" tag (`optionalLabel` translates it). Children render
+ * directly (no wrapper) so shadcn's `has-[>…]` / `peer` selectors keep working.
+ */
+function Label({
+  className,
+  children,
+  optional,
+  optionalLabel = "Optional",
+  ...props
+}: React.ComponentProps<"label"> & { optional?: boolean; optionalLabel?: React.ReactNode }) {
   return (
     <label
       data-slot="label"
@@ -16,7 +25,7 @@ function Label({ className, children, optional, ...props }: React.ComponentProps
     >
       {children}
       {optional && (
-        <span className="rounded bg-accent px-1.5 py-0.5 text-2xs/[0.875rem] tracking-[0.015em] text-muted-foreground ring-1 ring-hairline ring-inset">Optional</span>
+        <span className="rounded bg-accent px-1.5 py-0.5 text-2xs/[0.875rem] tracking-[0.015em] text-muted-foreground ring-1 ring-hairline ring-inset">{optionalLabel}</span>
       )}
     </label>
   )

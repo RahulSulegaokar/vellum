@@ -15,7 +15,8 @@ import { Label } from "@/components/ui/label"
  *     <FormMessage />
  *   </FormItem>
  *
- * FormControl wires id, aria-describedby (description + error) and aria-invalid onto its child.
+ * FormControl wires id, aria-describedby (description + error) and aria-invalid onto its child, and marks it with
+ * data-form-control. The child keeps its own data-slot (data-slot="input" stays "input").
  */
 
 type FormItemContextValue = {
@@ -66,11 +67,15 @@ function FormControl({ children }: { children: React.ReactElement<Record<string,
   const describedBy = [child.props["aria-describedby"] as string | undefined, hasDescription && descriptionId, error ? messageId : null]
     .filter(Boolean)
     .join(" ")
+  // A component child (Input, Textarea, SelectTrigger…) keeps the data-slot it sets itself; only a bare element
+  // (<input>, <select>) without one is tagged "form-control". Every wrapped field gets data-form-control.
+  const ownSlot = typeof child.type !== "string" || child.props["data-slot"] !== undefined
   return React.cloneElement(child, {
     id: (child.props.id as string | undefined) ?? id,
     "aria-describedby": describedBy || undefined,
     "aria-invalid": error ? true : (child.props["aria-invalid"] as boolean | undefined),
-    "data-slot": child.props["data-slot"] ?? "form-control",
+    "data-form-control": "",
+    ...(ownSlot ? {} : { "data-slot": "form-control" }),
   })
 }
 

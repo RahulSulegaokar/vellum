@@ -153,7 +153,7 @@ function AttachmentAction({
       data-slot="attachment-action"
       variant={variant ?? "ghost"}
       size={size}
-      className={cn(className)}
+      className={cn("focus-visible:bg-surface focus-visible:-outline-offset-2", className)}
       {...props}
     />
   )
@@ -170,7 +170,7 @@ function AttachmentTrigger({
     props: mergeProps<"button">(
       {
         type: render ? type : (type ?? "button"),
-        className: cn("absolute inset-0 z-10 outline-none", className),
+        className: cn("absolute inset-0 z-10 rounded-[inherit] outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring", className),
       },
       props
     ),

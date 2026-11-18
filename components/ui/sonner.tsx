@@ -36,7 +36,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           // Same surface as every other popup: layered popover shadow plus a 5% hairline ring.
-          toast: "cn-toast shadow-popover! ring-1 ring-hairline",
+          toast: "cn-toast shadow-popover! ring-1 ring-hairline forced-colors:outline-1 forced-colors:[--tw-outline-style:solid]",
         },
       }}
       {...props}

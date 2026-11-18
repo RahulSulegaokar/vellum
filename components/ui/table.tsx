@@ -3,11 +3,34 @@
 import * as React from "react"
 import { cn } from "@/lib/utils"
 
-function Table({ className, ...props }: React.ComponentProps<"table">) {
+/**
+ * When the table is wider than its container, the container scrolls sideways and becomes a focusable, named
+ * region (tabindex 0, role "region") so keyboard users can scroll it. `label` names it; by default it uses the
+ * table's caption, then "Table".
+ */
+function Table({ className, label, ...props }: React.ComponentProps<"table"> & { label?: string }) {
+  const ref = React.useRef<HTMLDivElement>(null)
+  const [overflows, setOverflows] = React.useState(false)
+  const [caption, setCaption] = React.useState<string | undefined>()
+  React.useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const measure = () => {
+      setOverflows(el.scrollWidth > el.clientWidth + 1)
+      setCaption(el.querySelector("caption")?.textContent?.trim() || undefined)
+    }
+    measure()
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+    if (el.firstElementChild) observer.observe(el.firstElementChild)
+    return () => observer.disconnect()
+  }, [])
   return (
     <div
+      ref={ref}
       data-slot="table-container"
-      className="relative w-full overflow-x-auto"
+      className="relative w-full overflow-x-auto outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
+      {...(overflows ? { tabIndex: 0, role: "region", "aria-label": label ?? caption ?? "Table" } : {})}
     >
       <table
         data-slot="table"

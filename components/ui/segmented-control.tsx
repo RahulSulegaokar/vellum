@@ -26,7 +26,7 @@ function SegmentedControl({
         // Ignore attempts to deselect the active segment.
         if (next.length) onValueChange(next[next.length - 1] as string)
       }}
-      className={cn("isolate flex w-full items-stretch gap-0.5 rounded-md bg-subtle/8 ring-1 ring-subtle/16 sm:w-fit max-sm:*:flex-1", className)}
+      className={cn("isolate flex w-full items-stretch gap-0.5 rounded-md bg-subtle/8 ring-1 ring-subtle/16 forced-colors:outline-1 forced-colors:[--tw-outline-style:solid] forced-colors:-outline-offset-1 sm:w-fit max-sm:*:flex-1", className)}
       {...props}
     />
   )
@@ -37,8 +37,8 @@ function SegmentedControlItem({ className, children, ...props }: TogglePrimitive
     <TogglePrimitive
       data-slot="segmented-control-item"
       className={cn(
-        "group/segment relative inline-flex items-center justify-center gap-1 rounded-md px-2 py-1.5 text-[0.8125rem]/4 font-medium text-subtle outline-none",
-        "focus-visible:ring-2 focus-visible:ring-brand/50 data-disabled:cursor-not-allowed data-disabled:opacity-40 data-pressed:text-foreground",
+        "group/segment relative inline-flex items-center justify-center gap-1 rounded-md px-2 py-1.5 text-[0.8125rem]/4 font-medium text-muted-foreground dark:not-data-pressed:text-foreground/55 outline-none pointer-coarse:after:absolute pointer-coarse:after:inset-[min(0px,calc((100%_-_44px)/2))]",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring data-disabled:cursor-not-allowed data-disabled:opacity-40 data-pressed:text-foreground forced-colors:data-pressed:bg-[Highlight] forced-colors:data-pressed:text-[HighlightText] forced-colors:data-pressed:forced-color-adjust-none",
         className
       )}
       {...props}
