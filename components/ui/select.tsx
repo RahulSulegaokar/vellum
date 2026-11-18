@@ -65,7 +65,7 @@ function SelectTrigger({
       className={cn(
         elevated
           ? cn(buttonVariants({ variant: "elevated", size: "compact" }), "group/trigger flex h-7 w-full justify-between pr-1.5 pl-3 text-left")
-          : cn(fieldClass, "flex items-center justify-between gap-3 select-none data-[size=sm]:py-1 relative pointer-coarse:after:absolute pointer-coarse:after:inset-[min(0px,calc((100%_-_44px)/2))]"),
+          : cn(fieldClass, "flex items-center justify-between gap-3 select-none data-[size=sm]:py-1 pointer-coarse:[&:not(.absolute,.fixed,.sticky)]:relative pointer-coarse:after:absolute pointer-coarse:after:inset-[min(0px,calc((100%_-_44px)/2))]"),
         "*:data-[slot=select-value]:truncate",
         className
       )}

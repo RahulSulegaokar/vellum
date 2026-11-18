@@ -39,7 +39,7 @@ Accessibility release. At rest, with a mouse, controls look the same as in v0.3.
 
 - `data-slot`: a Vellum field inside `FormControl` now carries its own slot (`input`, `textarea`, `select-trigger`…) instead of `form-control`, and your own components wrapped in `FormControl` no longer get `data-slot="form-control"`. Select either with `[data-form-control]` (new).
 - Elements: `DialogHeader` and `DialogFooter` render `div` (were `header` and `footer`); their prop types are `div` props.
-- Positioning: `Toggle`, `ToggleGroupItem`, the field `SelectTrigger` and `BreadcrumbLink` are `position: relative` (to hold their touch area); a position class you pass (`absolute`, `fixed`, `sticky`) still wins. A focused `Button` gets `z-index: 10`.
+- Positioning: on touch screens `Toggle`, `ToggleGroupItem`, the field `SelectTrigger` and `BreadcrumbLink` become `position: relative` (to hold their touch area), unless you pass `absolute`, `fixed` or `sticky`, which wins. With a mouse their position is unchanged. A focused `Button` gets `z-index: 10`.
 - `AccordionContent` uses `overflow: clip` instead of `overflow: hidden`.
 - Pseudo-elements: on coarse pointers `::after` draws the hit area on the switch, toggle and toggle-group items, segmented-control items, the field select trigger, the accordion trigger, breadcrumb links and the banner's dismiss button; `::before` on tabs triggers (their `::after` stays the underline). Checkbox, radio and slider thumb keep their existing `::after`, widened on coarse pointers. Rules of your own on these pseudo-elements will clash. `toggleVariants` no longer carries the hit area (the `Toggle` component adds it).
 - Tabs on phones: `TabsList` (default and line) is a horizontal scroll container below `sm`.

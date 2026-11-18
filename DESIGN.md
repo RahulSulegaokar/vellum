@@ -119,7 +119,7 @@ Controls stay visually dense (24 to 32px), but on touch screens (`pointer: coars
 
 Underline tabs get 4px of room above and below on touch screens so their scrolling list doesn't clip the areas. On phones a default or line tab list that overflows scrolls, and its triggers' areas stay inside it. The marketing `gloss` pills keep their 30px hit area; text fields keep 32px (their label is part of the target).
 
-The areas are drawn with a pseudo-element: `::after` on most controls, `::before` on tabs triggers (their `::after` is the underline). If you add your own `::before`/`::after` to a control, check it doesn't replace these. Controls that hold an area are `position: relative`; a position class you pass still wins.
+The areas are drawn with a pseudo-element: `::after` on most controls, `::before` on tabs triggers (their `::after` is the underline). If you add your own `::before`/`::after` to a control, check it doesn't replace these. Controls that hold an area are `position: relative` on touch screens; an `absolute`, `fixed` or `sticky` class you pass still wins.
 
 **Spacing:** buttons have the full 44px both ways, so leave at least 44px minus the control height between neighbouring buttons: 12px between 32px controls, 16px between 28px (`compact`) and 20px between 24px (`compact-sm`). Icon-only buttons in a row want a 44px pitch. Closer than that, a later button's area takes taps from the edge of an earlier one.
 
