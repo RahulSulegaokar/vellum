@@ -20,7 +20,7 @@ export default async function ComponentPage({ params }: { params: Promise<{ name
   return (
     <>
       <nav className="flex items-center justify-between border-b px-6 py-3 text-sm">
-        <Link href="/" className="font-medium">
+        <Link href="/" className="font-medium rounded-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">
           ← Vellum
         </Link>
         <code className="font-mono text-subtle">npx shadcn@latest add RahulSulegaokar/vellum/{name.replace(/-(floating|icon|inset)$/, "")}</code>
