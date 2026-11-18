@@ -263,15 +263,15 @@ for (const [fixtureName, fx] of Object.entries(fixtures)) {
       : v === "CHOICE_TINT" ? tint("brand", choiceTint(mode))
       : v === "CONTROL_EDGE" ? token("control-shadow", mode).match(/0 0 0 1px (rgb\([^)]+\)|var\([^)]+\))/)[1]
       : v
-    for (let [list, enforced] of [[text, true], [ui, true], [boundaries, false]]) {
+    for (const [list, enforced] of [[text, true], [ui, true], [boundaries, false]]) {
       for (const [label, fg, bg, kind = "text"] of list) {
         const back = paint(bg.map(sub), mode)
         const r = ratio(over(resolve(sub(fg), mode), back), back)
         const ok = r >= min[kind]
-        enforced = enforced && !isKnown(label)
-        if (!ok && enforced) failures++
-        results.push({ fixture: fixtureName, mode, label, kind, min: min[kind], ratio: Number(r.toFixed(2)), pass: ok, enforced })
-        log(`  ${ok ? "pass" : enforced ? "FAIL" : isKnown(label) ? "known" : "info"}  ${r.toFixed(2).padStart(5)}:1  ${kind === "text" ? "" : `[${kind} ${min[kind]}:1] `}${label}`)
+        const enforce = enforced && !isKnown(label)
+        if (!ok && enforce) failures++
+        results.push({ fixture: fixtureName, mode, label, kind, min: min[kind], ratio: Number(r.toFixed(2)), pass: ok, enforced: enforce })
+        log(`  ${ok ? "pass" : enforce ? "FAIL" : isKnown(label) ? "known" : "info"}  ${r.toFixed(2).padStart(5)}:1  ${kind === "text" ? "" : `[${kind} ${min[kind]}:1] `}${label}`)
       }
     }
   }
