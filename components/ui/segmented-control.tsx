@@ -36,7 +36,7 @@ function SegmentedControlItem({ className, children, ...props }: TogglePrimitive
     <TogglePrimitive
       data-slot="segmented-control-item"
       className={cn(
-        "group/segment relative inline-flex items-center justify-center gap-1 rounded-md px-2 py-1.5 text-[0.8125rem]/4 font-medium text-muted-foreground dark:not-data-pressed:text-foreground/55 outline-none pointer-coarse:after:absolute pointer-coarse:after:inset-[min(0px,calc((100%_-_44px)/2))]",
+        "group/segment relative inline-flex items-center justify-center gap-1 rounded-md px-2 py-1.5 text-[0.8125rem]/4 font-medium text-muted-foreground dark:not-data-pressed:text-foreground/55 outline-none pointer-coarse:after:absolute pointer-coarse:after:inset-x-0 pointer-coarse:after:inset-y-[min(0px,calc((100%_-_44px)/2))]",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring data-disabled:cursor-not-allowed data-disabled:opacity-40 data-pressed:text-foreground forced-colors:data-pressed:bg-[Highlight] forced-colors:data-pressed:text-[HighlightText] forced-colors:data-pressed:forced-color-adjust-none",
         className
       )}

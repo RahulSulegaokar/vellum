@@ -77,6 +77,8 @@ function ToggleGroupItem({
           variant: context.variant || variant,
           size: context.size || size,
         }),
+        // Touch area: 44px on the cross axis only, so items in a row never take each other's taps.
+        "pointer-coarse:after:absolute group-data-horizontal/toggle-group:pointer-coarse:after:inset-x-0 group-data-horizontal/toggle-group:pointer-coarse:after:inset-y-[min(0px,calc((100%_-_44px)/2))] group-data-vertical/toggle-group:pointer-coarse:after:inset-y-0 group-data-vertical/toggle-group:pointer-coarse:after:inset-x-[min(0px,calc((100%_-_44px)/2))]",
         className
       )}
       {...props}

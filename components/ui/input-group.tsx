@@ -66,7 +66,8 @@ function InputGroupAddon({
 }
 
 const inputGroupButtonVariants = cva(
-  "flex items-center gap-2 text-sm shadow-none",
+  // Inside a field the touch area grows only vertically, so it never covers the text box.
+  "flex items-center gap-2 text-sm shadow-none pointer-coarse:after:min-w-0",
   {
     variants: {
       size: {
