@@ -85,7 +85,7 @@ Settings at the top of the file:
 - `UPDATE_BLOCKS: "false"`: blocks are yours after install; the PR lists what each would change (`--diff`) instead of overwriting them.
 - `STATE_FILE` (`vellum.json`): the job records the installed release and the Vellum items it found; when the newest release is already recorded it stops without a PR.
 
-The job keeps no git credentials in the checkout, runs `npm ci --ignore-scripts`, passes a token only to the step that opens the PR, and never runs twice at once.
+The workflow uses npm (`npm ci`, `cache: npm`); with pnpm or yarn, change its setup and install steps. The job keeps no git credentials in the checkout, runs `npm ci --ignore-scripts`, passes a token only to the step that opens the PR, and never runs twice at once.
 
 > **Public repo required.** The `RahulSulegaokar/vellum/<item>` addresses (and the dependencies between items) are fetched from GitHub without credentials, so they only work while the repo is public. If you keep a private fork, host its built registry (`npm run registry:build` writes `public/r`) behind your own URL and reference items by that URL or a namespace in `components.json` instead.
 
@@ -103,7 +103,7 @@ The job keeps no git credentials in the checkout, runs `npm ci --ignore-scripts`
 - Field text is 16px on touch screens, so iOS doesn't zoom.
 - Forced colours (Windows high contrast) and `prefers-reduced-motion` are honoured.
 - Dialogs and sheets set `aria-modal`; their header and footer are plain `div`s (no landmarks).
-- `tests/a11y.spec.ts` (Playwright, part of `npm run test:visual`) checks it: pixel-sampled focus rings, touch areas, forced colours, reduced motion, labels, reflow at 320px.
+- `tests/a11y.spec.ts` (Playwright; locally with `npm run test:visual`, in CI against the production build) checks it: pixel-sampled focus rings, touch areas, forced colours, reduced motion, labels, reflow at 320px.
 
 **Translated labels.** Every built-in string is a prop with the English text as its default:
 
@@ -117,15 +117,16 @@ The job keeps no git credentials in the checkout, runs `npm ci --ignore-scripts`
 | `PaginationPrevious`, `PaginationNext` | `label` ("Go to previous page" / "Go to next page"), `text` |
 | `PaginationEllipsis` | `label` ("More pages") |
 | `CarouselPrevious`, `CarouselNext` | `label` ("Previous slide" / "Next slide") |
+| `Carousel`, `CarouselItem` | `roleDescription` ("carousel" / "slide") |
 | `Sidebar` | `mobileTitle` ("Sidebar"), `mobileDescription` |
 | `SidebarTrigger`, `SidebarRail` | `label` ("Toggle Sidebar") |
 | `ComboboxInput` | `triggerLabel` ("Show options"), `clearLabel` ("Clear") |
 | `ComboboxClear` | `aria-label` ("Clear") |
 | `ComboboxChip` | `removeLabel` ("Remove") |
 | `MessageScrollerButton` | `label` ("Scroll to end" / "Scroll to start") |
-| `Slider` | `getAriaValueText`, `getAriaLabel` (passed to every thumb, for a spoken value such as "₹500 a day") |
+| `Slider` | `getAriaValueText`, `getAriaLabel` (passed to every thumb, for a spoken value such as "50 percent volume") |
 
-`Breadcrumb` and `Pagination` (`aria-label`), `ToastClose` (`aria-label`), `Spinner` (`aria-label`) and `CommandDialog` (`title`, `description`) already take their text as props. Blocks take a `labels` prop for their built-in strings.
+`Breadcrumb` and `Pagination` (`aria-label`), `ToastClose` (`aria-label`), `Spinner` (`aria-label`) and `CommandDialog` (`title`, `description`) already take their text as props. Every block with built-in text takes a `labels` prop (defaults exported as `…Labels`, for example `authSignInLabels`, `pricingPlansLabels`). `npm run test:strings` fails on any English written straight into a component's JSX.
 
 ## Blocks
 

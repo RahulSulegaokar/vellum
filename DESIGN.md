@@ -8,7 +8,7 @@ colors:
   surface-muted: "#f7f7f8" # --surface-muted (dialog shell, hover wash)
   muted-text: "#5e5f6e"    # --muted-foreground
   subtle-text: "#6c6d7d"   # --subtle
-  placeholder: "#6d6e7c"   # --placeholder
+  placeholder: "#747583"   # --placeholder (--placeholder-on-tint #6d6e7c on tinted inputs)
   hairline: "rgb(19 19 22 / 0.05)"  # --hairline
   border: "#e3e3e7"        # --border
   accent: "#6c47ff"        # --brand (actions, checked states, focus)
@@ -51,7 +51,7 @@ This file is for people and for coding agents. The rules below override shadcn d
 | Raised surface | `bg-surface` (`bg-card`, `bg-popover`) | Cards, panels, menus, dialogs, white controls |
 | Muted surface | `bg-surface-muted` | Dialog shell around a panel, hover wash on cards, read-only areas |
 | Text | `text-foreground`, `text-muted-foreground`, `text-subtle` | Body, secondary, tertiary (meta, hints) |
-| Placeholder | `placeholder:text-placeholder` | Inputs only |
+| Placeholder | `placeholder:text-placeholder`; `placeholder:text-placeholder-on-tint` on a tinted input (`bg-input/30`) | Inputs only |
 | Accent | `bg-brand`, `text-brand-foreground`, `ring-brand-edge` | Primary actions, checked/selected/progress states, focus |
 | Solid | `bg-solid`, `text-solid-foreground` | The default (dark) button; dark badges and bubbles use `primary` |
 | Hairline | `ring-1 ring-hairline` | Edges of popovers, cards, tags |
@@ -68,7 +68,7 @@ All text meets WCAG AA (4.5:1, or 3:1 at 18px and up) in light and dark. `npm ru
 
 - `--subtle` passes on white, the canvas and its own 4% tint. It must not sit on `--muted` (4.40:1); `--muted-foreground` is stronger: use it for avatar initials and anything on `--muted`.
 - `--brand-text` and `--success-text` are for white, the canvas and tints of 4% or less (not `--muted`).
-- `--placeholder` passes on fields and on the command palette's tinted input (4.5:1 or more).
+- `--placeholder` passes on fields; `--placeholder-on-tint` on the command palette's and combobox popup's tinted inputs (4.5:1 or more).
 - Never set status-coloured text with the fill token (`text-destructive`); use the `-text` token.
 - Focus rings (`--ring`) reach 3:1 on every surface; the test checks them too, with Vellum's violet and with a green accent fixture, so a rebrand is covered.
 - `node tests/contrast.mjs --json` prints every pair and its ratio, for apps that extend the list with their own tokens.
@@ -95,19 +95,33 @@ The violet accent is spread over a handful of tokens. To rebrand, set all of the
 `--brand`, `--brand-edge`, `--brand-edge-strong`, `--chart-1` and `--chart-2` have no dark values of their own: dark mode uses the light ones unless you set them in `.dark`. The machine-readable list is `accentTokens` in `registry/themes/vellum.tokens.json`, so an app can check that no violet is left.
 
 ```css
-:root { --brand: #0f9d58; --brand-edge: #0b7a44; --brand-text: #0b7a44; --ring: #0f9d58; --sidebar-ring: #0f9d58; --chart-1: #0f9d58; --chart-2: #5cc68d; }
-.dark { --brand-text: #5cc68d; --ring: #5cc68d; --sidebar-ring: #5cc68d; --sidebar-primary: #5cc68d; }
+:root {
+  --brand: #0f9d58; --brand-edge: #0b7a44; --brand-edge-strong: color-mix(in oklab, #08603a 88%, transparent);
+  --brand-text: #0b7a44; --success-text: #0b7a44; --ring: #0f9d58; --sidebar-ring: #0f9d58;
+  --sidebar-primary-foreground: #ffffff; --chart-1: #0f9d58; --chart-2: #5cc68d;
+}
+.dark {
+  --brand-text: #5cc68d; --success-text: #5cc68d; --ring: #5cc68d; --sidebar-ring: #5cc68d;
+  --sidebar-primary: #5cc68d; --sidebar-primary-foreground: #0d1f15;
+}
 ```
 
 After changing them, run `npm run test:contrast` in a Vellum checkout with your values, or check `--brand-text` and `--brand-foreground` on `--brand` by hand.
 
 ## Touch targets
 
-Controls stay visually dense (24 to 32px), but on touch screens (`pointer: coarse`) every control gets an invisible hit area of at least 44×44px, centred on it, without changing its size or look: buttons and icon buttons, checkbox, radio, switch, toggle and toggle-group items, segmented-control items, tabs triggers, the select trigger, the slider thumb, breadcrumb links, the accordion trigger and the banner's dismiss button. Labels of fields, checkboxes, radios and switches are clickable too. Underline tabs get 4px of room above and below on touch screens so their scrolling list doesn't clip the areas. The marketing `gloss` pills keep their 30px hit area; text fields keep 32px (their label is part of the target).
+Controls stay visually dense (24 to 32px), but on touch screens (`pointer: coarse`) they get an invisible hit area at their visual size, so apps don't need to enlarge controls, and no area ever covers another control's own box:
 
-The areas are drawn with a pseudo-element: `::after` on most controls, `::before` on tabs triggers (their `::after` is the underline). If you add your own `::before`/`::after` to a control, check it doesn't replace these.
+- 44×44px: buttons and icon buttons, the toggle, the field select trigger, the slider thumb, breadcrumb links, the accordion trigger and the banner's dismiss button.
+- 44px on the cross axis only for items that sit in a row: toggle-group items, segmented-control items and tabs triggers (a row of them never takes a neighbour's taps).
+- 44 wide by 36 tall for checkbox, radio and switch, so the kit's stacked rows (a 27px pitch) meet without overlapping. Their labels are clickable and extend the target.
+- Buttons inside a field (`InputGroupButton`) grow only vertically; chip remove buttons keep their 24px box.
 
-**Spacing:** for the areas not to overlap, leave at least 44px minus the control height between neighbours: 12px between 32px controls, 16px between 28px (`compact`) and 20px between 24px (`compact-sm`). Icon-only buttons in a row want a 44px pitch.
+Underline tabs get 4px of room above and below on touch screens so their scrolling list doesn't clip the areas. On phones a default or line tab list that overflows scrolls, and its triggers' areas stay inside it. The marketing `gloss` pills keep their 30px hit area; text fields keep 32px (their label is part of the target).
+
+The areas are drawn with a pseudo-element: `::after` on most controls, `::before` on tabs triggers (their `::after` is the underline). If you add your own `::before`/`::after` to a control, check it doesn't replace these. Controls that hold an area are `position: relative`; a position class you pass still wins.
+
+**Spacing:** buttons have the full 44px both ways, so leave at least 44px minus the control height between neighbouring buttons: 12px between 32px controls, 16px between 28px (`compact`) and 20px between 24px (`compact-sm`). Icon-only buttons in a row want a 44px pitch. Closer than that, a later button's area takes taps from the edge of an earlier one.
 
 ## Focus, forced colours and motion
 
