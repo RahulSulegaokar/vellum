@@ -52,7 +52,7 @@ export function AuthLogo({
       {name}
     </>
   )
-  const className = "flex items-center gap-1.5 rounded-md text-[1.0625rem] font-semibold tracking-[-0.03em] text-foreground outline-none focus-visible:ring-3 focus-visible:ring-brand/40"
+  const className = "flex items-center gap-1.5 rounded-md text-[1.0625rem] font-semibold tracking-[-0.03em] text-foreground outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
   if (!href) return <span className={className}>{content}</span>
   return (
     <Link href={href} aria-label={`${name} home`} className={className}>
@@ -78,7 +78,7 @@ export function AuthFooterLink({
     <>
       {prompt}
       {prompt ? " " : null}
-      <Link href={href} className="rounded-sm font-medium text-foreground outline-none hover:underline focus-visible:ring-2 focus-visible:ring-brand/40">
+      <Link href={href} className="rounded-sm font-medium text-foreground outline-none hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">
         {label}
       </Link>
     </>
@@ -214,7 +214,7 @@ export function AuthField({
             aria-label={show ? "Hide password" : "Show password"}
             aria-pressed={show}
             onClick={() => setShow((s) => !s)}
-            className="absolute top-1/2 right-1 grid size-6 -translate-y-1/2 cursor-pointer place-items-center rounded-md text-placeholder transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40"
+            className="absolute top-1/2 right-1 grid size-6 -translate-y-1/2 cursor-pointer place-items-center rounded-md text-placeholder transition-colors outline-none hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
           >
             {show ? <EyeOffIcon className="size-4" /> : <EyeIcon className="size-4" />}
           </button>
@@ -357,7 +357,7 @@ export function AuthSignIn({
             type="button"
             onClick={onAlternative}
             disabled={pending}
-            className="cursor-pointer rounded-sm text-[0.8125rem] font-medium text-foreground outline-none hover:underline focus-visible:ring-2 focus-visible:ring-brand/40 disabled:pointer-events-none disabled:opacity-50"
+            className="cursor-pointer rounded-sm text-[0.8125rem] font-medium text-foreground outline-none hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-50"
           >
             {alternativeLabel}
           </button>

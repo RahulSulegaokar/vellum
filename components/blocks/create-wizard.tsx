@@ -20,6 +20,19 @@ export type WizardToggleOption = {
 
 export type WizardValues = { type: string; name: string; enabled: string[] }
 
+/** Built-in strings of CreateWizard; pass `labels` to translate them. */
+export const createWizardLabels = {
+  progress: "Progress",
+  stepOf: (step: number, total: number, name: string): React.ReactNode => (
+    <>
+      Step {step} of {total}: {name}
+    </>
+  ),
+  notCompleted: ", not completed",
+  next: "Next",
+}
+export type CreateWizardLabels = typeof createWizardLabels
+
 /* ------------------------------- Small pieces ------------------------------ */
 
 function StepHeader({ title, description }: { title: string; description: string }) {
@@ -31,12 +44,12 @@ function StepHeader({ title, description }: { title: string; description: string
   )
 }
 
-function StepDots({ steps, step }: { steps: string[]; step: number }) {
+function StepDots({ steps, step, t }: { steps: string[]; step: number; t: CreateWizardLabels }) {
   return (
-    <ol aria-label="Progress" className="flex h-5 items-center justify-center gap-1.5">
+    <ol aria-label={t.progress} className="flex h-5 items-center justify-center gap-1.5">
       {steps.map((s, i) => (
         <li key={s} aria-current={i + 1 === step ? "step" : undefined} className={cn("h-0.75 w-12 rounded-full transition-colors duration-200", i + 1 <= step ? "bg-brand" : "bg-border")}>
-          <span className="sr-only">Step {i + 1} of {steps.length}: {s}{i + 1 > step ? ", not completed" : ""}</span>
+          <span className="sr-only">{t.stepOf(i + 1, steps.length, s)}{i + 1 > step ? t.notCompleted : ""}</span>
         </li>
       ))}
     </ol>
@@ -166,7 +179,7 @@ function OptionsCard({
 /* --------------------------------- Wizard ---------------------------------- */
 
 const backClass =
-  "-ml-1.5 inline-flex h-7 items-center gap-1 rounded-md px-1.5 text-[0.8125rem]/4 font-medium text-subtle outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40"
+  "-ml-1.5 inline-flex h-7 items-center gap-1 rounded-md px-1.5 text-[0.8125rem]/4 font-medium text-subtle outline-none hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
 
 /**
  * Two-step create flow (type cards and name, then toggleable options) with a live preview on the right.
@@ -200,6 +213,7 @@ export function CreateWizard({
   previewCaption = "Preview",
   renderPreview = (v) => <WizardPreview values={v} types={types} options={options} />,
   onCreate,
+  labels,
 }: {
   /** Choices for step one, shown as radio cards. */
   types: WizardTypeOption[]
@@ -230,7 +244,10 @@ export function CreateWizard({
   renderPreview?: (values: WizardValues) => React.ReactNode
   /** Called on Create. Resolve when done; abort means the user pressed Back. */
   onCreate?: (values: WizardValues, signal: AbortSignal) => Promise<void> | void
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<CreateWizardLabels>
 }) {
+  const t = { ...createWizardLabels, ...labels }
   const [step, setStep] = useState<1 | 2>(1)
   const [type, setType] = useState(defaultType)
   const [name, setName] = useState(defaultName)
@@ -273,7 +290,7 @@ export function CreateWizard({
     <div className="relative grid min-h-dvh grid-cols-1 bg-surface md:grid-cols-2">
       <div className="relative grid items-center px-8 lg:justify-center lg:pr-24">
         <div className="absolute inset-x-0 top-8 px-8 lg:pr-24">
-          <StepDots steps={steps} step={step} />
+          <StepDots steps={steps} step={step} t={t} />
         </div>
         <div className="space-y-8 pt-20 pb-8">
           {step === 1 && backHref !== undefined && (
@@ -338,7 +355,7 @@ export function CreateWizard({
                   </li>
                 </ol>
                 <div className="mt-8 pl-[calc(1.25rem+var(--rail-gap))]">
-                  <Button type="submit" variant="primary" size="compact" className="w-full justify-center">Next</Button>
+                  <Button type="submit" variant="primary" size="compact" className="w-full justify-center">{t.next}</Button>
                 </div>
               </>
             ) : (

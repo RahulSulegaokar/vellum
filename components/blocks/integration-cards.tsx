@@ -76,7 +76,7 @@ export function IntegrationCard({
       </div>
       {item.docsHref && (
         <footer className="px-5 py-2">
-          <Link href={item.docsHref} className="inline-flex items-center gap-1 rounded-sm text-xs/4 font-medium text-subtle transition outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40">
+          <Link href={item.docsHref} className="inline-flex items-center gap-1 rounded-sm text-xs/4 font-medium text-subtle transition outline-none hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">
             {docsLabel}
             <span className="sr-only">: {item.name}</span>
             <BookOpenIcon aria-hidden="true" className="size-3.5" />
@@ -133,7 +133,7 @@ export function IntegrationCards({
       {requestHref && (
         <Callout>
           {requestText}{" "}
-          <Link href={requestHref} className="rounded-sm font-medium text-foreground underline decoration-edge/20 underline-offset-2 outline-none hover:decoration-edge/60 focus-visible:ring-2 focus-visible:ring-brand/40">
+          <Link href={requestHref} className="rounded-sm font-medium text-foreground underline decoration-edge/20 underline-offset-2 outline-none hover:decoration-edge/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">
             {requestLabel}
           </Link>
         </Callout>

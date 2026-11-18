@@ -43,7 +43,43 @@ const formatDate = (iso: string) => dateFormat.format(new Date(iso))
 
 export const maskKey = (k: Pick<ApiKey, "prefix" | "last4">) => `${k.prefix}••••${k.last4}`
 
-function CopyButton({ value, label }: { value: string; label: string }) {
+/** Built-in strings of ApiKeysCard; pass `labels` to translate them. */
+export const apiKeysCardLabels = {
+  copied: "Copied",
+  copyNewKeyTitle: "Copy your new key",
+  copyNewKeyDescription: "For security, you won't be able to see this key again after closing this dialog.",
+  copyApiKey: "Copy API key",
+  storeSafely: "Store it somewhere safe, like a secrets manager or environment variable.",
+  done: "Done",
+  createError: "Couldn't create the key. Try again.",
+  createApiKeyTitle: "Create API key",
+  createApiKeyDescription: "Give the key a name so you can recognise it later.",
+  name: "Name",
+  namePlaceholder: "e.g. Production server",
+  cancel: "Cancel",
+  createKey: "Create key",
+  revokeTitle: (name: React.ReactNode): React.ReactNode => <>Revoke “{name}”?</>,
+  revokeDescription: (key: React.ReactNode): React.ReactNode => (
+    <>
+      Requests using {key} will start failing immediately. This can&apos;t be undone.
+    </>
+  ),
+  revokeKey: "Revoke key",
+  noKeysTitle: "No API keys yet",
+  noKeysDescription: "Create a key to start calling the API from your servers.",
+  live: "Live",
+  test: "Test",
+  keyEndingIn: (last4: string) => `Key ending in ${last4}`,
+  created: (date: React.ReactNode): React.ReactNode => <>Created {date}</>,
+  lastUsed: (date: string) => `Last used ${date}`,
+  neverUsed: "Never used",
+  copyKeyIdFor: (name: string) => `Copy key ID for ${name}`,
+  revokeKeyFor: (name: string) => `Revoke ${name}`,
+  revoke: "Revoke",
+}
+export type ApiKeysCardLabels = typeof apiKeysCardLabels
+
+function CopyButton({ value, label, copiedLabel }: { value: string; label: string; copiedLabel: string }) {
   const [copied, setCopied] = React.useState(false)
   React.useEffect(() => {
     if (!copied) return
@@ -55,7 +91,7 @@ function CopyButton({ value, label }: { value: string; label: string }) {
       type="button"
       variant="ghost"
       size="icon-compact"
-      aria-label={copied ? "Copied" : label}
+      aria-label={copied ? copiedLabel : label}
       onClick={async () => {
         try {
           await navigator.clipboard.writeText(value)
@@ -74,10 +110,12 @@ function CreateKeyDialog({
   open,
   onOpenChange,
   onCreate,
+  t,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   onCreate: (name: string) => Promise<CreatedApiKey>
+  t: ApiKeysCardLabels
 }) {
   const id = React.useId()
   const [name, setName] = React.useState("")
@@ -102,22 +140,22 @@ function CreateKeyDialog({
           <>
             <DialogPanel>
               <DialogHeader>
-                <DialogTitle>Copy your new key</DialogTitle>
-                <DialogDescription>For security, you won&apos;t be able to see this key again after closing this dialog.</DialogDescription>
+                <DialogTitle>{t.copyNewKeyTitle}</DialogTitle>
+                <DialogDescription>{t.copyNewKeyDescription}</DialogDescription>
               </DialogHeader>
               <DialogSection className="flex flex-col gap-3">
                 <div className="flex items-center gap-1 rounded-md bg-surface-muted py-1 pr-1 pl-3 ring-1 ring-edge/6">
                   <code className="min-w-0 flex-1 truncate font-mono text-xs text-foreground">{created.secret}</code>
-                  <CopyButton value={created.secret} label="Copy API key" />
+                  <CopyButton value={created.secret} label={t.copyApiKey} copiedLabel={t.copied} />
                 </div>
                 <p className="flex items-start gap-2 text-[0.8125rem]/[1.125rem] text-subtle">
                   <TriangleAlertIcon className="mt-0.5 size-3.5 shrink-0 text-warning" aria-hidden="true" />
-                  Store it somewhere safe, like a secrets manager or environment variable.
+                  {t.storeSafely}
                 </p>
               </DialogSection>
             </DialogPanel>
             <DialogFooter>
-              <DialogClose render={<Button type="button" variant="primary" size="compact" />}>Done</DialogClose>
+              <DialogClose render={<Button type="button" variant="primary" size="compact" />}>{t.done}</DialogClose>
             </DialogFooter>
           </>
         ) : (
@@ -130,7 +168,7 @@ function CreateKeyDialog({
               try {
                 setCreated(await onCreate(name.trim()))
               } catch (err) {
-                setError(err instanceof Error ? err.message : "Couldn't create the key. Try again.")
+                setError(err instanceof Error ? err.message : t.createError)
               } finally {
                 setPending(false)
               }
@@ -138,17 +176,17 @@ function CreateKeyDialog({
           >
             <DialogPanel>
               <DialogHeader>
-                <DialogTitle>Create API key</DialogTitle>
-                <DialogDescription>Give the key a name so you can recognise it later.</DialogDescription>
+                <DialogTitle>{t.createApiKeyTitle}</DialogTitle>
+                <DialogDescription>{t.createApiKeyDescription}</DialogDescription>
               </DialogHeader>
               <DialogSection className="flex flex-col gap-1.5">
                 <Label htmlFor={`${id}-name`} className="text-[0.8125rem]">
-                  Name
+                  {t.name}
                 </Label>
                 <Input
                   id={`${id}-name`}
                   variant="compact"
-                  placeholder="e.g. Production server"
+                  placeholder={t.namePlaceholder}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   aria-invalid={error ? true : undefined}
@@ -164,10 +202,10 @@ function CreateKeyDialog({
               </DialogSection>
             </DialogPanel>
             <DialogFooter>
-              <DialogClose render={<Button type="button" variant="elevated" size="compact" />}>Cancel</DialogClose>
+              <DialogClose render={<Button type="button" variant="elevated" size="compact" />}>{t.cancel}</DialogClose>
               <Button type="submit" variant="primary" size="compact" disabled={pending || !name.trim()}>
                 {pending && <Spinner className="size-3.5" />}
-                Create key
+                {t.createKey}
               </Button>
             </DialogFooter>
           </form>
@@ -181,10 +219,12 @@ function RevokeKeyDialog({
   apiKey,
   onOpenChange,
   onConfirm,
+  t,
 }: {
   apiKey: ApiKey | null
   onOpenChange: (open: boolean) => void
   onConfirm: (key: ApiKey) => void
+  t: ApiKeysCardLabels
 }) {
   // Keep the last key so the copy doesn't blank out while the dialog animates out.
   const [last, setLast] = React.useState(apiKey)
@@ -195,17 +235,14 @@ function RevokeKeyDialog({
       <DialogContent className="max-w-md">
         <DialogPanel>
           <DialogHeader>
-            <DialogTitle>Revoke “{shown?.name}”?</DialogTitle>
-            <DialogDescription>
-              Requests using <code className="font-mono text-foreground">{shown ? maskKey(shown) : ""}</code> will start failing immediately. This can&apos;t be
-              undone.
-            </DialogDescription>
+            <DialogTitle>{t.revokeTitle(shown?.name)}</DialogTitle>
+            <DialogDescription>{t.revokeDescription(<code className="font-mono text-foreground">{shown ? maskKey(shown) : ""}</code>)}</DialogDescription>
           </DialogHeader>
         </DialogPanel>
         <DialogFooter>
-          <DialogClose render={<Button type="button" variant="elevated" size="compact" />}>Cancel</DialogClose>
+          <DialogClose render={<Button type="button" variant="elevated" size="compact" />}>{t.cancel}</DialogClose>
           <Button type="button" variant="destructive" size="compact" onClick={() => apiKey && onConfirm(apiKey)}>
-            Revoke key
+            {t.revokeKey}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -220,6 +257,7 @@ export function ApiKeysCard({
   keys: keysProp,
   onCreate,
   onRevoke,
+  labels,
   className,
 }: {
   title?: string
@@ -228,8 +266,11 @@ export function ApiKeysCard({
   /** Create the key on your backend and resolve with it, including the full secret. Omit to hide "Create key". */
   onCreate?: (name: string) => Promise<CreatedApiKey>
   onRevoke?: (id: string) => void | Promise<void>
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<ApiKeysCardLabels>
   className?: string
 }) {
+  const t = { ...apiKeysCardLabels, ...labels }
   // Local copy so the list reflects creates and revokes; your callbacks persist them.
   const [keys, setKeys] = React.useState(keysProp)
   const [createOpen, setCreateOpen] = React.useState(false)
@@ -248,7 +289,7 @@ export function ApiKeysCard({
         {onCreate && (
           <Button variant="primary" size="compact" onClick={() => setCreateOpen(true)}>
             <PlusIcon aria-hidden="true" />
-            Create key
+            {t.createKey}
           </Button>
         )}
       </div>
@@ -257,8 +298,8 @@ export function ApiKeysCard({
           <EmptyState
             className="p-8"
             icon={<KeyRoundIcon className="size-5 text-subtle" />}
-            title="No API keys yet"
-            description="Create a key to start calling the API from your servers."
+            title={t.noKeysTitle}
+            description={t.noKeysDescription}
           />
         ) : (
           <ul>
@@ -267,21 +308,21 @@ export function ApiKeysCard({
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-1.5 text-[0.8125rem] font-medium text-foreground">
                     <span className="truncate">{k.name}</span>
-                    {k.environment === "live" && <Badge variant="subtle-info">Live</Badge>}
-                    {k.environment === "test" && <Badge variant="subtle-warning">Test</Badge>}
+                    {k.environment === "live" && <Badge variant="subtle-info">{t.live}</Badge>}
+                    {k.environment === "test" && <Badge variant="subtle-warning">{t.test}</Badge>}
                   </div>
-                  <code className="mt-0.5 block truncate font-mono text-xs text-subtle" aria-label={`Key ending in ${k.last4}`}>
+                  <code className="mt-0.5 block truncate font-mono text-xs text-subtle" aria-label={t.keyEndingIn(k.last4)}>
                     {maskKey(k)}
                   </code>
                 </div>
                 <div className="text-xs text-subtle tabular-nums sm:text-right">
-                  <div>Created {formatDate(k.createdAt)}</div>
-                  <div>{k.lastUsedAt ? `Last used ${formatDate(k.lastUsedAt)}` : "Never used"}</div>
+                  <div>{t.created(formatDate(k.createdAt))}</div>
+                  <div>{k.lastUsedAt ? t.lastUsed(formatDate(k.lastUsedAt)) : t.neverUsed}</div>
                 </div>
                 <div className="flex items-center gap-1">
-                  <CopyButton value={k.id} label={`Copy key ID for ${k.name}`} />
-                  <Button variant="ghost" size="compact-sm" className="text-destructive-text hover:text-destructive-text" aria-label={`Revoke ${k.name}`} onClick={() => setRevoking(k)}>
-                    Revoke
+                  <CopyButton value={k.id} label={t.copyKeyIdFor(k.name)} copiedLabel={t.copied} />
+                  <Button variant="ghost" size="compact-sm" className="text-destructive-text hover:text-destructive-text" aria-label={t.revokeKeyFor(k.name)} onClick={() => setRevoking(k)}>
+                    {t.revoke}
                   </Button>
                 </div>
               </li>
@@ -293,6 +334,7 @@ export function ApiKeysCard({
         <CreateKeyDialog
           open={createOpen}
           onOpenChange={setCreateOpen}
+          t={t}
           onCreate={async (name) => {
             const created = await onCreate(name)
             setKeys((list) => [created, ...list])
@@ -303,6 +345,7 @@ export function ApiKeysCard({
       <RevokeKeyDialog
         apiKey={revoking}
         onOpenChange={(open) => !open && setRevoking(null)}
+        t={t}
         onConfirm={async (k) => {
           setRevoking(null)
           setKeys((list) => list.filter((x) => x.id !== k.id))

@@ -23,9 +23,27 @@ export type FilterDefinition = {
 
 export type FilterValues = Record<string, string[]>
 
-const summary = (value: string[]) => (value.length > 1 ? `${value.length} selected` : value[0])
+/** Built-in strings of FilterBar, FilterPill, FilterSheet and FilterEditor; pass `labels` to translate them. */
+export const filterBarLabels = {
+  selected: (count: number) => `${count} selected`,
+  enterValue: (filter: string) => `Enter ${filter.toLowerCase()}`,
+  apply: "Apply",
+  clearFilter: (filter: string) => `Clear ${filter} filter`,
+  editFilter: (filter: string) => `Edit ${filter} filter`,
+  addFilter: (filter: string) => `Add ${filter} filter`,
+  filterBy: (filter: string): React.ReactNode => <>Filter by {filter.toLowerCase()}</>,
+  openFilters: (label: string) => `Open ${label}`,
+  openFiltersActive: (label: string, count: number) => `Open ${label}, ${count} active`,
+  backToAllFilters: "Back to all filters",
+  filters: "Filters",
+  clearAll: "Clear all",
+  clear: "Clear",
+}
+export type FilterBarLabels = typeof filterBarLabels
+
+const summary = (value: string[], t: FilterBarLabels) => (value.length > 1 ? t.selected(value.length) : value[0])
 const textButton =
-  "rounded-sm px-1 text-xs/4 font-medium text-subtle outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40"
+  "rounded-sm px-1 text-xs/4 font-medium text-subtle outline-none hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
 
 /* -------------------------------- Editor ----------------------------------- */
 
@@ -36,13 +54,17 @@ export function FilterEditor({
   onChange,
   onDone,
   touch = false,
+  labels,
 }: {
   filter: FilterDefinition
   value: string[]
   onChange: (value: string[]) => void
   onDone: () => void
   touch?: boolean
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<FilterBarLabels>
 }) {
+  const t = { ...filterBarLabels, ...labels }
   const [draft, setDraft] = useState(filter.options ? "" : value[0] ?? "")
 
   if (filter.options) {
@@ -78,12 +100,12 @@ export function FilterEditor({
         variant="compact"
         autoFocus
         aria-label={filter.label}
-        placeholder={filter.placeholder ?? `Enter ${filter.label.toLowerCase()}`}
+        placeholder={filter.placeholder ?? t.enterValue(filter.label)}
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         className={cn(touch && "h-9 text-base sm:text-[0.8125rem]")}
       />
-      <Button type="submit" variant="primary" size={touch ? "compact-md" : "compact-sm"} className="justify-center">Apply</Button>
+      <Button type="submit" variant="primary" size={touch ? "compact-md" : "compact-sm"} className="justify-center">{t.apply}</Button>
     </form>
   )
 }
@@ -91,7 +113,19 @@ export function FilterEditor({
 /* --------------------------------- Pill ------------------------------------ */
 
 /** Dashed "+ Label" pill that turns solid with a clear button and value summary once set. */
-export function FilterPill({ filter, value, onChange }: { filter: FilterDefinition; value: string[]; onChange: (value: string[]) => void }) {
+export function FilterPill({
+  filter,
+  value,
+  onChange,
+  labels,
+}: {
+  filter: FilterDefinition
+  value: string[]
+  onChange: (value: string[]) => void
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<FilterBarLabels>
+}) {
+  const t = { ...filterBarLabels, ...labels }
   const [open, setOpen] = useState(false)
   const active = value.length > 0
   const { label } = filter
@@ -109,9 +143,9 @@ export function FilterPill({ filter, value, onChange }: { filter: FilterDefiniti
       {active && (
         <button
           type="button"
-          aria-label={`Clear ${label} filter`}
+          aria-label={t.clearFilter(label)}
           onClick={() => onChange([])}
-          className="rounded-full text-subtle outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40"
+          className="rounded-full text-subtle outline-none hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
         >
           <XIcon aria-hidden="true" className="size-4 p-0.5" />
         </button>
@@ -121,8 +155,8 @@ export function FilterPill({ filter, value, onChange }: { filter: FilterDefiniti
           render={
             <button
               type="button"
-              aria-label={active ? `Edit ${label} filter` : `Add ${label} filter`}
-              className="relative flex min-w-0 items-center gap-0.5 whitespace-nowrap outline-none hover:text-foreground focus-visible:text-foreground"
+              aria-label={active ? t.editFilter(label) : t.addFilter(label)}
+              className="relative flex min-w-0 items-center gap-0.5 whitespace-nowrap rounded-sm outline-none hover:text-foreground focus-visible:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
             />
           }
         >
@@ -131,13 +165,13 @@ export function FilterPill({ filter, value, onChange }: { filter: FilterDefiniti
           {active && (
             <>
               <span className="mx-1 h-3 w-px bg-edge/20" aria-hidden="true" />
-              <span className="truncate text-brand-text">{summary(value)}</span>
+              <span className="truncate text-brand-text">{summary(value, t)}</span>
             </>
           )}
         </PopoverTrigger>
         <PopoverContent align="start" sideOffset={6} className="w-60 gap-0 p-0">
-          <p className="border-b border-edge/6 px-3 py-2 text-xs/4 font-medium text-subtle">Filter by {label.toLowerCase()}</p>
-          <FilterEditor filter={filter} value={value} onChange={onChange} onDone={() => setOpen(false)} />
+          <p className="border-b border-edge/6 px-3 py-2 text-xs/4 font-medium text-subtle">{t.filterBy(label)}</p>
+          <FilterEditor filter={filter} value={value} onChange={onChange} onDone={() => setOpen(false)} labels={t} />
         </PopoverContent>
       </Popover>
     </div>
@@ -153,6 +187,7 @@ export function FilterSheet({
   onChange,
   onClearAll,
   label = "filters",
+  labels,
 }: {
   filters: FilterDefinition[]
   values: FilterValues
@@ -160,7 +195,10 @@ export function FilterSheet({
   onClearAll: () => void
   /** Used in the trigger's accessible name ("Open log filters"). */
   label?: string
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<FilterBarLabels>
 }) {
+  const t = { ...filterBarLabels, ...labels }
   const [open, setOpen] = useState(false)
   const [currentId, setCurrentId] = useState<string | null>(null)
   const current = filters.find((f) => f.id === currentId) ?? null
@@ -176,7 +214,7 @@ export function FilterSheet({
       }}
     >
       <span className="relative inline-flex">
-        <SheetTrigger render={<Button variant="elevated" size="icon-compact-md" aria-label={count ? `Open ${label}, ${count} active` : `Open ${label}`} />}>
+        <SheetTrigger render={<Button variant="elevated" size="icon-compact-md" aria-label={count ? t.openFiltersActive(label, count) : t.openFilters(label)} />}>
           <ListFilterIcon aria-hidden="true" className="text-subtle" />
         </SheetTrigger>
         {count > 0 && (
@@ -192,17 +230,17 @@ export function FilterSheet({
       >
         <div className="box-border flex max-h-13.5 flex-none items-center gap-1 border-b border-edge/6 px-5 py-4">
           {current && (
-            <button type="button" aria-label="Back to all filters" onClick={() => setCurrentId(null)} className="-ms-1.5 rounded-md p-0.5 text-subtle outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40">
+            <button type="button" aria-label={t.backToAllFilters} onClick={() => setCurrentId(null)} className="-ms-1.5 rounded-md p-0.5 text-subtle outline-none hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">
               <ChevronLeftIcon aria-hidden="true" className="size-4" />
             </button>
           )}
-          <SheetTitle className="min-w-0 flex-1 truncate text-[0.9375rem]/5 font-medium">{current?.label ?? "Filters"}</SheetTitle>
-          {!current && count > 0 && <button type="button" onClick={onClearAll} className={textButton}>Clear all</button>}
-          {current && valueOf(current.id).length > 0 && <button type="button" onClick={() => onChange(current.id, [])} className={textButton}>Clear</button>}
+          <SheetTitle className="min-w-0 flex-1 truncate text-[0.9375rem]/5 font-medium">{current?.label ?? t.filters}</SheetTitle>
+          {!current && count > 0 && <button type="button" onClick={onClearAll} className={textButton}>{t.clearAll}</button>}
+          {current && valueOf(current.id).length > 0 && <button type="button" onClick={() => onChange(current.id, [])} className={textButton}>{t.clear}</button>}
         </div>
         <div className="min-h-0 flex-1 overflow-auto overscroll-contain pb-[env(safe-area-inset-bottom)]">
           {current ? (
-            <FilterEditor key={current.id} touch filter={current} value={valueOf(current.id)} onChange={(v) => onChange(current.id, v)} onDone={() => setCurrentId(null)} />
+            <FilterEditor key={current.id} touch filter={current} value={valueOf(current.id)} onChange={(v) => onChange(current.id, v)} onDone={() => setCurrentId(null)} labels={t} />
           ) : (
             <div className="divide-y divide-edge/6">
               {filters.map((f) => {
@@ -213,11 +251,11 @@ export function FilterSheet({
                     type="button"
                     data-slot="filter-category-row"
                     onClick={() => setCurrentId(f.id)}
-                    className={cn("flex h-15 w-full items-center px-5 text-left outline-none focus-visible:bg-surface-muted active:bg-surface-muted", v.length ? "py-3" : "py-5")}
+                    className={cn("flex h-15 w-full items-center px-5 text-left outline-none focus-visible:bg-surface-muted focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring active:bg-surface-muted", v.length ? "py-3" : "py-5")}
                   >
                     <span className="flex min-w-0 flex-1 flex-col items-start gap-0.5">
                       <span className="text-[0.8125rem]/5 font-medium">{f.label}</span>
-                      {v.length > 0 && <span className="max-w-full truncate text-xs/4 text-brand-text">{summary(v)}</span>}
+                      {v.length > 0 && <span className="max-w-full truncate text-xs/4 text-brand-text">{summary(v, t)}</span>}
                     </span>
                     <ChevronRightIcon aria-hidden="true" className="size-4 text-subtle" />
                   </button>
@@ -246,6 +284,7 @@ export function FilterBar({
   actions,
   touchActions,
   label,
+  labels,
   className,
 }: {
   filters: FilterDefinition[]
@@ -260,8 +299,11 @@ export function FilterBar({
   touchActions?: React.ReactNode
   /** Accessible noun for the filter sheet trigger. */
   label?: string
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<FilterBarLabels>
   className?: string
 }) {
+  const t = { ...filterBarLabels, ...labels }
   const activeCount = filters.filter((f) => values[f.id]?.length).length
 
   return (
@@ -270,16 +312,16 @@ export function FilterBar({
         {leading}
         <div className="flex min-w-0 flex-wrap items-center gap-2" data-slot="filter-pills">
           {filters.map((f) => (
-            <FilterPill key={f.id} filter={f} value={values[f.id] ?? []} onChange={(v) => onChange(f.id, v)} />
+            <FilterPill key={f.id} filter={f} value={values[f.id] ?? []} onChange={(v) => onChange(f.id, v)} labels={t} />
           ))}
-          {activeCount > 0 && <button type="button" onClick={onClearAll} className={textButton}>Clear all</button>}
+          {activeCount > 0 && <button type="button" onClick={onClearAll} className={textButton}>{t.clearAll}</button>}
         </div>
       </div>
       <div className="col-span-2 flex w-full items-center justify-between gap-2 xs:hidden">
         <div className="flex-none">{leading}</div>
         <div className="flex min-w-0 items-center gap-2">
           {touchActions ?? actions}
-          <FilterSheet filters={filters} values={values} onChange={onChange} onClearAll={onClearAll} label={label} />
+          <FilterSheet filters={filters} values={values} onChange={onChange} onClearAll={onClearAll} label={label} labels={t} />
         </div>
       </div>
       {actions && <div className="hidden gap-2 xs:flex">{actions}</div>}

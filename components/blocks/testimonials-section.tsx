@@ -9,6 +9,12 @@ import { cn } from "@/lib/utils"
 
 export type Testimonial = { quote: string; name: string; role: string }
 
+/** Built-in strings of TestimonialsSection and FeaturedQuotes; pass `labels` to translate them. */
+export const testimonialsSectionLabels = {
+  showQuote: (index: number, total: number) => `Show quote ${index} of ${total}`,
+}
+export type TestimonialsSectionLabels = typeof testimonialsSectionLabels
+
 const REDUCED_MOTION = "(prefers-reduced-motion: reduce)"
 
 function subscribeReducedMotion(cb: () => void) {
@@ -50,7 +56,19 @@ function InitialsAvatar({ name, index, className }: { name: string; index: numbe
 }
 
 /** Stacked quotes in one grid cell; the active one sweeps in. Pauses on hover/focus and stays still under reduced motion. */
-export function FeaturedQuotes({ quotes, interval = 6000, className }: { quotes: Testimonial[]; interval?: number; className?: string }) {
+export function FeaturedQuotes({
+  quotes,
+  interval = 6000,
+  labels,
+  className,
+}: {
+  quotes: Testimonial[]
+  interval?: number
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<TestimonialsSectionLabels>
+  className?: string
+}) {
+  const t = { ...testimonialsSectionLabels, ...labels }
   const reduced = usePrefersReducedMotion()
   const [active, setActive] = React.useState(0)
   const [paused, setPaused] = React.useState(false)
@@ -101,10 +119,10 @@ export function FeaturedQuotes({ quotes, interval = 6000, className }: { quotes:
             <button
               key={q.name}
               type="button"
-              aria-label={`Show quote ${i + 1} of ${quotes.length}`}
+              aria-label={t.showQuote(i + 1, quotes.length)}
               aria-current={i === active || undefined}
               onClick={() => setActive(i)}
-              className="group flex size-5 items-center justify-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+              className="group flex size-5 items-center justify-center rounded-full outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
             >
               <span className={cn("size-1.5 rounded-full transition-colors", i === active ? "bg-foreground" : "bg-subtle/30 group-hover:bg-subtle/60")} />
             </button>
@@ -139,6 +157,7 @@ export function TestimonialsSection({
   featured = [],
   quotes = [],
   tone = "light",
+  labels,
   className,
 }: {
   title: React.ReactNode
@@ -150,6 +169,8 @@ export function TestimonialsSection({
   /** Quote cards in the grid. Hidden while empty. */
   quotes?: Testimonial[]
   tone?: "light" | "dark"
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<TestimonialsSectionLabels>
   className?: string
 }) {
   return (
@@ -165,7 +186,7 @@ export function TestimonialsSection({
                 aria-hidden="true"
                 className="mt-8 h-px bg-[repeating-linear-gradient(to_right,currentColor_0_2px,transparent_2px_5px)] text-foreground/20 mask-[linear-gradient(to_right,black_60%,transparent)] lg:mt-12"
               />
-              <FeaturedQuotes quotes={featured} className="mt-8 lg:mt-12" />
+              <FeaturedQuotes quotes={featured} labels={labels} className="mt-8 lg:mt-12" />
             </>
           )}
         </div>

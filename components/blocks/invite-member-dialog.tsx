@@ -12,6 +12,17 @@ const labelClass = "mb-2 flex items-center gap-2 text-[0.8125rem]/4 font-medium 
 const errorClass = "mt-1.5 text-[0.8125rem]/[1.125rem] text-destructive-text"
 const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
 
+/** Built-in strings of InviteMemberDialog; pass `labels` to translate them. */
+export const inviteMemberDialogLabels = {
+  email: "Email",
+  invalidEmail: "Enter a valid email address",
+  role: "Role",
+  selectRole: "Select a role",
+  chooseRole: "Choose a role",
+  cancel: "Cancel",
+}
+export type InviteMemberDialogLabels = typeof inviteMemberDialogLabels
+
 /** Invite-member dialog: email and role fields with inline validation, Cancel / Invite footer. */
 export function InviteMemberDialog({
   roles,
@@ -22,6 +33,7 @@ export function InviteMemberDialog({
   description = "Invite someone to your workspace by email",
   emailPlaceholder = "name@example.com",
   submitLabel = "Invite",
+  labels,
 }: {
   /** Roles offered in the select. */
   roles: MemberRole[]
@@ -35,7 +47,10 @@ export function InviteMemberDialog({
   description?: React.ReactNode
   emailPlaceholder?: string
   submitLabel?: string
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<InviteMemberDialogLabels>
 }) {
+  const t = { ...inviteMemberDialogLabels, ...labels }
   const [open, setOpen] = useState(false)
   const [email, setEmail] = useState("")
   const [role, setRole] = useState<string | null>(defaultRole)
@@ -88,7 +103,7 @@ export function InviteMemberDialog({
             <DialogSection>
               <div className="flex flex-col gap-4">
                 <div>
-                  <label htmlFor={emailId} className={labelClass}>Email</label>
+                  <label htmlFor={emailId} className={labelClass}>{t.email}</label>
                   <Input
                     id={emailId}
                     variant="compact"
@@ -102,10 +117,10 @@ export function InviteMemberDialog({
                     aria-invalid={emailInvalid || undefined}
                     aria-describedby={emailInvalid ? emailErrId : undefined}
                   />
-                  {emailInvalid && <p id={emailErrId} className={errorClass}>Enter a valid email address</p>}
+                  {emailInvalid && <p id={emailErrId} className={errorClass}>{t.invalidEmail}</p>}
                 </div>
                 <div>
-                  <span id={roleLabelId} className={labelClass}>Role</span>
+                  <span id={roleLabelId} className={labelClass}>{t.role}</span>
                   <Select name="role" value={role} onValueChange={(v) => setRole(v as string | null)} items={roles}>
                     <SelectTrigger
                       variant="elevated"
@@ -114,7 +129,7 @@ export function InviteMemberDialog({
                       aria-describedby={roleInvalid ? roleErrId : undefined}
                       className="aria-invalid:[--btn-ring:var(--color-destructive)]"
                     >
-                      <SelectValue placeholder="Select a role" className="text-foreground data-placeholder:text-foreground" />
+                      <SelectValue placeholder={t.selectRole} className="text-foreground data-placeholder:text-foreground" />
                     </SelectTrigger>
                     <SelectContent>
                       {roles.map((r) => (
@@ -122,13 +137,13 @@ export function InviteMemberDialog({
                       ))}
                     </SelectContent>
                   </Select>
-                  {roleInvalid && <p id={roleErrId} className={errorClass}>Choose a role</p>}
+                  {roleInvalid && <p id={roleErrId} className={errorClass}>{t.chooseRole}</p>}
                 </div>
               </div>
             </DialogSection>
           </DialogPanel>
           <DialogFooter>
-            <DialogClose render={<Button type="button" variant="elevated" size="compact" />}>Cancel</DialogClose>
+            <DialogClose render={<Button type="button" variant="elevated" size="compact" />}>{t.cancel}</DialogClose>
             <Button type="submit" variant="primary" size="compact">{submitLabel}</Button>
           </DialogFooter>
         </form>

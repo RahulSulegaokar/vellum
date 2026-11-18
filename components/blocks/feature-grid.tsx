@@ -73,7 +73,7 @@ export function FeatureCard({
       {link && (
         <Link
           href={link.href}
-          className="group/link mt-3 inline-flex items-center gap-1 rounded-sm text-[0.8125rem] leading-5 font-medium text-brand-text outline-none focus-visible:ring-2 focus-visible:ring-brand/40"
+          className="group/link mt-3 inline-flex items-center gap-1 rounded-sm text-[0.8125rem] leading-5 font-medium text-brand-text outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
         >
           {link.label}
           <ArrowRightIcon aria-hidden="true" className="size-3.5 transition-transform group-hover/link:translate-x-0.5" />

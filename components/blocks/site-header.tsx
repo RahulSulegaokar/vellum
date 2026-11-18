@@ -20,6 +20,14 @@ export type SiteNavGroup = { title: string; items: SiteNavLink[] }
 export type SiteNavItem = { label: string; href: string } | { label: string; groups: SiteNavGroup[] }
 export type SiteAnnouncement = { text: string; cta: string; href: string }
 
+/** Built-in strings of SiteHeader; pass `labels` to translate them. */
+export const siteHeaderLabels = {
+  closeNavigation: "Close navigation",
+  openNavigation: "Open navigation",
+  mobile: "Mobile",
+}
+export type SiteHeaderLabels = typeof siteHeaderLabels
+
 /* Shared easing for the header (450ms out, 200ms on hover). */
 const ease = "transition-[color,background-color,border-color,box-shadow] duration-450 ease-[cubic-bezier(0.33,1,0.68,1)] hover:duration-200"
 const arrowMotion = "transition duration-300 ease-[cubic-bezier(0.4,0.36,0,1)]"
@@ -47,7 +55,7 @@ export function AnnouncementBar({
     <Link
       href={href}
       className={cn(
-        "group relative z-10 flex w-full gap-x-4 bg-foreground py-2 text-sm font-medium whitespace-nowrap text-background outline-none focus-visible:ring-2 focus-visible:ring-brand/50 focus-visible:ring-inset",
+        "group relative z-10 flex w-full gap-x-4 bg-foreground py-2 text-sm font-medium whitespace-nowrap text-background outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring",
         className
       )}
     >
@@ -115,7 +123,7 @@ function MobileSection({
         aria-expanded={open}
         aria-controls={id}
         onClick={() => setOpen((o) => !o)}
-        className="group flex w-full items-center justify-between border-t border-edge/6 py-3 pr-1.25 text-lg/6 font-medium text-foreground outline-none group-first/item:border-t-0 focus-visible:ring-2 focus-visible:ring-brand/40"
+        className="group flex w-full items-center justify-between border-t border-edge/6 py-3 pr-1.25 text-lg/6 font-medium text-foreground outline-none group-first/item:border-t-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
       >
         {item.label}
         <ChevronDownIcon aria-hidden="true" className="size-3.5 text-subtle transition-transform group-aria-expanded:rotate-180 group-aria-expanded:text-foreground" />
@@ -127,7 +135,7 @@ function MobileSection({
             <ul className="flex flex-col gap-y-4">
               {group.items.map((link) => (
                 <li key={link.title}>
-                  <Link href={link.href} onClick={onNavigate} className="group/link flex items-center gap-x-3 rounded-md outline-none focus-visible:ring-2 focus-visible:ring-brand/40">
+                  <Link href={link.href} onClick={onNavigate} className="group/link flex items-center gap-x-3 rounded-md outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">
                     {link.icon && (
                       <span className="flex size-8 flex-none items-center justify-center rounded-md bg-surface text-foreground shadow-surface ring-1 ring-hairline [&_svg]:size-4">
                         {link.icon}
@@ -168,6 +176,7 @@ export function SiteHeader({
   signUpLabel = "Sign up",
   linkComponent,
   tone = "light",
+  labels,
   className,
 }: {
   nav?: SiteNavItem[]
@@ -182,8 +191,11 @@ export function SiteHeader({
   /** Element or component used for every link, e.g. your router's `Link`. Defaults to `"a"`. */
   linkComponent?: React.ElementType
   tone?: "light" | "dark"
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<SiteHeaderLabels>
   className?: string
 }) {
+  const t = { ...siteHeaderLabels, ...labels }
   const Link = linkComponent ?? "a"
   const hasAuth = Boolean(signInHref || signUpHref)
   const [open, setOpen] = React.useState(false)
@@ -305,13 +317,13 @@ export function SiteHeader({
             <button
               ref={toggleRef}
               type="button"
-              aria-label={open ? "Close navigation" : "Open navigation"}
+              aria-label={open ? t.closeNavigation : t.openNavigation}
               aria-expanded={open}
               aria-controls={panelId}
               onClick={() => setOpen((o) => !o)}
               className={cn(
                 ease,
-                "relative flex size-10.5 items-center justify-center rounded-r-xl text-subtle outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-inset md:hidden [@media(width<22.5rem)]:ml-auto"
+                "relative flex size-10.5 items-center justify-center rounded-r-xl text-subtle outline-none hover:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring md:hidden [@media(width<22.5rem)]:ml-auto"
               )}
             >
               {open ? <XIcon aria-hidden="true" className="size-4" strokeWidth={1.5} /> : <MenuIcon aria-hidden="true" className="size-4" strokeWidth={1.5} />}
@@ -322,7 +334,7 @@ export function SiteHeader({
         {open && (
           <div id={panelId} className="fixed inset-0 z-30 md:hidden">
             <div className="flex h-dvh w-screen animate-in flex-col overflow-y-auto overscroll-contain bg-background pt-24 duration-200 fade-in-0">
-              <nav aria-label="Mobile" className="mb-8 px-4 pb-10">
+              <nav aria-label={t.mobile} className="mb-8 px-4 pb-10">
                 <ul role="list" className="mb-10">
                   {nav.map((item, i) =>
                     "groups" in item ? (
@@ -332,7 +344,7 @@ export function SiteHeader({
                         <Link
                           href={item.href}
                           onClick={close}
-                          className="block border-t border-edge/6 py-2 text-[1.0625rem]/6 font-medium text-foreground outline-none group-first/item:border-t-0 focus-visible:ring-2 focus-visible:ring-brand/40"
+                          className="block border-t border-edge/6 py-2 text-[1.0625rem]/6 font-medium text-foreground outline-none group-first/item:border-t-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
                         >
                           {item.label}
                         </Link>

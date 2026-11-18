@@ -43,6 +43,56 @@ export type Role = {
   description?: string
 }
 
+/** Built-in strings of MembersCard and RolesCard; pass `labels` to translate them. */
+export const membersCardLabels = {
+  removeMemberTitle: (name: string) => `Remove ${name}?`,
+  revokeInvitationTitle: "Revoke invitation?",
+  removeMemberDescription: "They'll lose access to this workspace right away. You can invite them again later.",
+  revokeInvitationDescription: (email: string) => `The invitation link sent to ${email} will stop working. You can send a new one later.`,
+  cancel: "Cancel",
+  removeMember: "Remove member",
+  revokeInvitation: "Revoke invitation",
+  inviteMembersTitle: "Invite members",
+  inviteMembersDescription: "They'll get an email with a link to join this workspace.",
+  emailAddresses: "Email addresses",
+  emailsPlaceholder: "name@example.com, another@example.com",
+  separateWithCommas: "Separate several addresses with commas.",
+  role: "Role",
+  sendInvitations: (count: number) => `Send ${count} invitations`,
+  sendInvitation: "Send invitation",
+  members: "Members",
+  invitations: "Invitations",
+  searchMembersPlaceholder: "Search members…",
+  searchMembers: "Search members",
+  invite: "Invite",
+  user: "User",
+  joined: "Joined",
+  actions: "Actions",
+  you: "You",
+  roleFor: (name: string) => `Role for ${name}`,
+  actionsFor: (name: string) => `Actions for ${name}`,
+  removeMemberEllipsis: "Remove member…",
+  noMatchingMembers: "No matching members",
+  nobodyMatches: (query: string) => `Nobody matches “${query}”.`,
+  noPendingInvitations: "No pending invitations",
+  noPendingInvitationsDescription: "Invite teammates by email and they'll show up here until they join.",
+  invited: (date: React.ReactNode): React.ReactNode => <>Invited {date}</>,
+  revokeInvitationFor: (email: string) => `Revoke invitation for ${email}`,
+  revoke: "Revoke",
+  searchRolesPlaceholder: "Search roles…",
+  searchRoles: "Search roles",
+  createRole: "Create role",
+  key: "Key",
+  permissions: "Permissions",
+  permissionCount: (count: number): React.ReactNode => (
+    <>
+      {count} {count === 1 ? "permission" : "permissions"}
+    </>
+  ),
+  noRolesMatch: (query: React.ReactNode): React.ReactNode => <>No roles match “{query}”.</>,
+}
+export type MembersCardLabels = typeof membersCardLabels
+
 const dateFormat = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })
 const formatDate = (iso: string) => dateFormat.format(new Date(iso))
 
@@ -70,10 +120,12 @@ function ConfirmRemoveDialog({
   target,
   onOpenChange,
   onConfirm,
+  t,
 }: {
   target: PendingRemoval | null
   onOpenChange: (open: boolean) => void
   onConfirm: (target: PendingRemoval) => void
+  t: MembersCardLabels
 }) {
   // Keep the last target so the copy doesn't change while the dialog animates out.
   const [last, setLast] = React.useState(target)
@@ -85,18 +137,18 @@ function ConfirmRemoveDialog({
       <DialogContent className="max-w-md" showCloseButton={false}>
         <DialogPanel>
           <DialogHeader>
-            <DialogTitle>{member ? `Remove ${shown?.label}?` : "Revoke invitation?"}</DialogTitle>
+            <DialogTitle>{member ? t.removeMemberTitle(shown.label) : t.revokeInvitationTitle}</DialogTitle>
             <DialogDescription>
               {member
-                ? "They'll lose access to this workspace right away. You can invite them again later."
-                : `The invitation link sent to ${shown?.label ?? ""} will stop working. You can send a new one later.`}
+                ? t.removeMemberDescription
+                : t.revokeInvitationDescription(shown?.label ?? "")}
             </DialogDescription>
           </DialogHeader>
         </DialogPanel>
         <DialogFooter>
-          <DialogClose render={<Button type="button" variant="elevated" size="compact" />}>Cancel</DialogClose>
+          <DialogClose render={<Button type="button" variant="elevated" size="compact" />}>{t.cancel}</DialogClose>
           <Button type="button" variant="destructive" size="compact" onClick={() => target && onConfirm(target)}>
-            {member ? "Remove member" : "Revoke invitation"}
+            {member ? t.removeMember : t.revokeInvitation}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -109,11 +161,13 @@ function InviteDialog({
   onOpenChange,
   roles,
   onInvite,
+  t,
 }: {
   open: boolean
   onOpenChange: (open: boolean) => void
   roles: string[]
   onInvite: (values: { emails: string[]; role: string }) => void | Promise<void>
+  t: MembersCardLabels
 }) {
   const id = React.useId()
   const [emails, setEmails] = React.useState("")
@@ -142,28 +196,28 @@ function InviteDialog({
         >
           <DialogPanel>
             <DialogHeader>
-              <DialogTitle>Invite members</DialogTitle>
-              <DialogDescription>They&apos;ll get an email with a link to join this workspace.</DialogDescription>
+              <DialogTitle>{t.inviteMembersTitle}</DialogTitle>
+              <DialogDescription>{t.inviteMembersDescription}</DialogDescription>
             </DialogHeader>
             <DialogSection className="flex flex-col gap-5">
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor={`${id}-emails`} className="text-[0.8125rem]">
-                  Email addresses
+                  {t.emailAddresses}
                 </Label>
                 <Input
                   id={`${id}-emails`}
                   variant="compact"
-                  placeholder="name@example.com, another@example.com"
+                  placeholder={t.emailsPlaceholder}
                   value={emails}
                   onChange={(e) => setEmails(e.target.value)}
                   autoComplete="off"
                   required
                 />
-                <p className="text-[0.8125rem] text-subtle">Separate several addresses with commas.</p>
+                <p className="text-[0.8125rem] text-subtle">{t.separateWithCommas}</p>
               </div>
               <div className="flex flex-col gap-1.5">
                 <Label htmlFor={`${id}-role`} className="text-[0.8125rem]">
-                  Role
+                  {t.role}
                 </Label>
                 <Select value={role} onValueChange={(v) => setRole(v as string)}>
                   <SelectTrigger id={`${id}-role`} variant="elevated">
@@ -181,9 +235,9 @@ function InviteDialog({
             </DialogSection>
           </DialogPanel>
           <DialogFooter>
-            <DialogClose render={<Button type="button" variant="elevated" size="compact" />}>Cancel</DialogClose>
+            <DialogClose render={<Button type="button" variant="elevated" size="compact" />}>{t.cancel}</DialogClose>
             <Button type="submit" variant="primary" size="compact" disabled={pending || list.length === 0}>
-              {list.length > 1 ? `Send ${list.length} invitations` : "Send invitation"}
+              {list.length > 1 ? t.sendInvitations(list.length) : t.sendInvitation}
             </Button>
           </DialogFooter>
         </form>
@@ -206,6 +260,7 @@ export function MembersCard({
   onRoleChange,
   onRemove,
   onRevokeInvitation,
+  labels,
   className,
 }: {
   title?: string
@@ -220,8 +275,11 @@ export function MembersCard({
   onRoleChange?: (memberId: string, role: string) => void
   onRemove?: (memberId: string) => void
   onRevokeInvitation?: (invitationId: string) => void
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<MembersCardLabels>
   className?: string
 }) {
+  const t = { ...membersCardLabels, ...labels }
   // Local copies so the list responds right away; pass callbacks to persist changes.
   const [members, setMembers] = React.useState(membersProp)
   const [invitations, setInvitations] = React.useState(invitationsProp)
@@ -241,17 +299,17 @@ export function MembersCard({
       <Tabs defaultValue="members" className="mt-3 gap-4">
         <TabsList variant="underline">
           <TabsTrigger value="members">
-            Members <span className="text-subtle tabular-nums">{members.length}</span>
+            {`${t.members} `}<span className="text-subtle tabular-nums">{members.length}</span>
           </TabsTrigger>
           <TabsTrigger value="invitations">
-            Invitations <span className="text-subtle tabular-nums">{invitations.length}</span>
+            {`${t.invitations} `}<span className="text-subtle tabular-nums">{invitations.length}</span>
           </TabsTrigger>
         </TabsList>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <SearchField value={query} onChange={setQuery} placeholder="Search members…" label="Search members" />
+          <SearchField value={query} onChange={setQuery} placeholder={t.searchMembersPlaceholder} label={t.searchMembers} />
           <Button variant="primary" size="compact" onClick={() => setInviteOpen(true)} className="self-start sm:self-auto">
             <PlusIcon aria-hidden="true" />
-            Invite
+            {t.invite}
           </Button>
         </div>
         <TabsContent value="members">
@@ -259,10 +317,10 @@ export function MembersCard({
             <table className="w-full min-w-120 text-[0.8125rem]">
               <thead>
                 <tr className="border-b border-edge/6 text-left text-xs text-subtle">
-                  <th scope="col" className="px-3 py-2 font-medium">User</th>
-                  <th scope="col" className="w-32 px-3 py-2 font-medium">Joined</th>
-                  <th scope="col" className="w-36 px-3 py-2 font-medium">Role</th>
-                  <th scope="col" className="w-12 px-3 py-2"><span className="sr-only">Actions</span></th>
+                  <th scope="col" className="px-3 py-2 font-medium">{t.user}</th>
+                  <th scope="col" className="w-32 px-3 py-2 font-medium">{t.joined}</th>
+                  <th scope="col" className="w-36 px-3 py-2 font-medium">{t.role}</th>
+                  <th scope="col" className="w-12 px-3 py-2"><span className="sr-only">{t.actions}</span></th>
                 </tr>
               </thead>
               <tbody>
@@ -279,7 +337,7 @@ export function MembersCard({
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5 truncate font-medium text-foreground">
                               {m.name}
-                              {self && <Badge variant="subtle">You</Badge>}
+                              {self && <Badge variant="subtle">{t.you}</Badge>}
                             </div>
                             <div className="truncate text-xs text-subtle">{m.email}</div>
                           </div>
@@ -296,7 +354,7 @@ export function MembersCard({
                             onRoleChange?.(m.id, role)
                           }}
                         >
-                          <SelectTrigger variant="elevated" aria-label={`Role for ${m.name}`} className="w-28">
+                          <SelectTrigger variant="elevated" aria-label={t.roleFor(m.name)} className="w-28">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -312,13 +370,13 @@ export function MembersCard({
                         <DropdownMenu>
                           <DropdownMenuTrigger
                             disabled={self}
-                            render={<Button variant="ghost" size="icon-compact" aria-label={`Actions for ${m.name}`} />}
+                            render={<Button variant="ghost" size="icon-compact" aria-label={t.actionsFor(m.name)} />}
                           >
                             <MoreHorizontalIcon />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-40">
                             <DropdownMenuItem variant="destructive" onClick={() => setRemoving({ kind: "member", id: m.id, label: m.name })}>
-                              Remove member…
+                              {t.removeMemberEllipsis}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -332,8 +390,8 @@ export function MembersCard({
               <EmptyState
                 className="p-8"
                 icon={<SearchIcon className="size-5 text-subtle" />}
-                title="No matching members"
-                description={`Nobody matches “${query.trim()}”.`}
+                title={t.noMatchingMembers}
+                description={t.nobodyMatches(query.trim())}
               />
             )}
           </div>
@@ -344,8 +402,8 @@ export function MembersCard({
               <EmptyState
                 className="p-8"
                 icon={<UsersIcon className="size-5 text-subtle" />}
-                title="No pending invitations"
-                description="Invite teammates by email and they'll show up here until they join."
+                title={t.noPendingInvitations}
+                description={t.noPendingInvitationsDescription}
               />
             ) : (
               <ul>
@@ -355,11 +413,11 @@ export function MembersCard({
                     <li key={i.id} className="flex items-center gap-3 border-b border-edge/6 px-3 py-2.5 text-[0.8125rem] last:border-0">
                       <div className="min-w-0 flex-1">
                         <div className="truncate font-medium text-foreground">{i.email}</div>
-                        <div className="text-xs text-subtle">Invited {formatDate(i.invitedAt)}</div>
+                        <div className="text-xs text-subtle">{t.invited(formatDate(i.invitedAt))}</div>
                       </div>
                       <Badge variant="subtle">{i.role}</Badge>
-                      <Button variant="ghost" size="compact-sm" aria-label={`Revoke invitation for ${i.email}`} onClick={() => setRemoving({ kind: "invitation", id: i.id, label: i.email })}>
-                        Revoke
+                      <Button variant="ghost" size="compact-sm" aria-label={t.revokeInvitationFor(i.email)} onClick={() => setRemoving({ kind: "invitation", id: i.id, label: i.email })}>
+                        {t.revoke}
                       </Button>
                     </li>
                   ))}
@@ -372,6 +430,7 @@ export function MembersCard({
         open={inviteOpen}
         onOpenChange={setInviteOpen}
         roles={roles}
+        t={t}
         onInvite={async (values) => {
           await onInvite?.(values)
           const invitedAt = new Date().toISOString()
@@ -384,6 +443,7 @@ export function MembersCard({
       <ConfirmRemoveDialog
         target={removing}
         onOpenChange={(open) => !open && setRemoving(null)}
+        t={t}
         onConfirm={(t) => {
           setRemoving(null)
           if (t.kind === "member") {
@@ -405,14 +465,18 @@ export function RolesCard({
   roles,
   onCreateRole,
   onSelectRole,
+  labels,
   className,
 }: {
   title?: string
   roles: Role[]
   onCreateRole?: () => void
   onSelectRole?: (key: string) => void
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<MembersCardLabels>
   className?: string
 }) {
+  const t = { ...membersCardLabels, ...labels }
   const [query, setQuery] = React.useState("")
   const titleId = React.useId()
   const q = query.trim().toLowerCase()
@@ -423,19 +487,19 @@ export function RolesCard({
         {title}
       </h2>
       <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <SearchField value={query} onChange={setQuery} placeholder="Search roles…" label="Search roles" />
+        <SearchField value={query} onChange={setQuery} placeholder={t.searchRolesPlaceholder} label={t.searchRoles} />
         {onCreateRole && (
           <Button variant="elevated" size="compact" onClick={onCreateRole} className="self-start sm:self-auto">
             <PlusIcon aria-hidden="true" />
-            Create role
+            {t.createRole}
           </Button>
         )}
       </div>
       <div className="mt-4 rounded-xl bg-surface-muted p-1">
         <div className="grid grid-cols-[minmax(0,1fr)_8rem_7rem] gap-3 px-4 py-2 text-xs font-medium text-subtle max-sm:grid-cols-[minmax(0,1fr)_7rem]">
-          <span>Role</span>
-          <span className="max-sm:hidden">Key</span>
-          <span>Permissions</span>
+          <span>{t.role}</span>
+          <span className="max-sm:hidden">{t.key}</span>
+          <span>{t.permissions}</span>
         </div>
         <ul className="rounded-lg bg-surface shadow-surface ring-1 ring-edge/4">
           {filtered.map((r) => (
@@ -443,7 +507,7 @@ export function RolesCard({
               <button
                 type="button"
                 onClick={() => onSelectRole?.(r.key)}
-                className="grid w-full grid-cols-[minmax(0,1fr)_8rem_7rem] items-center gap-3 rounded-lg px-4 py-3.5 text-left text-[0.8125rem] outline-none hover:bg-surface-muted/60 focus-visible:ring-2 focus-visible:ring-brand/40 max-sm:grid-cols-[minmax(0,1fr)_7rem]"
+                className="grid w-full grid-cols-[minmax(0,1fr)_8rem_7rem] items-center gap-3 rounded-lg px-4 py-3.5 text-left text-[0.8125rem] outline-none hover:bg-surface-muted/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring max-sm:grid-cols-[minmax(0,1fr)_7rem]"
               >
                 <span className="min-w-0">
                   <span className="block truncate font-medium text-foreground">{r.name}</span>
@@ -451,12 +515,12 @@ export function RolesCard({
                 </span>
                 <span className="truncate font-mono text-xs text-muted-foreground max-sm:hidden">{r.key}</span>
                 <span className="text-muted-foreground tabular-nums">
-                  {r.permissions} {r.permissions === 1 ? "permission" : "permissions"}
+                  {t.permissionCount(r.permissions)}
                 </span>
               </button>
             </li>
           ))}
-          {filtered.length === 0 && <li className="px-4 py-6 text-center text-[0.8125rem] text-subtle">No roles match “{query.trim()}”.</li>}
+          {filtered.length === 0 && <li className="px-4 py-6 text-center text-[0.8125rem] text-subtle">{t.noRolesMatch(query.trim())}</li>}
         </ul>
       </div>
     </section>

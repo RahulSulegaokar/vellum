@@ -19,6 +19,17 @@ export type SettingsNavResult = SettingsNavLink & { group: string }
 export type SettingsNavigateHandler = (link: SettingsNavLink, event?: React.MouseEvent<HTMLElement>) => void
 type NavigateHandler = SettingsNavigateHandler
 
+/** Built-in strings of SettingsSidebar, SettingsFindDialog and SettingsMobileNav; pass `labels` to translate them. */
+export const settingsSidebarLabels = {
+  findASetting: "Find a setting",
+  settings: "Settings",
+  noSettingsMatch: (query: React.ReactNode): React.ReactNode => <>No settings match “{query}”</>,
+  find: "Find...",
+  openNavigation: (current: string) => `Open settings navigation, current page ${current}`,
+  settingsNavigation: "Settings navigation",
+}
+export type SettingsSidebarLabels = typeof settingsSidebarLabels
+
 /* -------------------------------- Shortcut --------------------------------- */
 
 function isEditable(target: EventTarget | null) {
@@ -52,7 +63,7 @@ export function useSettingsFindShortcut(onOpen: () => void, enabled = true) {
 /* --------------------------------- Pieces ---------------------------------- */
 
 const row =
-  "relative isolate grid w-full grid-cols-[1rem_1fr] items-center gap-2 rounded-md px-2 py-1.5 text-left text-[0.8125rem]/5 text-foreground outline-none transition-colors before:absolute before:inset-x-0 before:inset-y-px before:-z-1 before:rounded-[inherit] before:bg-subtle/16 before:opacity-0 before:transition before:duration-50 hover:before:opacity-50 aria-[current=page]:before:opacity-100 focus-visible:ring-2 focus-visible:ring-brand/40 [&_svg]:size-4 [&_svg]:shrink-0"
+  "relative isolate grid w-full grid-cols-[1rem_1fr] items-center gap-2 rounded-md px-2 py-1.5 text-left text-[0.8125rem]/5 text-foreground outline-none transition-colors before:absolute before:inset-x-0 before:inset-y-px before:-z-1 before:rounded-[inherit] before:bg-subtle/16 before:opacity-0 before:transition before:duration-50 hover:before:opacity-50 aria-[current=page]:before:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring [&_svg]:size-4 [&_svg]:shrink-0"
 
 function NavGroup({
   group,
@@ -186,6 +197,7 @@ export function SettingsFindDialog({
   onOpenChange,
   onSelect,
   placeholder = "Find a setting…",
+  labels,
 }: {
   sections: SettingsNavSection[]
   open: boolean
@@ -193,7 +205,10 @@ export function SettingsFindDialog({
   /** Called with the chosen link. Without it, the browser navigates to the link's href. */
   onSelect?: (link: SettingsNavResult) => void
   placeholder?: string
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<SettingsSidebarLabels>
 }) {
+  const t = { ...settingsSidebarLabels, ...labels }
   const baseId = useId()
   const listId = `${baseId}-results`
   const optionId = (i: number) => `${baseId}-option-${i}`
@@ -231,7 +246,7 @@ export function SettingsFindDialog({
     >
       <DialogContent className="max-w-lg" showCloseButton={false}>
         <DialogPanel className="p-0">
-          <DialogTitle className="sr-only">Find a setting</DialogTitle>
+          <DialogTitle className="sr-only">{t.findASetting}</DialogTitle>
           <div className="flex items-center gap-2 border-b border-edge/6 px-4">
             <SearchIcon aria-hidden="true" className="size-4 shrink-0 text-subtle" />
             <input
@@ -260,19 +275,19 @@ export function SettingsFindDialog({
                 }
               }}
               placeholder={placeholder}
-              aria-label="Find a setting"
+              aria-label={t.findASetting}
               role="combobox"
               aria-autocomplete="list"
               aria-expanded="true"
               aria-controls={listId}
               aria-activedescendant={results[active] ? optionId(active) : undefined}
-              className="h-12 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-placeholder"
+              className="h-12 flex-1 bg-transparent text-sm text-foreground outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring placeholder:text-placeholder"
             />
           </div>
-          <ul id={listId} role="listbox" aria-label="Settings" className="max-h-80 overflow-y-auto p-1">
+          <ul id={listId} role="listbox" aria-label={t.settings} className="max-h-80 overflow-y-auto p-1">
             {results.length === 0 && (
               <li role="presentation" className="px-3 py-6 text-center text-[0.8125rem] text-subtle">
-                No settings match “{q}”
+                {t.noSettingsMatch(q)}
               </li>
             )}
             {results.map((r, i) => (
@@ -315,6 +330,7 @@ export function SettingsSidebar({
   shortcut = false,
   findOpen: findOpenProp,
   onFindOpenChange,
+  labels,
   className,
 }: {
   sections: SettingsNavSection[]
@@ -328,8 +344,11 @@ export function SettingsSidebar({
   /** Controlled open state of the find dialog. */
   findOpen?: boolean
   onFindOpenChange?: (open: boolean) => void
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<SettingsSidebarLabels>
   className?: string
 }) {
+  const t = { ...settingsSidebarLabels, ...labels }
   const [findOpenState, setFindOpenState] = useState(false)
   const findOpen = findOpenProp ?? findOpenState
   const setFindOpen = (open: boolean) => {
@@ -346,11 +365,11 @@ export function SettingsSidebar({
         onClick={() => setFindOpen(true)}
         aria-haspopup="dialog"
         aria-keyshortcuts={shortcut ? "Meta+K Control+K" : undefined}
-        className="mb-7 flex w-full items-center justify-between rounded-md bg-field px-2.5 text-[0.8125rem] text-subtle shadow-control transition outline-none hover:shadow-control-hover focus-visible:outline-3 focus-visible:outline-brand/40"
+        className="mb-7 flex w-full items-center justify-between rounded-md bg-field px-2.5 text-[0.8125rem] text-subtle shadow-control transition outline-none hover:shadow-control-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
       >
         <span className="flex items-center">
           <SearchIcon aria-hidden="true" className="size-4 text-subtle" />
-          <span className="px-2.5 py-1.5">Find...</span>
+          <span className="px-2.5 py-1.5">{t.find}</span>
         </span>
         {shortcut && (
           <KbdGroup aria-hidden="true" className="-mr-1 gap-0.5">
@@ -365,6 +384,7 @@ export function SettingsSidebar({
         open={findOpen}
         onOpenChange={setFindOpen}
         onSelect={onNavigate ? (link) => onNavigate({ label: link.label, href: link.href }) : undefined}
+        labels={t}
       />
     </aside>
   )
@@ -378,6 +398,7 @@ export function SettingsMobileNav({
   onNavigate,
   linkComponent,
   label,
+  labels,
   className,
 }: {
   sections: SettingsNavSection[]
@@ -388,13 +409,16 @@ export function SettingsMobileNav({
   /** Component used for every link; defaults to `"a"`. */
   linkComponent?: React.ElementType
   label?: string
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<SettingsSidebarLabels>
   className?: string
 }) {
+  const t = { ...settingsSidebarLabels, ...labels }
   const [open, setOpen] = useState(false)
   return (
     <aside data-slot="settings-mobile-nav" className={cn("lg:hidden", className)}>
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetTrigger aria-label={`Open settings navigation, current page ${currentLabel}`} className="flex items-center gap-4 rounded-md outline-none focus-visible:outline-3 focus-visible:outline-brand/40">
+        <SheetTrigger aria-label={t.openNavigation(currentLabel)} className="flex items-center gap-4 rounded-md outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">
           <span className="flex size-8 items-center justify-center rounded-md bg-surface text-subtle shadow-control">
             <MenuIcon aria-hidden="true" className="size-4" />
           </span>
@@ -405,7 +429,7 @@ export function SettingsMobileNav({
           showCloseButton={false}
           className="gap-0 border-0 bg-surface p-0 text-foreground data-[side=left]:w-[96vw] data-[side=left]:max-w-80 data-[side=left]:border-r-0 data-[side=left]:sm:max-w-80"
         >
-          <SheetTitle className="sr-only">Settings navigation</SheetTitle>
+          <SheetTitle className="sr-only">{t.settingsNavigation}</SheetTitle>
           <div className="h-full overflow-y-auto overscroll-contain p-6">
             <SettingsNav
               sections={sections}

@@ -35,7 +35,7 @@ export function CopyPromptPill({
         setCopied(true)
       }}
       className={cn(
-        "group relative inline-flex h-7.5 items-center gap-2 self-start rounded-full bg-foreground/5 pr-3 pl-1.5 text-sm font-medium text-foreground transition-colors outline-none hover:bg-foreground/10 focus-visible:ring-2 focus-visible:ring-brand/50",
+        "group relative inline-flex h-7.5 items-center gap-2 self-start rounded-full bg-foreground/5 pr-3 pl-1.5 text-sm font-medium text-foreground transition-colors outline-none hover:bg-foreground/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring",
         className
       )}
     >
