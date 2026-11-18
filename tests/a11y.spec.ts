@@ -1,3 +1,4 @@
+import { readdirSync } from "node:fs"
 import { expect, test, type Locator, type Page } from "@playwright/test"
 
 /*
@@ -61,6 +62,8 @@ async function indicatorFor(page: Page) {
       a.closest<HTMLElement>("[data-slot=slider-thumb]") ??
       (a.matches("[data-input-otp]") ? document.querySelector<HTMLElement>("[data-slot=input-otp-slot][data-active=true]") : null) ??
       (a.matches("input,textarea") ? a.closest<HTMLElement>("[data-slot=input-group]") : null) ??
+      // The calendar's month/year <select> is invisible over its label; the ring is drawn on the dropdown root.
+      (a.matches("select") && a.closest("[data-slot=calendar]") ? a.parentElement : null) ??
       a.closest<HTMLElement>("[data-slot=combobox-chips]") ??
       (a.matches("[data-slot=code-block-content]") ? a.closest<HTMLElement>("[data-slot=code-block]") : null) ??
       (a.matches("input[type=radio],input[type=checkbox]") ? a.closest<HTMLElement>("[data-slot=questionnaire-choice]") : null) ??
@@ -71,7 +74,9 @@ async function indicatorFor(page: Page) {
       // Demo copy passed into a component (a plain, unstyled <a> in a banner action or a logo) is not the kit's.
       // Known limitation: the attachment strip fades its scrolling edges with a mask, which also fades a ring there.
       inFadeStrip: !!target.closest("[data-slot=attachment-group]"),
-      kit: !!a.dataset.slot || !!target.dataset.slot || (!location.pathname.startsWith("/components/") && a.hasAttribute("class")),
+      // Anything rendered by a kit component, or inside one (a link in an Alert or an accordion panel), is the kit's.
+      // Bare demo copy written straight into the gallery's example cards is not.
+      kit: !!a.closest("[data-slot]:not([data-slot^=example])") || (!location.pathname.startsWith("/components/") && a.hasAttribute("class")),
       name: `${a.tagName.toLowerCase()}${a.dataset.slot ? `[${a.dataset.slot}]` : ""} "${(a.getAttribute("aria-label") ?? a.textContent ?? "").trim().slice(0, 30)}"`,
       rect: { x: r.x, y: r.y, width: r.width, height: r.height },
       outline: { style: s.outlineStyle, width: parseFloat(s.outlineWidth), offset: parseFloat(s.outlineOffset), color: s.outlineColor },
@@ -119,7 +124,11 @@ async function checkRing(page: Page) {
     let found = false
     let ratio = 0
     const ring = painted(shot.at(...at(9)))
+    // An outside ring (offset >= 0) must be found outside the box, an inside one inside it, so a brand-filled
+    // control whose own fill equals --ring can't pass on its fill alone.
+    const outside = f.outline.offset >= 0
     for (let d = 7; d >= -5; d--) {
+      if (outside ? d < 1 : d > 0) continue
       const p = shot.at(...at(d))
       const q = shot.at(...at(d - 1))
       // Two ring-coloured pixels in a row, or one exact one (a 2px ring on a fractional position anti-aliases
@@ -142,15 +151,30 @@ async function checkRing(page: Page) {
   return { ...f, alpha, sides: result }
 }
 
-async function walk(page: Page, max = 60) {
+/** Wait until the focused control's outline has finished its colour transition (opaque), up to a second. */
+async function settle(page: Page) {
+  await page
+    .waitForFunction(() => {
+      const a = document.activeElement
+      if (!a || a === document.body) return true
+      const t = a.closest("[data-slot=slider-thumb]") ?? a
+      const c = getComputedStyle(t).outlineColor.match(/[\d.]+/g)
+      return !c || c.length < 4 || Number(c[3]) === 1 || getComputedStyle(t).outlineStyle === "none"
+    }, null, { timeout: 1000 })
+    .catch(() => {})
+  await page.waitForTimeout(60)
+}
+
+async function walk(page: Page, max = 400) {
   const problems: string[] = []
   let checked = 0
   const seen = new Set<string>()
   for (let i = 0; i < max; i++) {
     await page.keyboard.press("Tab")
-    await page.waitForTimeout(220) // let `transition` (150ms) settle before sampling
+    await page.waitForTimeout(160) // let `transition` (150ms) start and settle before sampling
+    await settle(page)
     const r = await checkRing(page)
-    if (!r || !r.kit || r.inFadeStrip) continue // demo content in the gallery (plain <a> in example copy) is not part of the kit
+    if (!r || !r.kit || r.inFadeStrip) continue
     const key = `${r.name}@${Math.round(r.rect.x)},${Math.round(r.rect.y)}`
     if (seen.has(key)) break
     seen.add(key)
@@ -180,6 +204,7 @@ test.describe("focus indicator", () => {
   for (const theme of ["light", "dark"] as const) {
     for (const path of walkPages) {
       test(`opaque 2px ring, visible on four sides, 3:1: ${path} (${theme})`, async ({ page }) => {
+        test.setTimeout(240_000)
         await page.addInitScript((t) => localStorage.setItem("theme", t), theme)
         await page.goto(path)
         await page.waitForLoadState("networkidle")
@@ -198,7 +223,7 @@ test.describe("touch", () => {
 
   const controls = ["checkbox", "radio", "switch", "toggle", "toggle-group-item", "segmented-item", "tabs-trigger", "underline-tabs-trigger", "select-trigger", "slider", "breadcrumb-link", "icon-button", "accordion-trigger"]
 
-  test("every control has a 44 by 44px hit area on a coarse pointer, at its visual size", async ({ page }) => {
+  test("every control has its touch area on a coarse pointer, at its visual size", async ({ page }) => {
     await page.goto(CONTROLS)
     await page.waitForLoadState("networkidle")
     const problems = await page.evaluate((ids) => {
@@ -210,8 +235,12 @@ test.describe("touch", () => {
         const cx = r.x + r.width / 2
         const cy = r.y + r.height / 2
         // Corners of the 44px box (or of the control, if larger), 2px inside so rounding never lands outside it.
-        const half = Math.max(22, r.width / 2) - 2
-        const halfY = Math.max(22, r.height / 2) - 2
+        // 44 by 44px; stacked choice controls 44 wide by 36 tall (so rows at the kit's default 27px pitch don't
+        // overlap); items in a row (toggle-group, segmented, tabs) 44 tall on the cross axis only.
+        const stacked = ["checkbox", "radio", "switch"].includes(id)
+        const row = ["toggle-group-item", "segmented-item", "tabs-trigger", "underline-tabs-trigger"].includes(id)
+        const half = row ? r.width / 2 - 2 : Math.max(22, r.width / 2) - 2
+        const halfY = Math.max(stacked ? 18 : 22, r.height / 2) - 2
         for (const [dx, dy] of [[-half, -halfY], [half, -halfY], [-half, halfY], [half, halfY], [0, -halfY], [0, halfY], [-half, 0], [half, 0]]) {
           const hit = document.elementFromPoint(cx + dx, cy + dy)
           if (!hit || !(hit === el || el.contains(hit))) out.push(`${id}: (${Math.round(dx)},${Math.round(dy)}) from the centre hits ${hit?.tagName.toLowerCase()}[${(hit as HTMLElement)?.dataset?.slot ?? ""}]`)
@@ -225,16 +254,16 @@ test.describe("touch", () => {
   test("a tap at the edge of the 44px area activates the control", async ({ page }) => {
     await page.goto(CONTROLS)
     await page.waitForLoadState("networkidle")
-    const edgeTap = async (locator: Locator) => {
+    const edgeTap = async (locator: Locator, reach = 21) => {
       const r = (await locator.boundingBox())!
-      await page.touchscreen.tap(r.x + r.width / 2, r.y + r.height / 2 - 21)
+      await page.touchscreen.tap(r.x + r.width / 2, r.y + r.height / 2 - reach)
       await page.waitForTimeout(120)
     }
-    await edgeTap(page.getByTestId("checkbox"))
+    await edgeTap(page.getByTestId("checkbox"), 17)
     await expect(page.getByTestId("checkbox")).toHaveAttribute("aria-checked", "true")
-    await edgeTap(page.getByTestId("switch"))
+    await edgeTap(page.getByTestId("switch"), 17)
     await expect(page.getByTestId("switch")).toHaveAttribute("aria-checked", "true")
-    await edgeTap(page.getByTestId("radio"))
+    await edgeTap(page.getByTestId("radio"), 17)
     await expect(page.getByTestId("radio")).toHaveAttribute("aria-checked", "true")
     await edgeTap(page.getByTestId("toggle"))
     await expect(page.getByTestId("toggle")).toHaveAttribute("aria-pressed", "true")
@@ -269,6 +298,67 @@ test.describe("touch", () => {
           .filter((x) => x.size < 16)
       )
       expect(small, `${viewport.width}x${viewport.height}: ${JSON.stringify(small)}`).toEqual([])
+    }
+  })
+})
+
+/*
+ * Neighbours: an enlarged touch area must never cover another control's own visible box. A 5 by 3 grid of points
+ * inside every control on every gallery page, on a coarse pointer, must hit that control, not a neighbour's
+ * hit-area pseudo-element. (The Button's own 44px area predates these checks; overlaps between packed Buttons,
+ * such as pagination, are listed in the changelog rather than tested here.)
+ */
+const galleryPages = [
+  ...readdirSync("components/examples").filter((f) => f.endsWith("-example.tsx")).map((f) => `/components/${f.replace(/-example\.tsx$/, "")}`),
+  ...readdirSync("components/examples/blocks").filter((f) => f.endsWith("-example.tsx")).map((f) => `/blocks/${f.replace(/-example\.tsx$/, "")}`),
+]
+test.describe("touch areas don't take taps from neighbours", () => {
+  test.use({ hasTouch: true, isMobile: true })
+  for (const width of [390, 900]) {
+    test(`every gallery page at ${width}px`, async ({ page }) => {
+      test.setTimeout(600_000)
+      await page.setViewportSize({ width, height: 900 })
+      const problems: string[] = []
+      for (const path of galleryPages) {
+        await page.goto(path)
+        await page.waitForLoadState("load")
+        await page.waitForTimeout(150)
+        const found = await page.evaluate(() => {
+          const CONTROL = "button, a[href], input:not([type=hidden]), select, textarea, [role=tab], [role=radio], [role=checkbox], [role=switch], [role=slider], [tabindex]:not([tabindex='-1'])"
+          const AREA = "[data-slot=checkbox], [data-slot=radio-group-item], [data-slot=switch], [data-slot=toggle], [data-slot=toggle-group-item], [data-slot=segmented-control-item], [data-slot=tabs-trigger], [data-slot=select-trigger], [data-slot=slider-thumb], [data-slot=accordion-trigger], [data-slot=breadcrumb] a, [data-slot=banner] button, [data-slot=input-group] button, [data-slot=combobox-chip] button"
+          const name = (e: Element) => `${e.tagName.toLowerCase()}${(e as HTMLElement).dataset?.slot ? `[${(e as HTMLElement).dataset.slot}]` : ""} "${(e.getAttribute("aria-label") ?? e.textContent ?? "").trim().slice(0, 24)}"`
+          const out: string[] = []
+          for (const el of document.querySelectorAll(CONTROL)) {
+            const s = getComputedStyle(el)
+            if (s.visibility === "hidden" || s.pointerEvents === "none" || el.closest("[inert], [aria-hidden=true]")) continue
+            el.scrollIntoView({ block: "center", inline: "nearest" })
+            const r = el.getBoundingClientRect()
+            if (r.width < 4 || r.height < 4 || r.top < 0 || r.bottom > innerHeight || r.left < 0 || r.right > innerWidth) continue
+            for (const fx of [0.1, 0.3, 0.5, 0.7, 0.9]) for (const fy of [0.15, 0.5, 0.85]) {
+              const x = r.left + r.width * fx, y = r.top + r.height * fy
+              const thief = document.elementFromPoint(x, y)?.closest(CONTROL)
+              if (!thief || thief === el || el.contains(thief) || thief.contains(el) || !thief.matches(AREA)) continue
+              const t = thief.getBoundingClientRect()
+              if (x >= t.left && x <= t.right && y >= t.top && y <= t.bottom) continue // the thief's own box: a real overlap, not its hit area
+              out.push(`${name(el)} is covered by the touch area of ${name(thief)}`)
+            }
+          }
+          return [...new Set(out)]
+        })
+        for (const f of found) problems.push(`${path}: ${f}`)
+      }
+      expect(problems, problems.join("\n")).toEqual([])
+    })
+  }
+})
+
+test.describe("a consumer's position utility wins", () => {
+  test.use({ hasTouch: true, isMobile: true, viewport: { width: 900, height: 1200 } })
+  test("className=\"absolute\" stays absolute on a coarse pointer", async ({ page }) => {
+    await page.goto(CONTROLS)
+    await page.waitForLoadState("networkidle")
+    for (const id of ["pos-toggle", "pos-toggle-group-item", "pos-select-trigger", "pos-breadcrumb-link"]) {
+      await expect(page.getByTestId(id), id).toHaveCSS("position", "absolute")
     }
   })
 })
@@ -405,6 +495,8 @@ test("label props translate the built-in strings, and icon-only buttons have nam
   await expect(i18n.getByLabel("Page suivante")).toBeVisible()
   await expect(i18n.getByRole("button", { name: "Diapositive précédente" })).toHaveCount(1)
   await expect(i18n.getByRole("button", { name: "Diapositive suivante" })).toHaveCount(1)
+  await expect(i18n.locator("[data-slot=carousel]")).toHaveAttribute("aria-roledescription", "diaporama")
+  await expect(i18n.locator("[data-slot=carousel-item]").first()).toHaveAttribute("aria-roledescription", "diapositive")
   const fields = page.locator("[data-section=fields]")
   await expect(fields.getByRole("button", { name: "Afficher les options" })).toHaveCount(1)
   await expect(fields.getByRole("button", { name: "Retirer" })).toHaveCount(1)
@@ -451,11 +543,63 @@ test("tab lists with long labels don't make a 320px page scroll sideways", async
   expect(overflow).toBe(0)
 })
 
+test("tab lists stay on one row on phones; a list too long for its parent scrolls inside it", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 })
+  await page.goto("/fixtures/reflow")
+  await page.waitForLoadState("networkidle")
+  for (const id of ["tabs-fit", "tabs-narrow", "tabs-default", "tabs-line"]) {
+    const m = await page.getByTestId(id).evaluate((el) => {
+      const tops = new Set([...el.querySelectorAll("[data-slot=tabs-trigger]")].map((t) => Math.round(t.getBoundingClientRect().top)))
+      return { rows: tops.size, height: Math.round(el.getBoundingClientRect().height), scrolls: el.scrollWidth > el.clientWidth }
+    })
+    expect(m.rows, `${id}: one row`).toBe(1)
+    if (id !== "tabs-line") expect(m.height, `${id}: 32px tall`).toBe(32)
+    if (id === "tabs-fit") expect(m.scrolls, `${id}: fits without scrolling`).toBe(false)
+    if (id === "tabs-narrow") expect(m.scrolls, `${id}: scrolls inside its parent`).toBe(true)
+  }
+})
+
+test("the blocks' own tables scroll in a focusable, named region on a phone", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 })
+  for (const [path, name] of [["/blocks/data-table-card", "Table"], ["/blocks/members-card", "Members"]]) {
+    await page.goto(path)
+    await page.waitForLoadState("networkidle")
+    const wrapper = page.locator("table").first().locator("..")
+    await expect(wrapper, path).toHaveAttribute("role", "region")
+    await expect(wrapper, path).toHaveAttribute("tabindex", "0")
+    await expect(wrapper, path).toHaveAttribute("aria-label", name)
+  }
+})
+
+test("the calendar's month and year dropdowns use 16px text on a coarse pointer", async ({ browser }) => {
+  const ctx = await browser.newContext({ hasTouch: true, isMobile: true, viewport: { width: 390, height: 844 } })
+  const page = await ctx.newPage()
+  await page.goto("/components/calendar")
+  await page.waitForLoadState("networkidle")
+  const sizes = await page.locator("select").evaluateAll((els) => els.map((e) => parseFloat(getComputedStyle(e).fontSize)))
+  expect(sizes.length).toBeGreaterThan(0)
+  expect(Math.min(...sizes)).toBeGreaterThanOrEqual(16)
+  await ctx.close()
+})
+
+test("a control focused inside an open accordion panel shows its whole ring", async ({ page }) => {
+  await page.goto(CONTROLS)
+  await page.waitForLoadState("networkidle")
+  await page.getByTestId("accordion-panel-button").focus()
+  await page.keyboard.press("Shift+Tab")
+  await page.keyboard.press("Tab")
+  await settle(page)
+  const r = await checkRing(page)
+  expect(r).not.toBeNull()
+  const missing = Object.entries(r!.sides).filter(([, s]) => !s.found).map(([k]) => k)
+  expect(missing, `ring clipped on ${missing.join(", ")}`).toEqual([])
+})
+
 test("a table wider than its container scrolls in a focusable, named region", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 640 })
   await page.goto("/fixtures/reflow")
   await page.waitForLoadState("networkidle")
-  const region = page.getByRole("region", { name: "Messages sent this week" })
+  const region = page.getByRole("region", { name: "Orders this week" })
   await expect(region).toHaveAttribute("tabindex", "0")
   await region.focus()
   await page.keyboard.press("ArrowRight")
@@ -487,7 +631,7 @@ test("overlays: keyboard opens them, focus moves in, Escape closes and returns f
 test("Slider passes getAriaValueText to its thumbs", async ({ page }) => {
   await page.goto(CONTROLS)
   await page.waitForLoadState("networkidle")
-  await expect(page.getByTestId("slider").getByRole("slider")).toHaveAttribute("aria-valuetext", "₹500 a day")
+  await expect(page.getByTestId("slider").getByRole("slider")).toHaveAttribute("aria-valuetext", "50 percent volume")
 })
 
 /* ------------------------- Primary label on every pixel row ------------------------- */

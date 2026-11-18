@@ -100,7 +100,7 @@ export default function ControlsFixture() {
             <SelectContent>{fruits.map((f) => <SelectItem key={f} value={f}>{f}</SelectItem>)}</SelectContent>
           </Select>
         </Cell>
-        <Cell id="slider"><Slider data-testid="slider" defaultValue={[50]} className="w-20" aria-label="Volume" getAriaValueText={(_, v) => `₹${v * 10} a day`} /></Cell>
+        <Cell id="slider"><Slider data-testid="slider" defaultValue={[50]} className="w-20" aria-label="Volume" getAriaValueText={(_, v) => `${v} percent volume`} /></Cell>
         <Cell id="breadcrumb">
           <Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink data-testid="breadcrumb-link" href="#crumb">Home</BreadcrumbLink></BreadcrumbItem></BreadcrumbList></Breadcrumb>
         </Cell>
@@ -117,6 +117,29 @@ export default function ControlsFixture() {
           {dismissed === 0 ? <Banner onDismiss={() => setDismissed(1)} className="w-full">Trial ends soon</Banner> : <p data-testid="banner-gone">Dismissed</p>}
         </div>
         <output data-testid="clicks" className="sr-only">{clicks}</output>
+      </section>
+
+      <section data-section="accordion-open" className="w-80">
+        <Accordion defaultValue={["open"]}>
+          <AccordionItem value="open">
+            <AccordionTrigger>Open panel</AccordionTrigger>
+            <AccordionContent>
+              <Button size="compact" variant="elevated" data-testid="accordion-panel-button">Inside the panel</Button>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </section>
+
+      <section data-section="position" className="relative h-24 w-80">
+        <Toggle aria-label="Positioned toggle" className="absolute top-1 right-1" data-testid="pos-toggle"><BoldIcon /></Toggle>
+        <ToggleGroup className="absolute bottom-1 left-1">
+          <ToggleGroupItem value="p" aria-label="Positioned item" className="absolute top-0 left-0" data-testid="pos-toggle-group-item"><ItalicIcon /></ToggleGroupItem>
+        </ToggleGroup>
+        <Select>
+          <SelectTrigger aria-label="Positioned select" className="absolute right-1 bottom-1 w-24" data-testid="pos-select-trigger"><SelectValue placeholder="Pick" /></SelectTrigger>
+          <SelectContent><SelectItem value="a">A</SelectItem></SelectContent>
+        </Select>
+        <Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="#p" className="absolute top-1 left-1" data-testid="pos-breadcrumb-link">Home</BreadcrumbLink></BreadcrumbItem></BreadcrumbList></Breadcrumb>
       </section>
 
       <section data-section="fields" className="grid max-w-md gap-4">
@@ -207,8 +230,8 @@ export default function ControlsFixture() {
             <PaginationItem><PaginationNext href="#n" text="Suivant" label="Page suivante" /></PaginationItem>
           </PaginationContent>
         </Pagination>
-        <Carousel className="mx-14 w-32">
-          <CarouselContent><CarouselItem>1</CarouselItem><CarouselItem>2</CarouselItem></CarouselContent>
+        <Carousel className="mx-14 w-32" roleDescription="diaporama">
+          <CarouselContent><CarouselItem roleDescription="diapositive">1</CarouselItem><CarouselItem roleDescription="diapositive">2</CarouselItem></CarouselContent>
           <CarouselPrevious label="Diapositive précédente" />
           <CarouselNext label="Diapositive suivante" />
         </Carousel>

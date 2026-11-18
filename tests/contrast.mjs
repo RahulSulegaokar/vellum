@@ -146,8 +146,17 @@ const textToken = (cls) => {
   const [name, alpha] = cls.slice(5).split("/")
   return alpha ? tw(`var(--${name})`, Number(alpha)) : `var(--${name})`
 }
-const commandPlaceholder = /placeholder:text-placeholder/.test(src("command")) ? "var(--placeholder)" : tw("var(--popover-foreground)", 50) // Tailwind's default: currentColor at 50%
-const selectPlaceholder = (mode) => (mode === "dark" && src("select").match(/dark:data-placeholder:(text-[\w-]+)/)?.[1]) || "text-placeholder"
+const placeholderOf = (source) => {
+  const m = source.match(/(?:^|[\s"])placeholder:(text-[\w-]+)/)
+  return m ? textToken(m[1]) : tw("var(--popover-foreground)", 50) // Tailwind's default: currentColor at 50%
+}
+const commandPlaceholder = placeholderOf(src("command"))
+const comboboxPopupPlaceholder = (() => {
+  const m = src("combobox").match(/\[&>\[data-slot=input-group\]_input\]:placeholder:(text-[\w-]+)/)
+  return m ? textToken(m[1]) : "var(--placeholder)" // the field's own placeholder colour
+})()
+const selectPlaceholder = (mode) =>
+  (mode === "dark" && src("select").match(/dark:data-placeholder:(text-[\w-]+)/)?.[1]) || src("select").match(/(?:^|\s)data-placeholder:(text-[\w-]+)/)[1]
 const segmentItem = src("segmented-control").match(/data-slot="segmented-control-item"[\s\S]*?cn\(\s*"([^"]+)"/)[1]
 const segmentText = (mode) => (mode === "dark" && segmentItem.match(/dark:(?:not-data-pressed:)?(text-[\w/-]+)/)?.[1]) || segmentItem.match(/(?:^|\s)(text-(?:subtle|muted-foreground|foreground[\w/-]*))(?=\s|$)/)[1]
 const fieldLabel = src("field")
@@ -175,6 +184,7 @@ const text = [
   ["placeholder in field on muted surface (dialog shell)", "var(--placeholder)", [...surfaceMuted, "var(--field)"]],
   ["placeholder in select trigger on surface", "SELECT_PLACEHOLDER", field],
   ["placeholder in command input (input/30 on popover)", commandPlaceholder, [...popover, tint("input", 30)]],
+  ["placeholder in the combobox popup's search input (input/30 on popover)", comboboxPopupPlaceholder, [...popover, tint("input", 30)]],
   ["avatar fallback", "var(--muted-foreground)", muted],
   ["primary (ink) button", "var(--primary-foreground)", ["var(--primary)"]],
   ["solid button", "var(--solid-foreground)", ["var(--solid)"]],
@@ -209,6 +219,7 @@ const text = [
   ["segmented control: unselected label on canvas track", "SEGMENT_TEXT", [...canvas, tint("subtle", 8)]],
   ["checked choice card: description on its brand tint", "var(--muted-foreground)", [...surface, "CHOICE_TINT"]],
   ["checked choice card: description on its brand tint over a card", "var(--muted-foreground)", [...card, "CHOICE_TINT"]],
+  ["checked choice card, hovered: description on its tint over muted/50", "var(--muted-foreground)", [...surface, tw("var(--muted)", 50), "CHOICE_TINT"]],
   ["page title (large) on canvas", "var(--foreground)", canvas, "large"],
 ]
 
@@ -224,17 +235,27 @@ const ui = [
   ["checked fill (checkbox, radio, switch) on canvas", "var(--brand)", canvas, "ui"],
   ["check mark / radio dot on the checked fill", "var(--brand-foreground)", ["var(--brand)"], "ui"],
   ["progress and slider fill on their track", "var(--brand)", muted, "ui"],
+  // A control inside a primary-filled container: in dark mode a bubble or ink button is white.
+  ["focus ring on a primary fill (a control inside a dark-mode bubble)", "var(--ring)", ["var(--primary)"], "ui"],
 ]
 
-// Known gaps that cannot be closed without visibly changing a control at rest. They are reported ("known") and
-// not counted as failures; each is a separate design proposal. Remove a label here once its fix ships.
-const known = new Set([
-  "gloss pill label on its sheen's top row",
-  "success text on success/6 (banner) on canvas",
-  "checked fill (checkbox, radio, switch) on surface",
-  "progress and slider fill on their track",
-])
-const isKnown = (label) => [...known].some((k) => label.startsWith(k))
+// Known gaps that cannot be closed without visibly changing a control at rest, keyed by accent, mode and row,
+// with today's ratio as a floor: they are reported ("known"), not counted as failures, but getting worse fails.
+// Every other accent/mode of the same row is enforced. Remove an entry once its fix ships.
+const known = [
+  ["violet", "light", "gloss pill label on its sheen's top row", 3.78],
+  ["violet", "dark", "gloss pill label on its sheen's top row", 3.78],
+  ["green", "light", "gloss pill label on its sheen's top row", 3.63],
+  ["green", "dark", "gloss pill label on its sheen's top row", 3.63],
+  ["violet", "light", "success text on success/6 (banner) on canvas", 4.4],
+  ["violet", "dark", "checked fill (checkbox, radio, switch) on surface", 2.82],
+  ["green", "dark", "checked fill (checkbox, radio, switch) on surface", 2.89],
+  ["violet", "dark", "progress and slider fill on their track", 2.71],
+  ["green", "dark", "progress and slider fill on their track", 2.78],
+  // The green fixture's own dark ring (a consumer value, not Vellum's) on a white fill.
+  ["green", "dark", "focus ring on a primary fill (a control inside a dark-mode bubble)", 2.19],
+]
+const knownFloor = (fx, mode, label) => known.find(([f, m, l]) => f === fx && m === mode && label.startsWith(l))?.[3]
 
 // Control boundaries (WCAG 1.4.11): reported, not enforced, for the same reason.
 const boundaries = [
@@ -242,9 +263,6 @@ const boundaries = [
   ["radio edge (--input) on surface", "var(--input)", surface],
   ["field ring (--field-ring) on surface", "var(--field-ring)", surface],
   ["switch off track (--control-off) on surface", "var(--control-off)", surface],
-  // Advisory: a control placed inside a primary-filled container (a dark-mode bubble is white). Vellum's own
-  // ring passes; an app's accent may not, so it is reported for every fixture.
-  ["focus ring on a primary fill (control inside a bubble)", "var(--ring)", ["var(--primary)"]],
 ].map(([l, c, b]) => [l, c, b, "ui"])
 
 /* ---------------------------------- Run ---------------------------------- */
@@ -268,10 +286,15 @@ for (const [fixtureName, fx] of Object.entries(fixtures)) {
         const back = paint(bg.map(sub), mode)
         const r = ratio(over(resolve(sub(fg), mode), back), back)
         const ok = r >= min[kind]
-        const enforce = enforced && !isKnown(label)
+        const floor = knownFloor(fixtureName, mode, label)
+        const enforce = enforced && floor === undefined
         if (!ok && enforce) failures++
+        if (floor !== undefined && r < floor - 0.005) {
+          failures++
+          log(`  WORSE than its known floor ${floor}:1  ${label}`)
+        }
         results.push({ fixture: fixtureName, mode, label, kind, min: min[kind], ratio: Number(r.toFixed(2)), pass: ok, enforced: enforce })
-        log(`  ${ok ? "pass" : enforce ? "FAIL" : isKnown(label) ? "known" : "info"}  ${r.toFixed(2).padStart(5)}:1  ${kind === "text" ? "" : `[${kind} ${min[kind]}:1] `}${label}`)
+        log(`  ${ok ? "pass" : enforce ? "FAIL" : floor !== undefined ? "known" : "info"}  ${r.toFixed(2).padStart(5)}:1  ${kind === "text" ? "" : `[${kind} ${min[kind]}:1] `}${label}`)
       }
     }
   }

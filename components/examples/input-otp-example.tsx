@@ -273,7 +273,7 @@ function InputOTPForm() {
             Having trouble signing in?{" "}
             <a
               href="#"
-              className="underline underline-offset-4 transition-colors hover:text-primary"
+              className="rounded-sm underline underline-offset-4 transition-colors outline-none hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
             >
               Contact support
             </a>

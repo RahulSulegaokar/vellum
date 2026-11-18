@@ -17,10 +17,20 @@ export default function ReflowFixture() {
           <TabsContent value="0">Panel</TabsContent>
         </Tabs>
       ))}
+      <div className="mx-auto w-fit">
+        <Tabs defaultValue="a">
+          <TabsList data-testid="tabs-fit"><TabsTrigger value="a">Account</TabsTrigger><TabsTrigger value="b">Password</TabsTrigger><TabsTrigger value="c">Alerts</TabsTrigger></TabsList>
+        </Tabs>
+      </div>
+      <div className="w-[156px]">
+        <Tabs defaultValue="a">
+          <TabsList data-testid="tabs-narrow"><TabsTrigger value="a">Account</TabsTrigger><TabsTrigger value="b">Password</TabsTrigger><TabsTrigger value="c">Notifications</TabsTrigger></TabsList>
+        </Tabs>
+      </div>
       <Table data-testid="wide-table" className="min-w-[36rem]">
-        <TableCaption>Messages sent this week</TableCaption>
-        <TableHeader><TableRow><TableHead>Contact</TableHead><TableHead>Template</TableHead><TableHead>Status</TableHead><TableHead>Sent</TableHead></TableRow></TableHeader>
-        <TableBody><TableRow><TableCell>Asha Rao</TableCell><TableCell>order_update</TableCell><TableCell>Delivered</TableCell><TableCell>18 Nov, 10:42</TableCell></TableRow></TableBody>
+        <TableCaption>Orders this week</TableCaption>
+        <TableHeader><TableRow><TableHead>Customer</TableHead><TableHead>Shipping</TableHead><TableHead>Status</TableHead><TableHead>Sent</TableHead></TableRow></TableHeader>
+        <TableBody><TableRow><TableCell>Alex Kim</TableCell><TableCell>Standard</TableCell><TableCell>Delivered</TableCell><TableCell>18 Nov, 10:42</TableCell></TableRow></TableBody>
       </Table>
     </main>
   )

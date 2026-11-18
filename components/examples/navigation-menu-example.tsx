@@ -108,7 +108,7 @@ function NavigationMenuBasic() {
                 <li>
                   <NavigationMenuLink
                     render={
-                      <Link href="#" className="flex-row items-center gap-2" />
+                      <Link prefetch={false} href="#" className="flex-row items-center gap-2" />
                     }
                   >
                     <CircleAlertIcon
@@ -117,7 +117,7 @@ function NavigationMenuBasic() {
                   </NavigationMenuLink>
                   <NavigationMenuLink
                     render={
-                      <Link href="#" className="flex-row items-center gap-2" />
+                      <Link prefetch={false} href="#" className="flex-row items-center gap-2" />
                     }
                   >
                     <CircleAlertIcon
@@ -126,7 +126,7 @@ function NavigationMenuBasic() {
                   </NavigationMenuLink>
                   <NavigationMenuLink
                     render={
-                      <Link href="#" className="flex-row items-center gap-2" />
+                      <Link prefetch={false} href="#" className="flex-row items-center gap-2" />
                     }
                   >
                     <CircleAlertIcon
@@ -139,7 +139,7 @@ function NavigationMenuBasic() {
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuLink
-              render={<Link href="/docs" />}
+              render={<Link prefetch={false} href="/docs" />}
               className={navigationMenuTriggerStyle()}
             >
               Documentation
@@ -159,7 +159,7 @@ function ListItem({
 }: React.ComponentPropsWithoutRef<"li"> & { href: string }) {
   return (
     <li {...props}>
-      <NavigationMenuLink render={<Link href={href} />}>
+      <NavigationMenuLink render={<Link prefetch={false} href={href} />}>
         <div className="flex flex-col gap-1 style-vega:text-sm style-nova:text-sm style-lyra:text-xs style-maia:text-sm style-mira:text-xs style-luma:text-sm">
           <div className="leading-none font-medium">{title}</div>
           <div className="line-clamp-2 text-muted-foreground">{children}</div>
