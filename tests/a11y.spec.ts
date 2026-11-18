@@ -555,6 +555,7 @@ test("tab lists stay on one row on phones; a list too long for its parent scroll
     expect(m.rows, `${id}: one row`).toBe(1)
     if (id !== "tabs-line") expect(m.height, `${id}: 32px tall`).toBe(32)
     if (id === "tabs-fit") expect(m.scrolls, `${id}: fits without scrolling`).toBe(false)
+    if (id === "tabs-fit") expect(await page.getByTestId(id).evaluate((el) => getComputedStyle(el).overflowX), `${id}: not a scroll container`).toBe("visible")
     if (id === "tabs-narrow") expect(m.scrolls, `${id}: scrolls inside its parent`).toBe(true)
   }
 })

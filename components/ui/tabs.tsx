@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import { Tabs as TabsPrimitive } from "@base-ui/react/tabs"
 import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
@@ -27,11 +28,15 @@ const tabsListVariants = cva(
   {
     variants: {
       variant: {
-        /** Below the sm breakpoint a list too long for its container scrolls sideways (one row), instead of pushing the page sideways. */
-        default: "bg-muted max-sm:max-w-full max-sm:overflow-x-auto max-sm:[scrollbar-width:none]",
+        /**
+         * Below the sm breakpoint a list too long for its container scrolls sideways on one row instead of pushing
+         * the page sideways. It becomes a scroll container only while it overflows (data-overflowing), so a list
+         * that fits renders exactly as before.
+         */
+        default: "bg-muted max-sm:max-w-full max-sm:data-overflowing:justify-start max-sm:data-overflowing:overflow-x-auto max-sm:data-overflowing:[scrollbar-width:none]",
         /** The line list scrolls too; 9px of transparent room above and below (taken back with negative margins, so
          *  nothing moves) keeps the active underline and the triggers' touch areas inside the scrolling box. */
-        line: "gap-1 bg-transparent max-sm:max-w-full max-sm:overflow-x-auto max-sm:[scrollbar-width:none] max-sm:group-data-horizontal/tabs:h-[calc(2rem+18px)] max-sm:group-data-horizontal/tabs:py-3 max-sm:group-data-horizontal/tabs:-my-[9px]",
+        line: "gap-1 bg-transparent max-sm:max-w-full max-sm:data-overflowing:justify-start max-sm:data-overflowing:overflow-x-auto max-sm:data-overflowing:[scrollbar-width:none] max-sm:data-overflowing:group-data-horizontal/tabs:h-[calc(2rem+18px)] max-sm:data-overflowing:group-data-horizontal/tabs:py-3 max-sm:data-overflowing:group-data-horizontal/tabs:-my-[9px]",
         /** Underline tabs: text links over a 1px separator; the active one gets a 1px ink underline. */
         /** On touch screens the list gets 4px of room above and below, so the triggers' 44px hit areas are not clipped by the scroll. */
         underline: "h-auto! w-full justify-start gap-6 overflow-x-auto rounded-none bg-transparent p-0 pb-px scrollbar-none shadow-rule pointer-coarse:pt-1 pointer-coarse:pb-[5px]",
@@ -46,12 +51,40 @@ const tabsListVariants = cva(
 function TabsList({
   className,
   variant = "default",
+  ref,
   ...props
 }: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants>) {
+  // Marks the list while its triggers don't fit: wider than the list itself, or reaching past the page's edge
+  // (a list in a shrink-to-fit parent widens the parent instead of overflowing it). See the variants above.
+  const [overflowing, setOverflowing] = React.useState(false)
+  const cleanup = React.useRef<(() => void) | null>(null)
+  const setRef = React.useCallback(
+    (el: HTMLDivElement | null) => {
+      cleanup.current?.()
+      cleanup.current = null
+      if (typeof ref === "function") ref(el)
+      else if (ref) (ref as React.RefObject<HTMLDivElement | null>).current = el
+      if (!el) return
+      const measure = () =>
+        setOverflowing(el.scrollWidth > el.clientWidth + 1 || el.getBoundingClientRect().right > document.documentElement.clientWidth + 1)
+      const observer = new ResizeObserver(measure)
+      observer.observe(el)
+      for (const child of el.children) observer.observe(child)
+      window.addEventListener("resize", measure)
+      cleanup.current = () => {
+        observer.disconnect()
+        window.removeEventListener("resize", measure)
+      }
+      measure()
+    },
+    [ref]
+  )
   return (
     <TabsPrimitive.List
+      ref={setRef}
       data-slot="tabs-list"
       data-variant={variant}
+      data-overflowing={overflowing || undefined}
       className={cn(tabsListVariants({ variant }), className)}
       {...props}
     />
