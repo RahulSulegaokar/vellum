@@ -3,6 +3,12 @@
 // TypeScript parser and fails on English written directly into JSX: text children, string literals in JSX
 // expressions, and the attributes people read (aria-*, title, alt, placeholder, label, description).
 // Non-words (symbols, numbers, key caps) are allowed below. Run: `node tests/strings.mjs`.
+//
+// Also caught: prose-like strings ("Two words", "Capitalised") in any other JSX attribute (`heading="…"`), and
+// module-level string constants that read like prose and are used in JSX.
+// Not caught (limits): prose built in event handlers, state setters or helper functions that are not JSX
+// (`setError("Couldn't save")`, `function label() { return "…" }`). Checking those would also flag error
+// messages for developers, so review them by hand; English in a `…Labels` object or a prop default is fine.
 import { readdirSync, readFileSync } from "node:fs"
 import { join } from "node:path"
 import ts from "typescript"
@@ -12,6 +18,11 @@ const READ_ATTRS = /^(aria-(label|roledescription|valuetext|description|placehol
 // Strings that are not words a translator would change.
 const ALLOWED = new Set(["·", "99+", "⌘", "K", "W", "/", "+", "-", "—", "…", "%", "@", "1", "2"])
 const isWords = (text) => /[A-Za-z]{2,}/.test(text) && !ALLOWED.has(text.trim())
+// Prose for attributes outside READ_ATTRS: a capitalised word, or words separated by spaces, with no class-name
+// or path punctuation.
+const isProse = (text) => isWords(text) && !/[:/\[\]{}=_#]|^[a-z0-9-]+$/.test(text.trim()) && (/^[A-Z][a-z]/.test(text.trim()) || /[A-Za-z] [A-Za-z]/.test(text))
+// Attributes that hold code, not text, even when the value looks like words.
+const CODE_ATTRS = /^(className|class|style|href|src|srcSet|id|key|type|role|name|value|defaultValue|rel|target|method|action|autoComplete|inputMode|variant|size|side|align|orientation|tone|htmlFor|dir|lang|d|viewBox|fill|stroke|strokeLinecap|strokeLinejoin|xmlns|mode|captionLayout|collapsible|swipeDirection|loading|decoding|data-[\w-]+|aria-(hidden|current|live|controls|describedby|labelledby|orientation|haspopup|expanded|invalid|disabled|modal|pressed|selected|checked|sort))$/
 
 const problems = []
 for (const dir of ["components/ui", "components/blocks"]) {
@@ -63,8 +74,21 @@ for (const dir of ["components/ui", "components/blocks"]) {
       const list = attr.parent.properties
       return list.slice(list.indexOf(attr) + 1).some((p) => ts.isJsxSpreadAttribute(p))
     }
+    // Module-level constants holding prose, by name, so their use in JSX can be reported.
+    const proseConstants = new Map()
+    for (const st of src.statements) {
+      if (!ts.isVariableStatement(st)) continue
+      for (const d of st.declarationList.declarations) {
+        if (!/Labels$/.test(d.name.getText(src)) && d.initializer && (ts.isStringLiteral(d.initializer) || ts.isNoSubstitutionTemplateLiteral(d.initializer)) && isProse(d.initializer.text))
+          proseConstants.set(d.name.getText(src), d.initializer.text)
+      }
+    }
     const walk = (node) => {
       if (inLabels(node)) return
+      if (ts.isIdentifier(node) && proseConstants.has(node.text) && (ts.isJsxExpression(node.parent) || ts.isJsxExpression(node.parent?.parent)))
+        report(node, proseConstants.get(node.text))
+      if (ts.isJsxAttribute(node) && !READ_ATTRS.test(node.name.getText(src)) && !CODE_ATTRS.test(node.name.getText(src)) && node.initializer && ts.isStringLiteral(node.initializer) && isProse(node.initializer.text))
+        report(node, node.initializer.text)
       if (ts.isJsxText(node) && isWords(node.text)) report(node, node.text)
       if (ts.isJsxExpression(node) && node.expression && (ts.isJsxElement(node.parent) || ts.isJsxFragment(node.parent))) scanExpression(node.expression)
       if (ts.isJsxAttribute(node) && READ_ATTRS.test(node.name.getText(src)) && node.initializer && !overridable(node)) {

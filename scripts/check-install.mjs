@@ -3,6 +3,8 @@
 // it, so an unused import or a Next-only API in any item fails here before a consumer sees it.
 // Files land where the shadcn CLI puts them in a Vite project: src/components/ui, src/components/blocks,
 // src/hooks, src/lib. Run with `npm run test:install`.
+// Types resolve through this repo's node_modules (where Next is installed for the gallery), so a Next-only import
+// would type-check here; the import scan below fails on `next`, `next/*` and `next-themes` instead.
 import { execFileSync } from "node:child_process"
 import { cpSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from "node:fs"
 import { basename, join } from "node:path"
@@ -19,6 +21,7 @@ const target = (path) =>
   : path.startsWith("hooks/") ? `src/hooks/${basename(path)}`
   : null
 let count = 0
+const nextOnly = []
 for (const item of items) {
   for (const file of item.files ?? []) {
     const to = target(file.path)
@@ -26,6 +29,8 @@ for (const item of items) {
     mkdirSync(join(OUT, to, ".."), { recursive: true })
     cpSync(join(ROOT, file.path), join(OUT, to))
     count++
+    for (const [, spec] of readFileSync(join(ROOT, file.path), "utf8").matchAll(/from\s+"([^"]+)"/g))
+      if (/^(next|next-themes)(\/|$)/.test(spec)) nextOnly.push(`${file.path}: imports ${spec}`)
   }
 }
 // The `utils` item the components depend on.
@@ -49,9 +54,13 @@ writeFileSync(
     2
   )
 )
+if (nextOnly.length) {
+  console.error(`Registry items must not depend on Next.js:\n${nextOnly.join("\n")}`)
+  process.exitCode = 1
+}
 try {
   execFileSync(join(ROOT, "node_modules/.bin/tsc"), ["-p", OUT], { stdio: "inherit" })
-  console.log(`${count} item files type-check in a strict Vite-style project`)
+  if (!nextOnly.length) console.log(`${count} item files type-check in a strict Vite-style project and import nothing from Next`)
 } catch {
   console.error("Registry items fail a strict Vite-style type check (see above)")
   process.exitCode = 1
