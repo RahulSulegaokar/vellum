@@ -63,9 +63,9 @@ const pad = (n: number) => String(n).padStart(2, "0")
 const startOfDay = (d: Date) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x }
 const endOfDay = (d: Date) => { const x = new Date(d); x.setHours(23, 59, 0, 0); return x }
 const sameDay = (a: Date, b: Date) => startOfDay(a).getTime() === startOfDay(b).getTime()
-const shortDay = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" })
 
-function rangeLabel(value: DateRangeValue, presets: DateRangePreset[], t: DateRangePickerLabels) {
+function rangeLabel(value: DateRangeValue, presets: DateRangePreset[], t: DateRangePickerLabels, locale: string) {
+  const shortDay = new Intl.DateTimeFormat(locale, { month: "short", day: "numeric" })
   const preset = presets.find((p) => p.key === value.preset)
   if (preset) return preset.triggerLabel ?? preset.label
   if (value.from && value.to) return t.dateRange(shortDay.format(value.from), shortDay.format(value.to))
@@ -143,6 +143,7 @@ export function DateRangePicker({
   touch = false,
   align = "end",
   getNow = () => new Date(),
+  locale = "en-US",
   labels,
   className,
 }: {
@@ -157,6 +158,8 @@ export function DateRangePicker({
   /** Clock source, called when the popover opens. */
   getNow?: () => Date
   /** Translations of the built-in strings (English by default). */
+  /** BCP 47 locale for the dates in the trigger ("en-US" by default), for example "de-DE". */
+  locale?: string
   labels?: Partial<DateRangePickerLabels>
   className?: string
 }) {
@@ -222,7 +225,7 @@ export function DateRangePicker({
         }
       >
         <CalendarIcon aria-hidden="true" className="size-4 flex-none text-subtle" />
-        <span className="truncate">{rangeLabel(value, presets, t)}</span>
+        <span className="truncate">{rangeLabel(value, presets, t, locale)}</span>
         {!touch && <ChevronDownIcon aria-hidden="true" className={cn("size-4 text-subtle transition-transform", open && "rotate-180")} />}
       </PopoverTrigger>
       <PopoverContent

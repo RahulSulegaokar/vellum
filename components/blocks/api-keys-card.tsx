@@ -38,8 +38,6 @@ export type ApiKey = {
 /** What `onCreate` resolves to: the stored key plus its full secret, shown once. */
 export type CreatedApiKey = ApiKey & { secret: string }
 
-const dateFormat = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })
-const formatDate = (iso: string) => dateFormat.format(new Date(iso))
 
 export const maskKey = (k: Pick<ApiKey, "prefix" | "last4">) => `${k.prefix}••••${k.last4}`
 
@@ -257,6 +255,7 @@ export function ApiKeysCard({
   keys: keysProp,
   onCreate,
   onRevoke,
+  locale = "en-US",
   labels,
   className,
 }: {
@@ -267,10 +266,14 @@ export function ApiKeysCard({
   onCreate?: (name: string) => Promise<CreatedApiKey>
   onRevoke?: (id: string) => void | Promise<void>
   /** Translations of the built-in strings (English by default). */
+  /** BCP 47 locale for the dates shown ("en-US" by default), for example "de-DE". */
+  locale?: string
   labels?: Partial<ApiKeysCardLabels>
   className?: string
 }) {
   const t = { ...apiKeysCardLabels, ...labels }
+  const dateFormat = React.useMemo(() => new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }), [locale])
+  const formatDate = (iso: string) => dateFormat.format(new Date(iso))
   // Local copy so the list reflects creates and revokes; your callbacks persist them.
   const [keys, setKeys] = React.useState(keysProp)
   const [createOpen, setCreateOpen] = React.useState(false)

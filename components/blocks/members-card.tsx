@@ -94,8 +94,6 @@ export const membersCardLabels = {
 }
 export type MembersCardLabels = typeof membersCardLabels
 
-const dateFormat = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" })
-const formatDate = (iso: string) => dateFormat.format(new Date(iso))
 
 function initials(name: string) {
   return name
@@ -261,6 +259,7 @@ export function MembersCard({
   onRoleChange,
   onRemove,
   onRevokeInvitation,
+  locale = "en-US",
   labels,
   className,
 }: {
@@ -277,10 +276,14 @@ export function MembersCard({
   onRemove?: (memberId: string) => void
   onRevokeInvitation?: (invitationId: string) => void
   /** Translations of the built-in strings (English by default). */
+  /** BCP 47 locale for the dates shown ("en-US" by default), for example "de-DE". */
+  locale?: string
   labels?: Partial<MembersCardLabels>
   className?: string
 }) {
   const t = { ...membersCardLabels, ...labels }
+  const dateFormat = React.useMemo(() => new Intl.DateTimeFormat(locale, { month: "short", day: "numeric", year: "numeric", timeZone: "UTC" }), [locale])
+  const formatDate = (iso: string) => dateFormat.format(new Date(iso))
   const membersRegion = useScrollRegion(t.members.trim())
   // Local copies so the list responds right away; pass callbacks to persist changes.
   const [members, setMembers] = React.useState(membersProp)
