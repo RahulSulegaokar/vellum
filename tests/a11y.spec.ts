@@ -631,6 +631,13 @@ test("a control focused inside an open accordion panel shows its whole ring", as
   expect(missing, `ring clipped on ${missing.join(", ")}`).toEqual([])
 })
 
+test("in RTL a tab list reaching past the page's left edge is flagged as overflowing", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 })
+  await page.goto("/fixtures/rtl-tabs")
+  await page.waitForLoadState("networkidle")
+  await expect(page.getByTestId("tabs-rtl-fit")).toHaveAttribute("data-overflowing", "true")
+})
+
 test("a table wider than its container scrolls in a focusable, named region", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 640 })
   await page.goto("/fixtures/reflow")

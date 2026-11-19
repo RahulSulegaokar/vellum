@@ -54,8 +54,10 @@ function TabsList({
   ref,
   ...props
 }: TabsPrimitive.List.Props & VariantProps<typeof tabsListVariants>) {
-  // Marks the list while its triggers don't fit: wider than the list itself, or reaching past the page's edge
-  // (a list in a shrink-to-fit parent widens the parent instead of overflowing it). See the variants above.
+  // Marks the list while its triggers don't fit: wider than the list itself, or reaching past the page's
+  // edge on either side (so right-to-left pages are covered). See the variants above. Limits: the flag is set after hydration,
+  // so without JavaScript an overflowing list still widens the page; and a list inside a shrink-to-fit parent
+  // (w-fit, mx-auto) widens that parent before it can scroll, so give such a parent max-w-full.
   const [overflowing, setOverflowing] = React.useState(false)
   const cleanup = React.useRef<(() => void) | null>(null)
   const setRef = React.useCallback(
@@ -65,8 +67,11 @@ function TabsList({
       if (typeof ref === "function") ref(el)
       else if (ref) (ref as React.RefObject<HTMLDivElement | null>).current = el
       if (!el) return
-      const measure = () =>
-        setOverflowing(el.scrollWidth > el.clientWidth + 1 || el.getBoundingClientRect().right > document.documentElement.clientWidth + 1)
+      const measure = () => {
+        const box = el.getBoundingClientRect()
+        const pastEdge = box.left < -1 || box.right > document.documentElement.clientWidth + 1
+        setOverflowing(el.scrollWidth > el.clientWidth + 1 || pastEdge)
+      }
       const observer = new ResizeObserver(measure)
       observer.observe(el)
       for (const child of el.children) observer.observe(child)
