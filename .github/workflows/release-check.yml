@@ -58,4 +58,5 @@ jobs:
           for path in "$BASE/components/ui/dialog.tsx" "$BASE/components/ui/button.tsx" "$CSS"; do
             grep -qF -- "$path" ../dry-run.txt || { echo "$path is not in the dry run for $TAG"; exit 1; }
           done
-          if grep -qiE "was not found|something went wrong" ../dry-run.txt; then echo "the dry run reported an error"; exit 1; fi
+          # npm's own notice ("npm warn exec The following package was not found and will be installed") is not an error.
+          if grep -viE "^npm (warn|notice) " ../dry-run.txt | grep -qiE "was not found|something went wrong"; then echo "the dry run reported an error"; exit 1; fi
