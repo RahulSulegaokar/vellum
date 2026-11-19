@@ -7,8 +7,8 @@
     "sonner"
   ],
   "registryDependencies": [
-    "RahulSulegaokar/vellum/use-theme#v0.4.0",
-    "RahulSulegaokar/vellum/vellum-theme#v0.4.0"
+    "RahulSulegaokar/vellum/use-theme#v0.4.1",
+    "RahulSulegaokar/vellum/vellum-theme#v0.4.1"
   ],
   "files": [
     {

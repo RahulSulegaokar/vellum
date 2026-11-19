@@ -3,7 +3,7 @@
   "name": "table",
   "title": "Table",
   "registryDependencies": [
-    "RahulSulegaokar/vellum/vellum-theme#v0.4.0",
+    "RahulSulegaokar/vellum/vellum-theme#v0.4.1",
     "utils"
   ],
   "files": [
