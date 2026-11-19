@@ -125,7 +125,7 @@ The areas are drawn with a pseudo-element: `::after` on most controls, `::before
 
 ## Focus, forced colours and motion
 
-- **Focus:** every interactive control shows an opaque 2px outline in `--ring`, 2px outside it (fields: on their edge; controls in a scrolling list, such as tabs: drawn inside, so the scroll doesn't clip it). Some controls keep a soft halo under it. The slider draws it on the thumb (Base UI focuses a hidden input inside it). Don't replace it with a translucent ring.
+- **Focus:** every interactive control shows an opaque 2px outline in `--ring`, 2px outside it (fields: on their edge; controls in a scrolling list, such as tabs: drawn inside, so the scroll doesn't clip it; a small button set flush against text, such as a filter pill's clear button: drawn inside, so the text doesn't paint over it). Some controls keep a soft halo under it. The slider draws it on the thumb (Base UI focuses a hidden input inside it). Don't replace it with a translucent ring.
 - **Forced colours (Windows high contrast):** field and button edges, the switch, checkbox, checked radio dot, progress and slider fills, the selected tab, toggle and segment, and every floating layer keep a visible edge or system-colour fill (`Canvas`, `CanvasText`, `Highlight`). Nothing changes outside that mode.
 - **Reduced motion:** with `prefers-reduced-motion: reduce`, dialogs, sheets, popovers, menus, selects, tooltips, accordions, the drawer, toasts and small state transitions (switch, checkbox, progress) don't animate.
 - **Field text** is 16px on touch screens at any width (so iOS doesn't zoom on focus) and 14px from the `sm` breakpoint with a mouse.

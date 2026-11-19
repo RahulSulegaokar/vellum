@@ -2,6 +2,13 @@
 
 Each entry lists what consumers will see in `npx shadcn add RahulSulegaokar/vellum/<item> --diff`.
 
+## v0.4.1 (2026-11-19)
+
+Patch release. Nothing changes at rest: only the focus ring of one button moves.
+
+- Filter bar: the clear (×) button on a set filter pill draws its focus ring inside its own edge (`-outline-offset-2`) instead of 2px outside it. Outside, the ring ran into the pill's label, whose first letter painted over its right side (in some fonts and on some systems completely, with a larger text size, or with a translated label such as "Liste"). The ring is now clear of the label on every side.
+- Tests: a fixture (`/fixtures/filter-pills`) with set pills whose labels start with a full-height letter, at normal and 1.5× zoomed text, joins the focus-ring walk; it fails on v0.4.0 on macOS too, so the check no longer depends on how the CI system renders text.
+
 ## v0.4.0 (2026-11-19)
 
 Accessibility release. At rest, with a mouse, controls look the same as in v0.3.0 except: the primary button's top sheen is lighter, subtle tags lose their 2% gradient, the command palette's and the combobox popup's search placeholders are a shade darker, the combobox chips input's placeholder uses the placeholder colour, the dark checked choice card tint is lighter, the segmented control's unselected label is darker in light and lighter in dark, and the slider thumb's border follows the new dark `--ring`. On touch screens, fields use 16px text and the underline tab row is 8px taller. It is a minor (breaking) release under 0.x: a `data-slot`, two elements, positioning, pseudo-elements and token values changed (see "What changed that you may depend on").

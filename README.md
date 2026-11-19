@@ -29,7 +29,7 @@ Each component also brings in:
 
 Pulled in this way, the theme only adds missing tokens. It never overwrites values you've set, which is why step 1 installs it explicitly.
 
-Pin a release by appending a tag: `RahulSulegaokar/vellum/button#v0.4.0`.
+Pin a release by appending a tag: `RahulSulegaokar/vellum/button#v0.4.1`.
 
 **CLI versions.** Vellum is built and tested with shadcn CLI 4.23.0, which the update workflow pins; `shadcn@latest` works as long as it is 4.x. The `#tag` form is checked on every release by `.github/workflows/release-check.yml` (an empty Vite project and a Laravel-shaped one, `--dry-run`).
 

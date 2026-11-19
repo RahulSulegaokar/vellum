@@ -145,7 +145,7 @@ export function FilterPill({
           type="button"
           aria-label={t.clearFilter(label)}
           onClick={() => onChange([])}
-          className="rounded-full text-subtle outline-none hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
+          className="rounded-full text-subtle outline-none hover:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
         >
           <XIcon aria-hidden="true" className="size-4 p-0.5" />
         </button>
