@@ -110,18 +110,18 @@ After changing them, run `npm run test:contrast` in a Vellum checkout with your 
 
 ## Touch targets
 
-Controls stay visually dense (24 to 32px), but on touch screens (`pointer: coarse`) they get an invisible hit area at their visual size, so apps don't need to enlarge controls, and no area ever covers another control's own box:
+Controls stay visually dense (24 to 32px), but on touch screens (`pointer: coarse`) they get an invisible hit area at their visual size, so apps don't need to enlarge controls. The areas below add no overlap that v0.3.0 didn't have:
 
 - 44×44px: buttons and icon buttons, the toggle, the field select trigger, the slider thumb, breadcrumb links, the accordion trigger and the banner's dismiss button.
 - 44px on the cross axis only for items that sit in a row: toggle-group items, segmented-control items and tabs triggers (a row of them never takes a neighbour's taps).
-- 44 wide by 36 tall for checkbox, radio and switch, so the kit's stacked rows (a 27px pitch) meet without overlapping. Their labels are clickable and extend the target.
+- 44 wide by 36 tall for checkbox, radio and switch. Not 44×44: their stacked rows sit 27px apart, and a 44px-tall area would take taps from the row above. 36px still meets WCAG 2.5.8 (24px minimum). Their labels are clickable and extend the target.
 - Buttons inside a field (`InputGroupButton`) grow only vertically; chip remove buttons keep their 24px box.
 
-Underline tabs get 4px of room above and below on touch screens so their scrolling list doesn't clip the areas. On phones a default or line tab list that overflows scrolls, and its triggers' areas stay inside it. The marketing `gloss` pills keep their 30px hit area; text fields keep 32px (their label is part of the target).
+Underline tabs get 4px of room above and below on touch screens so their scrolling list doesn't clip the areas. On phones a default or line tab list that overflows scrolls, and its triggers' areas stay inside it. It is detected after hydration (without JavaScript an overflowing list still widens the page), and a list in a shrink-to-fit parent (`w-fit`, `mx-auto`) widens that parent first: give such a parent `max-w-full`. The marketing `gloss` pills keep their 30px hit area; text fields keep 32px (their label is part of the target).
 
-The areas are drawn with a pseudo-element: `::after` on most controls, `::before` on tabs triggers (their `::after` is the underline). If you add your own `::before`/`::after` to a control, check it doesn't replace these. Controls that hold an area are `position: relative` on touch screens; an `absolute`, `fixed` or `sticky` class you pass still wins.
+The areas are drawn with a pseudo-element: `::after` on most controls, `::before` on tabs triggers (their `::after` is the underline). If you add your own `::before`/`::after` to a control, check it doesn't replace these. Controls that hold an area are `position: relative` on touch screens through a zero-specificity rule, so any position you set wins (a class, a responsive or arbitrary class, a parent selector or an inline style).
 
-**Spacing:** buttons have the full 44px both ways, so leave at least 44px minus the control height between neighbouring buttons: 12px between 32px controls, 16px between 28px (`compact`) and 20px between 24px (`compact-sm`). Icon-only buttons in a row want a 44px pitch. Closer than that, a later button's area takes taps from the edge of an earlier one.
+**Spacing:** buttons have the full 44px both ways, so leave at least 44px minus the control height between neighbouring buttons: 12px between 32px controls, 16px between 28px (`compact`) and 20px between 24px (`compact-sm`). Icon-only buttons in a row want a 44px pitch. Closer than that, a later button's area takes taps from the edge of an earlier one; the kit's own `Pagination` (4px gaps) and some demo button rows are that close today.
 
 ## Focus, forced colours and motion
 
