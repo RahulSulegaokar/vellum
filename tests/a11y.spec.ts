@@ -197,6 +197,7 @@ async function walk(page: Page, max = 400) {
 const walkPages = [
   CONTROLS,
   ...["button", "checkbox", "radio-group", "switch", "toggle", "toggle-group", "tabs", "select", "slider", "accordion", "breadcrumb", "input", "textarea", "native-select", "combobox", "input-otp", "pagination", "code-block", "badge", "field", "form", "item", "navigation-menu", "menubar", "resizable", "label", "calendar", "input-group", "questionnaire", "attachment", "bubble", "trace"].map((n) => `/components/${n}`),
+  "/fixtures/filter-pills",
   ...["banner", "dashboard-shell", "settings-sidebar", "faq-section", "filter-bar", "data-table-card", "account-menu", "site-header", "site-footer", "pricing-plans", "integration-cards", "auth-sign-in"].map((n) => `/blocks/${n}`),
 ]
 
