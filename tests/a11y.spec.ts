@@ -361,6 +361,41 @@ test.describe("a consumer's position utility wins", () => {
       await expect(page.getByTestId(id), id).toHaveCSS("position", "absolute")
     }
   })
+
+  test("md:absolute, [position:absolute], inline style and a parent rule win on a coarse tablet (900px)", async ({ page }) => {
+    await page.goto(CONTROLS)
+    await page.waitForLoadState("networkidle")
+    for (const id of ["pos-md-toggle", "pos-md-select-trigger", "pos-arbitrary-toggle", "pos-arbitrary-breadcrumb-link", "pos-inline-toggle", "pos-parent-toggle"]) {
+      await expect(page.getByTestId(id), id).toHaveCSS("position", "absolute")
+    }
+    // With no position of its own the control is still the anchor of its touch area.
+    await expect(page.getByTestId("pos-none-toggle")).toHaveCSS("position", "relative")
+  })
+
+  // In a consumer's build every utility sits in @layer utilities and their order decides ties. A rule of equal
+  // standing placed before and after the kit's stylesheet must win either way.
+  for (const where of ["before", "after"] as const) {
+    test(`a consumer utility in @layer utilities wins when its CSS comes ${where} the kit's`, async ({ page }) => {
+      await page.goto(CONTROLS)
+      await page.waitForLoadState("networkidle")
+      await page.evaluate((where) => {
+        const style = document.createElement("style")
+        style.textContent = "@layer utilities { .layered-absolute { position: absolute } }"
+        if (where === "before") document.head.prepend(style)
+        else document.head.append(style)
+      }, where)
+      await expect(page.getByTestId("pos-layered-toggle")).toHaveCSS("position", "absolute")
+    })
+  }
+})
+
+test.describe("position with a mouse", () => {
+  test("controls without a position class stay static, as in v0.3.0", async ({ page }) => {
+    await page.setViewportSize({ width: 900, height: 1200 })
+    await page.goto(CONTROLS)
+    await page.waitForLoadState("networkidle")
+    await expect(page.getByTestId("pos-none-toggle")).toHaveCSS("position", "static")
+  })
 })
 
 test("on a fine pointer, field text keeps its desktop size (14px from the sm breakpoint)", async ({ page }) => {

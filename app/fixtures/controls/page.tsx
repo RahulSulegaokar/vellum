@@ -142,6 +142,23 @@ export default function ControlsFixture() {
         <Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="#p" className="absolute top-1 left-1" data-testid="pos-breadcrumb-link">Home</BreadcrumbLink></BreadcrumbItem></BreadcrumbList></Breadcrumb>
       </section>
 
+      {/* Every other way to position a control must beat the kit's touch-only `relative` too. */}
+      <section data-section="position-variants" className="relative h-40 w-96">
+        <Toggle aria-label="Responsive" className="md:absolute md:top-1 md:right-1" data-testid="pos-md-toggle"><BoldIcon /></Toggle>
+        <Select>
+          <SelectTrigger aria-label="Responsive select" className="w-24 md:absolute md:bottom-1 md:left-1" data-testid="pos-md-select-trigger"><SelectValue placeholder="Pick" /></SelectTrigger>
+          <SelectContent><SelectItem value="a">A</SelectItem></SelectContent>
+        </Select>
+        <Toggle aria-label="Arbitrary" className="[position:absolute] top-10 right-1" data-testid="pos-arbitrary-toggle"><BoldIcon /></Toggle>
+        <Breadcrumb><BreadcrumbList><BreadcrumbItem><BreadcrumbLink href="#q" className="[position:absolute] top-20 left-1" data-testid="pos-arbitrary-breadcrumb-link">Docs</BreadcrumbLink></BreadcrumbItem></BreadcrumbList></Breadcrumb>
+        <Toggle aria-label="Inline" style={{ position: "absolute", top: 80, right: 4 }} data-testid="pos-inline-toggle"><BoldIcon /></Toggle>
+        <div className="[&>button]:absolute [&>button]:right-24 [&>button]:bottom-1">
+          <Toggle aria-label="Parent rule" data-testid="pos-parent-toggle"><BoldIcon /></Toggle>
+        </div>
+        <Toggle aria-label="Layered rule" className="layered-absolute top-1 left-40" data-testid="pos-layered-toggle"><BoldIcon /></Toggle>
+        <Toggle aria-label="No position" data-testid="pos-none-toggle"><BoldIcon /></Toggle>
+      </section>
+
       <section data-section="fields" className="grid max-w-md gap-4">
         <Input aria-label="Name" placeholder="Name" />
         <Input aria-label="Compact" variant="compact" placeholder="Compact" />
