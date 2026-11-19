@@ -7,11 +7,11 @@
     "lucide-react"
   ],
   "registryDependencies": [
-    "RahulSulegaokar/vellum/button#v0.5.0",
-    "RahulSulegaokar/vellum/input#v0.5.0",
-    "RahulSulegaokar/vellum/radio-group#v0.5.0",
-    "RahulSulegaokar/vellum/switch#v0.5.0",
-    "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
+    "RahulSulegaokar/vellum/button#v0.5.1",
+    "RahulSulegaokar/vellum/input#v0.5.1",
+    "RahulSulegaokar/vellum/radio-group#v0.5.1",
+    "RahulSulegaokar/vellum/switch#v0.5.1",
+    "RahulSulegaokar/vellum/vellum-theme#v0.5.1",
     "utils"
   ],
   "files": [

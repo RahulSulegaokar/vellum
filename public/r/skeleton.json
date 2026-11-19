@@ -3,7 +3,7 @@
   "name": "skeleton",
   "title": "Skeleton",
   "registryDependencies": [
-    "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
+    "RahulSulegaokar/vellum/vellum-theme#v0.5.1",
     "utils"
   ],
   "files": [

@@ -74,7 +74,7 @@ export function SettingsSwitchRow({
           {badge && <Badge variant="subtle-info">{badge}</Badge>}
         </span>
       </label>
-      <div className="pl-8">
+      <div className="pl-13">
         {description && (
           <small id={descId} className="mt-1 block text-xs/4 text-pretty text-subtle">
             {description}
@@ -193,7 +193,7 @@ export function SettingsCard({
           </span>
         </label>
         {description && (
-          <p id={`${id}-description`} className="mt-0.5 pl-8 text-xs/4 text-pretty text-subtle">
+          <p id={`${id}-description`} className="mt-0.5 pl-13 text-xs/4 text-pretty text-subtle">
             {description}
           </p>
         )}

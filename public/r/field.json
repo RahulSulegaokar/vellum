@@ -6,9 +6,9 @@
     "class-variance-authority"
   ],
   "registryDependencies": [
-    "RahulSulegaokar/vellum/label#v0.5.0",
-    "RahulSulegaokar/vellum/separator#v0.5.0",
-    "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
+    "RahulSulegaokar/vellum/label#v0.5.1",
+    "RahulSulegaokar/vellum/separator#v0.5.1",
+    "RahulSulegaokar/vellum/vellum-theme#v0.5.1",
     "utils"
   ],
   "files": [

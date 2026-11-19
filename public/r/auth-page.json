@@ -4,7 +4,7 @@
   "title": "Auth Page",
   "description": "Full-page auth layout: soft centered glow on the canvas, a centered card slot and a copyright/links footer.",
   "registryDependencies": [
-    "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
+    "RahulSulegaokar/vellum/vellum-theme#v0.5.1",
     "utils"
   ],
   "files": [

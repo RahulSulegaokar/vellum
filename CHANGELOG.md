@@ -2,6 +2,13 @@
 
 Each entry lists what consumers will see in `npx shadcn add RahulSulegaokar/vellum/<item> --diff`.
 
+## v0.5.1 (2026-11-19)
+
+Patch release for two things v0.5.0 missed.
+
+- **Settings card:** descriptions under a switch row and under the card's switch header are indented 52px (`pl-13`, the new 44px switch plus its 8px gap); they were still indented for the old 24px switch and started left of their title. Apps with their own switch rows: indent descriptions by the switch width plus the gap.
+- **Calendar:** `CalendarDayButton` sets `lang` from the calendar's `locale`, the language its accessible name is written in. It also stops projects whose lint config doesn't allow rest siblings from warning about an unused `locale`.
+
 ## v0.5.0 (2026-11-19)
 
 Switch and slider take the shape of shadcn's Luma style, and every known contrast gap is closed. Minor (breaking) release under 0.x: the switch and slider change size, and checked fills move to a new token.

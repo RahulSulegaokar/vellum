@@ -7,12 +7,12 @@
     "lucide-react"
   ],
   "registryDependencies": [
-    "RahulSulegaokar/vellum/alert-dialog#v0.5.0",
-    "RahulSulegaokar/vellum/avatar#v0.5.0",
-    "RahulSulegaokar/vellum/button#v0.5.0",
-    "RahulSulegaokar/vellum/dropdown-menu#v0.5.0",
-    "RahulSulegaokar/vellum/separator#v0.5.0",
-    "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
+    "RahulSulegaokar/vellum/alert-dialog#v0.5.1",
+    "RahulSulegaokar/vellum/avatar#v0.5.1",
+    "RahulSulegaokar/vellum/button#v0.5.1",
+    "RahulSulegaokar/vellum/dropdown-menu#v0.5.1",
+    "RahulSulegaokar/vellum/separator#v0.5.1",
+    "RahulSulegaokar/vellum/vellum-theme#v0.5.1",
     "utils"
   ],
   "files": [
