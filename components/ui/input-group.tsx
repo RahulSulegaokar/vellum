@@ -14,7 +14,7 @@ function InputGroup({ className, ...props }: React.ComponentProps<"div">) {
       data-slot="input-group"
       role="group"
       className={cn(
-        "group/input-group relative flex h-8 w-full min-w-0 items-center rounded-md bg-field shadow ring-1 shadow-field-shadow ring-field-ring transition outline-none in-data-[slot=combobox-content]:focus-within:border-inherit in-data-[slot=combobox-content]:focus-within:ring-0 has-disabled:bg-input/50 has-disabled:opacity-50 has-[[data-slot=input-group-control]:focus-visible]:ring-field-ring-focus has-[[data-slot=input-group-control]:focus-visible]:shadow-[0_0_0_4px_rgb(0_0_0/0.08)] has-[[data-slot][aria-invalid=true]]:ring-field-invalid has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>textarea]:h-auto dark:bg-input/30 dark:has-disabled:bg-input/80 dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40 has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5",
+        "group/input-group relative flex h-8 w-full min-w-0 items-center rounded-md bg-field shadow ring-1 shadow-field-shadow ring-field-ring transition outline-none forced-colors:outline-1 forced-colors:[--tw-outline-style:solid] forced-colors:-outline-offset-1 in-data-[slot=combobox-content]:focus-within:border-inherit in-data-[slot=combobox-content]:focus-within:ring-0 has-disabled:bg-input/50 has-disabled:opacity-50 has-[:is(input,textarea):focus-visible]:outline-2 has-[:is(input,textarea):focus-visible]:[--tw-outline-style:solid] has-[:is(input,textarea):focus-visible]:outline-ring has-[[data-slot=input-group-control]:focus-visible]:ring-field-ring-focus has-[[data-slot=input-group-control]:focus-visible]:shadow-[0_0_0_4px_rgb(0_0_0/0.08)] has-[[data-slot][aria-invalid=true]]:ring-field-invalid has-[>[data-align=block-end]]:h-auto has-[>[data-align=block-end]]:flex-col has-[>[data-align=block-start]]:h-auto has-[>[data-align=block-start]]:flex-col has-[>textarea]:h-auto dark:bg-input/30 dark:has-disabled:bg-input/80 dark:has-[[data-slot][aria-invalid=true]]:ring-destructive/40 has-[>[data-align=block-end]]:[&>input]:pt-3 has-[>[data-align=block-start]]:[&>input]:pb-3 has-[>[data-align=inline-end]]:[&>input]:pr-1.5 has-[>[data-align=inline-start]]:[&>input]:pl-1.5",
         className
       )}
       {...props}
@@ -66,7 +66,8 @@ function InputGroupAddon({
 }
 
 const inputGroupButtonVariants = cva(
-  "flex items-center gap-2 text-sm shadow-none",
+  // Inside a field the touch area grows only vertically, so it never covers the text box.
+  "flex items-center gap-2 text-sm shadow-none pointer-coarse:after:min-w-0",
   {
     variants: {
       size: {
@@ -124,7 +125,7 @@ function InputGroupInput({
     <Input
       data-slot="input-group-control"
       className={cn(
-        "flex-1 rounded-none border-0 bg-transparent shadow-none ring-0 focus:[box-shadow:none] focus-visible:ring-0 disabled:border-0 disabled:bg-transparent disabled:px-3 disabled:py-1.5 aria-invalid:ring-0 aria-invalid:focus:[box-shadow:none] dark:bg-transparent dark:disabled:bg-transparent",
+        "flex-1 rounded-none border-0 bg-transparent shadow-none ring-0 focus:[box-shadow:none] focus-visible:ring-0 focus-visible:outline-none disabled:border-0 disabled:bg-transparent disabled:px-3 disabled:py-1.5 aria-invalid:ring-0 aria-invalid:focus:[box-shadow:none] dark:bg-transparent dark:disabled:bg-transparent",
         className
       )}
       {...props}
@@ -140,7 +141,7 @@ function InputGroupTextarea({
     <Textarea
       data-slot="input-group-control"
       className={cn(
-        "min-h-16 flex-1 resize-none rounded-none border-0 bg-transparent py-2 shadow-none ring-0 focus:[box-shadow:none] focus-visible:ring-0 disabled:border-0 disabled:bg-transparent disabled:px-3 disabled:py-2 aria-invalid:ring-0 aria-invalid:focus:[box-shadow:none] dark:bg-transparent dark:disabled:bg-transparent",
+        "min-h-16 flex-1 resize-none rounded-none border-0 bg-transparent py-2 shadow-none ring-0 focus:[box-shadow:none] focus-visible:ring-0 focus-visible:outline-none disabled:border-0 disabled:bg-transparent disabled:px-3 disabled:py-2 aria-invalid:ring-0 aria-invalid:focus:[box-shadow:none] dark:bg-transparent dark:disabled:bg-transparent",
         className
       )}
       {...props}

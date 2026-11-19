@@ -48,7 +48,7 @@ const nav: SiteNavItem[] = [
 
 function Logo() {
   return (
-    <a href="#home" className="inline-flex items-center gap-1.5 text-[1.0625rem] font-semibold tracking-[-0.03em] text-foreground">
+    <a href="#home" className="inline-flex items-center gap-1.5 text-[1.0625rem] font-semibold tracking-[-0.03em] text-foreground rounded-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">
       <span aria-hidden="true" className="grid size-5 place-items-center rounded-full bg-foreground text-background">
         <WaypointsIcon className="size-3" strokeWidth={2.25} />
       </span>

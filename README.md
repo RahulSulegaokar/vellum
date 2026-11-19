@@ -29,7 +29,9 @@ Each component also brings in:
 
 Pulled in this way, the theme only adds missing tokens. It never overwrites values you've set, which is why step 1 installs it explicitly.
 
-Pin a release by appending a tag: `RahulSulegaokar/vellum/button#v0.3.0`.
+Pin a release by appending a tag: `RahulSulegaokar/vellum/button#v0.4.0`.
+
+**CLI versions.** Vellum is built and tested with shadcn CLI 4.23.0, which the update workflow pins; `shadcn@latest` works as long as it is 4.x. The `#tag` form is checked on every release by `.github/workflows/release-check.yml` (an empty Vite project and a Laravel-shaped one, `--dry-run`).
 
 > The shadcn CLI also adds lines like `--rule-shadow: var(--rule-shadow);` to `@theme inline` for every token that isn't a colour. They're harmless, because the real values in `:root` win, and you can delete them.
 
@@ -77,6 +79,14 @@ npx shadcn@latest add RahulSulegaokar/vellum/dialog --overwrite
 
 To get updates as a weekly pull request, copy [`templates/vellum-update.yml`](templates/vellum-update.yml) into your project's `.github/workflows/`. It reads your folders from `npx shadcn info` (so it works with any layout: Next.js, Laravel, Vite), re-installs every Vellum component, hook and block you already have, plus the Vellum skill if installed, and opens a PR if anything changed. Local edits to those files show up in the PR diff, so you can keep or drop them. It never re-installs the theme, so your token choices are not overwritten; to take a new release's token values, re-run step 1 by hand.
 
+Settings at the top of the file:
+
+- `WORKDIR`: the folder with `components.json` (for example `apps/web` in a monorepo); every step runs there.
+- `UPDATE_BLOCKS: "false"`: blocks are yours after install; the PR lists what each would change (`--diff`) instead of overwriting them.
+- `STATE_FILE` (`vellum.json`): the job records the installed release and the Vellum items it found; when the newest release is already recorded it stops without a PR.
+
+The workflow uses npm (`npm ci`, `cache: npm`); with pnpm or yarn, change its setup and install steps. The job keeps no git credentials in the checkout, runs `npm ci --ignore-scripts`, passes a token only to the step that opens the PR, and never runs twice at once.
+
 > **Public repo required.** The `RahulSulegaokar/vellum/<item>` addresses (and the dependencies between items) are fetched from GitHub without credentials, so they only work while the repo is public. If you keep a private fork, host its built registry (`npm run registry:build` writes `public/r`) behind your own URL and reference items by that URL or a namespace in `components.json` instead.
 
 ## Forms, banners and theming outside Next.js
@@ -84,7 +94,39 @@ To get updates as a weekly pull request, copy [`templates/vellum-update.yml`](te
 - `form`: `FormItem`, `FormLabel`, `FormControl`, `FormDescription`, `FormMessage`. Pass the field's error (`errors.email` from Inertia's `useForm`, a server error, anything) to `FormItem`; `FormControl` wires `id`, `aria-describedby` (description + error) and `aria-invalid` onto the input. No form library required.
 - `banner` block: info, warning, destructive and success notice strips.
 - Dark mode follows the `dark` class on `<html>`; `sonner` uses the framework-free `use-theme` hook, so Laravel/Inertia and Vite apps don't need `next-themes`.
-- Contrast: every text/background token pair meets WCAG AA in light and dark (`npm run test:contrast`, run in CI). Use the `-text` tokens for status-coloured text.
+- Contrast: every text/background token pair and every focus ring meets WCAG AA in light and dark, with Vellum's violet and with a green accent fixture (`npm run test:contrast`, run in CI; `--json` prints the list). Use the `-text` tokens for status-coloured text.
+
+## Accessibility
+
+- Focus: an opaque 2px `--ring` outline on every control (drawn inside where a scrolling list would clip it).
+- Touch: a 44×44px hit area on coarse pointers for every control, at its visual size (see `DESIGN.md` for spacing).
+- Field text is 16px on touch screens, so iOS doesn't zoom.
+- Forced colours (Windows high contrast) and `prefers-reduced-motion` are honoured.
+- Dialogs and sheets set `aria-modal`; their header and footer are plain `div`s (no landmarks).
+- `tests/a11y.spec.ts` (Playwright; locally with `npm run test:visual`, in CI against the production build) checks it: pixel-sampled focus rings, touch areas, forced colours, reduced motion, labels, reflow at 320px.
+
+**Translated labels.** Every built-in string is a prop with the English text as its default:
+
+| Component | Props |
+|---|---|
+| `DialogContent`, `SheetContent` | `closeLabel` ("Close") |
+| `DialogFooter` | `closeLabel` ("Close", the footer button's text) |
+| `Label`, `FormLabel` | `optionalLabel` ("Optional") |
+| `CodeBlockCopyButton` | `copyLabel` ("Copy"), `copiedLabel` ("Copied") |
+| `BreadcrumbEllipsis` | `label` ("More") |
+| `PaginationPrevious`, `PaginationNext` | `label` ("Go to previous page" / "Go to next page"), `text` |
+| `PaginationEllipsis` | `label` ("More pages") |
+| `CarouselPrevious`, `CarouselNext` | `label` ("Previous slide" / "Next slide") |
+| `Carousel`, `CarouselItem` | `roleDescription` ("carousel" / "slide") |
+| `Sidebar` | `mobileTitle` ("Sidebar"), `mobileDescription` |
+| `SidebarTrigger`, `SidebarRail` | `label` ("Toggle Sidebar") |
+| `ComboboxInput` | `triggerLabel` ("Show options"), `clearLabel` ("Clear") |
+| `ComboboxClear` | `aria-label` ("Clear") |
+| `ComboboxChip` | `removeLabel` ("Remove") |
+| `MessageScrollerButton` | `label` ("Scroll to end" / "Scroll to start") |
+| `Slider` | `getAriaValueText`, `getAriaLabel` (passed to every thumb, for a spoken value such as "50 percent volume") |
+
+`Breadcrumb` and `Pagination` (`aria-label`), `ToastClose` (`aria-label`), `Spinner` (`aria-label`) and `CommandDialog` (`title`, `description`) already take their text as props. Every block with built-in text takes a `labels` prop (defaults exported as `…Labels`, for example `authSignInLabels`, `pricingPlansLabels`). `npm run test:strings` fails on any English written straight into a component's JSX.
 
 ## Blocks
 

@@ -13,8 +13,15 @@ import { XIcon } from "lucide-react"
  * near the top of the viewport (min(10vh, 10rem)) like the reference, not centred.
  */
 
-function Dialog({ ...props }: DialogPrimitive.Root.Props) {
-  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+// Base UI makes the rest of the page inert for a modal dialog but sets no aria-modal; DialogContent adds it.
+const DialogModalContext = React.createContext<DialogPrimitive.Root.Props["modal"]>(true)
+
+function Dialog({ modal = true, ...props }: DialogPrimitive.Root.Props) {
+  return (
+    <DialogModalContext.Provider value={modal}>
+      <DialogPrimitive.Root data-slot="dialog" modal={modal} {...props} />
+    </DialogModalContext.Provider>
+  )
 }
 
 function DialogTrigger({ ...props }: DialogPrimitive.Trigger.Props) {
@@ -34,7 +41,7 @@ function DialogOverlay({ className, ...props }: DialogPrimitive.Backdrop.Props) 
     <DialogPrimitive.Backdrop
       data-slot="dialog-overlay"
       className={cn(
-        "fixed inset-0 isolate z-50 bg-overlay backdrop-blur transition-opacity duration-240 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:opacity-0",
+        "fixed inset-0 isolate z-50 bg-overlay backdrop-blur transition-opacity duration-240 data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:opacity-0 motion-reduce:animate-none! motion-reduce:transition-none!",
         className
       )}
       {...props}
@@ -46,20 +53,25 @@ function DialogContent({
   className,
   children,
   showCloseButton = true,
+  closeLabel = "Close",
   ...props
 }: DialogPrimitive.Popup.Props & {
   showCloseButton?: boolean
+  /** Accessible name of the corner close button (translate it here). */
+  closeLabel?: string
 }) {
+  const modal = React.useContext(DialogModalContext)
   return (
     <DialogPortal>
       <DialogOverlay />
       <DialogPrimitive.Viewport className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto px-5 py-[min(10vh,10rem)]">
         <DialogPrimitive.Popup
           data-slot="dialog-content"
+          aria-modal={modal === true || undefined}
           className={cn(
             "@container/dialog relative isolate w-full max-w-sm overflow-hidden rounded-xl bg-surface-muted text-foreground outline-none",
-            "shadow-dialog ring-1 ring-edge/6",
-            "origin-top transition-[opacity,scale,translate] duration-240 ease-[cubic-bezier(0.25,1,0.5,1)] data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:translate-y-1 data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0",
+            "shadow-dialog ring-1 ring-edge/6 forced-colors:outline-1 forced-colors:[--tw-outline-style:solid]",
+            "origin-top transition-[opacity,scale,translate] duration-240 ease-[cubic-bezier(0.25,1,0.5,1)] data-[ending-style]:scale-[0.98] data-[ending-style]:opacity-0 data-[ending-style]:duration-150 data-[starting-style]:translate-y-1 data-[starting-style]:scale-[0.98] data-[starting-style]:opacity-0 motion-reduce:animate-none! motion-reduce:transition-none!",
             className
           )}
           {...props}
@@ -68,7 +80,7 @@ function DialogContent({
           {showCloseButton && (
             <DialogPrimitive.Close data-slot="dialog-close" render={<Button variant="ghost" className="absolute top-2 right-2" size="icon-sm" />}>
               <XIcon />
-              <span className="sr-only">Close</span>
+              <span className="sr-only">{closeLabel}</span>
             </DialogPrimitive.Close>
           )}
         </DialogPrimitive.Popup>
@@ -88,8 +100,9 @@ function DialogPanel({ className, ...props }: React.ComponentProps<"div">) {
   )
 }
 
-function DialogHeader({ className, ...props }: React.ComponentProps<"header">) {
-  return <header data-slot="dialog-header" className={cn("space-y-0.5 px-5 py-4", className)} {...props} />
+/** A plain `div` (not `<header>`), so it doesn't become a landmark inside the dialog. */
+function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
+  return <div data-slot="dialog-header" className={cn("space-y-0.5 px-5 py-4", className)} {...props} />
 }
 
 /** Bordered body region; stack several and only the first loses its top border. */
@@ -100,13 +113,16 @@ function DialogSection({ className, ...props }: React.ComponentProps<"div">) {
 function DialogFooter({
   className,
   showCloseButton = false,
+  closeLabel = "Close",
   children,
   ...props
-}: React.ComponentProps<"footer"> & {
+}: React.ComponentProps<"div"> & {
   showCloseButton?: boolean
+  /** Text of the footer's close button (translate it here). */
+  closeLabel?: string
 }) {
   return (
-    <footer
+    <div
       data-slot="dialog-footer"
       className={cn(
         "grid auto-cols-fr grid-flow-col items-stretch gap-3 p-4 **:data-[slot=button]:justify-center @[28rem]/dialog:flex @[28rem]/dialog:justify-end",
@@ -116,9 +132,9 @@ function DialogFooter({
     >
       {children}
       {showCloseButton && (
-        <DialogPrimitive.Close render={<Button variant="elevated" size="compact" />}>Close</DialogPrimitive.Close>
+        <DialogPrimitive.Close render={<Button variant="elevated" size="compact" />}>{closeLabel}</DialogPrimitive.Close>
       )}
-    </footer>
+    </div>
   )
 }
 
@@ -130,7 +146,7 @@ function DialogDescription({ className, ...props }: DialogPrimitive.Description.
   return (
     <DialogPrimitive.Description
       data-slot="dialog-description"
-      className={cn("block text-[0.8125rem]/[1.125rem] text-subtle *:[a]:underline *:[a]:underline-offset-3 *:[a]:hover:text-foreground", className)}
+      className={cn("block text-[0.8125rem]/[1.125rem] text-subtle *:[a]:underline *:[a]:outline-none *:[a]:focus-visible:outline-2 *:[a]:focus-visible:outline-offset-2 *:[a]:focus-visible:[--tw-outline-style:solid] *:[a]:focus-visible:outline-ring *:[a]:underline-offset-3 *:[a]:hover:text-foreground", className)}
       {...props}
     />
   )

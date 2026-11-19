@@ -50,7 +50,7 @@ export function Banner({
           type="button"
           onClick={onDismiss}
           aria-label={dismissLabel}
-          className="-mr-1 grid size-6 shrink-0 place-items-center rounded-md outline-none hover:bg-current/10 focus-visible:ring-2 focus-visible:ring-current/40"
+          className="relative -mr-1 grid size-6 shrink-0 pointer-coarse:after:absolute pointer-coarse:after:inset-[min(0px,calc((100%_-_44px)/2))] place-items-center rounded-md outline-none hover:bg-current/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
         >
           <XIcon />
         </button>

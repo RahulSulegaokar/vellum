@@ -22,7 +22,7 @@ export default function Home() {
       <ul className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
         {names.map((n) => (
           <li key={n}>
-            <Link href={`/components/${n}`} className="block rounded-md px-3 py-2 text-sm ring-1 ring-hairline hover:bg-accent">
+            <Link href={`/components/${n}`} className="block rounded-md px-3 py-2 text-sm ring-1 ring-hairline hover:bg-accent outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">
               {n}
             </Link>
           </li>
@@ -33,14 +33,14 @@ export default function Home() {
       <ul className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4">
         {Object.keys(blocks).map((n) => (
           <li key={n}>
-            <Link href={`/blocks/${n}`} className="block rounded-md px-3 py-2 text-sm ring-1 ring-hairline hover:bg-accent">
+            <Link href={`/blocks/${n}`} className="block rounded-md px-3 py-2 text-sm ring-1 ring-hairline hover:bg-accent outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">
               {n}
             </Link>
           </li>
         ))}
       </ul>
       <p className="mt-8 text-sm">
-        <Link href="/components/component" className="underline underline-offset-4">
+        <Link href="/components/component" className="underline underline-offset-4 rounded-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">
           See everything on one page
         </Link>
       </p>

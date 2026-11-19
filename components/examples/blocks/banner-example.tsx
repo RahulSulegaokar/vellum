@@ -7,13 +7,13 @@ export default function BannerExample() {
   const [shown, setShown] = React.useState(true)
   return (
     <div className="mx-auto flex max-w-3xl flex-col gap-3 p-6 sm:p-10">
-      <Banner tone="info" title="Your trial ends in 9 days" action={<a href="#billing" className="underline underline-offset-4">Choose a plan</a>}>
+      <Banner tone="info" title="Your trial ends in 9 days" action={<a href="#billing" className="underline underline-offset-4 rounded-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">Choose a plan</a>}>
         Add a payment method to keep sending without interruption.
       </Banner>
       <Banner tone="warning" title="Sending is paused">
         Your daily limit was reached. Sending resumes at 14:20.
       </Banner>
-      <Banner tone="destructive" title="Template was not approved" action={<a href="#templates" className="underline underline-offset-4">Review</a>}>
+      <Banner tone="destructive" title="Template was not approved" action={<a href="#templates" className="underline underline-offset-4 rounded-sm outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">Review</a>}>
         Two scheduled sends are on hold until it is fixed.
       </Banner>
       {shown && (

@@ -63,6 +63,12 @@ function AccountSummary({ user }: { user: AccountUser }) {
   )
 }
 
+/** Built-in strings of AccountMenu; pass `labels` to translate them. */
+export const accountMenuLabels = {
+  accountMenuFor: (name: string) => `Account menu for ${name}`,
+}
+export type AccountMenuLabels = typeof accountMenuLabels
+
 type SignOutAllCopy = {
   /** Shows a "Sign out of all accounts" action, confirmed in a dialog. Omit to hide it. */
   onSignOutAll?: () => void
@@ -174,7 +180,7 @@ export function AccountMenuPanel({
                 <button
                   type="button"
                   onClick={() => onSwitchAccount?.(a.id)}
-                  className="flex w-full items-center gap-4 rounded-md px-4 py-2 text-left outline-none hover:bg-surface-muted focus-visible:bg-surface-muted focus-visible:ring-2 focus-visible:ring-brand/40"
+                  className="flex w-full items-center gap-4 rounded-md px-4 py-2 text-left outline-none hover:bg-surface-muted focus-visible:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
                 >
                   <span className="flex w-10 justify-center">
                     <UserAvatar user={a} size="sm" />
@@ -197,7 +203,7 @@ export function AccountMenuPanel({
               <button
                 type="button"
                 onClick={onAddAccount}
-                className="flex h-10 w-full items-center gap-4 rounded-md px-4 text-[0.8125rem] font-medium text-muted-foreground outline-none hover:bg-surface-muted hover:text-foreground focus-visible:bg-surface-muted focus-visible:ring-2 focus-visible:ring-brand/40"
+                className="flex h-10 w-full items-center gap-4 rounded-md px-4 text-[0.8125rem] font-medium text-muted-foreground outline-none hover:bg-surface-muted hover:text-foreground focus-visible:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
               >
                 <span className="flex w-10 justify-center">
                   <span className="grid size-6 place-items-center rounded-full border border-dashed border-edge/20 bg-surface-muted">
@@ -211,7 +217,7 @@ export function AccountMenuPanel({
               <button
                 type="button"
                 onClick={() => setConfirmOpen(true)}
-                className="flex h-10 w-full items-center gap-4 rounded-md px-4 text-[0.8125rem] font-medium text-destructive-text outline-none hover:bg-destructive/6 focus-visible:bg-destructive/6 focus-visible:ring-2 focus-visible:ring-brand/40"
+                className="flex h-10 w-full items-center gap-4 rounded-md px-4 text-[0.8125rem] font-medium text-destructive-text outline-none hover:bg-destructive/6 focus-visible:bg-destructive/6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
               >
                 <span className="flex w-10 justify-center">
                   <LogOutIcon className="size-3.5" aria-hidden="true" />
@@ -244,20 +250,24 @@ export function AccountMenu({
   onAddAccount,
   defaultOpen,
   align = "end",
+  labels,
   className,
   ...signOutAll
 }: AccountMenuProps & {
   defaultOpen?: boolean
   align?: "start" | "center" | "end"
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<AccountMenuLabels>
 }) {
+  const t = { ...accountMenuLabels, ...labels }
   const [confirmOpen, setConfirmOpen] = React.useState(false)
   const hasFooter = Boolean(onAddAccount || signOutAll.onSignOutAll)
   return (
     <>
       <DropdownMenu defaultOpen={defaultOpen}>
         <DropdownMenuTrigger
-          aria-label={`Account menu for ${user.name}`}
-          className={cn("rounded-full outline-none focus-visible:ring-3 focus-visible:ring-brand/40", className)}
+          aria-label={t.accountMenuFor(user.name)}
+          className={cn("rounded-full outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring", className)}
         >
           <UserAvatar user={user} className="size-7" />
         </DropdownMenuTrigger>

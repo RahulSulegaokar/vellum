@@ -3,7 +3,7 @@
   "name": "message",
   "title": "Message",
   "registryDependencies": [
-    "RahulSulegaokar/vellum/vellum-theme#v0.3.0",
+    "RahulSulegaokar/vellum/vellum-theme#v0.4.0",
     "utils"
   ],
   "files": [

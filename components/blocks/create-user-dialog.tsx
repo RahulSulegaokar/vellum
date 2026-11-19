@@ -28,12 +28,35 @@ const errorClass = "mt-1.5 text-[0.8125rem]/[1.125rem] text-destructive-text"
 const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim())
 const emptyForm = { firstName: "", lastName: "", email: "", password: "", inviteEmail: "" }
 
-function Field({ id, label, optional, error, children }: { id: string; label: string; optional?: boolean; error?: string | false; children: React.ReactNode }) {
+/** Built-in strings of CreateUserDialog; pass `labels` to translate them. */
+export const createUserDialogLabels = {
+  optional: "Optional",
+  invalidEmail: "Enter a valid email address",
+  passwordTooShort: (min: number) => `Use at least ${min} characters, or skip the strength check`,
+  createUser: "Create user",
+  inviteUser: "Invite user",
+  firstName: "First name",
+  lastName: "Last name",
+  email: "Email",
+  emailPlaceholder: "name@example.com",
+  password: "Password",
+  hidePassword: "Hide password",
+  showPassword: "Show password",
+  skipPasswordCheck: "Skip password strength check",
+  skipPasswordCheckDescription: (min: number) => `Accept this password even if it's shorter than ${min} characters.`,
+  sendWelcomeEmail: "Send a welcome email",
+  sendWelcomeEmailDescription: "Email the new user a link to sign in.",
+  cancel: "Cancel",
+  sendInvitation: "Send invitation",
+}
+export type CreateUserDialogLabels = typeof createUserDialogLabels
+
+function Field({ id, label, optional, error, children }: { id: string; label: string; optional?: string; error?: string | false; children: React.ReactNode }) {
   return (
     <div>
       <label htmlFor={id} className={labelClass}>
         {label}
-        {optional && <Badge variant="subtle" className="ms-auto">Optional</Badge>}
+        {optional && <Badge variant="subtle" className="ms-auto">{optional}</Badge>}
       </label>
       {children}
       {error && <p id={`${id}-error`} className={errorClass}>{error}</p>}
@@ -67,6 +90,7 @@ export function CreateUserDialog({
   badge,
   minPasswordLength = 8,
   inviteNote = "We'll email an invitation link. It expires after 30 days.",
+  labels,
 }: {
   /** Controlled open state. Leave undefined to let the dialog manage itself. */
   open?: boolean
@@ -81,7 +105,10 @@ export function CreateUserDialog({
   badge?: React.ReactNode
   minPasswordLength?: number
   inviteNote?: React.ReactNode
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<CreateUserDialogLabels>
 }) {
+  const t = { ...createUserDialogLabels, ...labels }
   const [innerOpen, setInnerOpen] = useState(defaultOpen)
   const isOpen = open ?? innerOpen
   const [tab, setTab] = useState<Tab>("create")
@@ -95,9 +122,9 @@ export function CreateUserDialog({
 
   const set = (k: keyof typeof emptyForm) => (e: React.ChangeEvent<HTMLInputElement>) => setForm((f) => ({ ...f, [k]: e.target.value }))
   const passwordTooShort = !skipCheck && form.password.length < minPasswordLength
-  const emailErr = submitted && !emailOk(form.email) && "Enter a valid email address"
-  const passwordErr = submitted && passwordTooShort && `Use at least ${minPasswordLength} characters, or skip the strength check`
-  const inviteErr = submitted && !emailOk(form.inviteEmail) && "Enter a valid email address"
+  const emailErr = submitted && !emailOk(form.email) && t.invalidEmail
+  const passwordErr = submitted && passwordTooShort && t.passwordTooShort(minPasswordLength)
+  const inviteErr = submitted && !emailOk(form.inviteEmail) && t.invalidEmail
 
   const reset = () => {
     setForm(emptyForm)
@@ -135,8 +162,8 @@ export function CreateUserDialog({
               className="gap-6"
             >
               <TabsList variant="underline">
-                <TabsTrigger value="create">Create user</TabsTrigger>
-                <TabsTrigger value="invite">Invite user</TabsTrigger>
+                <TabsTrigger value="create">{t.createUser}</TabsTrigger>
+                <TabsTrigger value="invite">{t.inviteUser}</TabsTrigger>
               </TabsList>
 
               <form
@@ -165,25 +192,25 @@ export function CreateUserDialog({
               >
                 <TabsContent value="create" className="space-y-5">
                   <div className="grid gap-5 sm:grid-cols-2">
-                    <Field id={ids.first} label="First name" optional>
+                    <Field id={ids.first} label={t.firstName} optional={t.optional}>
                       <Input id={ids.first} variant="compact" name="first_name" value={form.firstName} onChange={set("firstName")} />
                     </Field>
-                    <Field id={ids.last} label="Last name" optional>
+                    <Field id={ids.last} label={t.lastName} optional={t.optional}>
                       <Input id={ids.last} variant="compact" name="last_name" value={form.lastName} onChange={set("lastName")} />
                     </Field>
                   </div>
-                  <Field id={ids.email} label="Email" error={emailErr}>
-                    <Input id={ids.email} variant="compact" name="email_address" inputMode="email" placeholder="name@example.com" value={form.email} onChange={set("email")} aria-invalid={!!emailErr || undefined} aria-describedby={emailErr ? `${ids.email}-error` : undefined} />
+                  <Field id={ids.email} label={t.email} error={emailErr}>
+                    <Input id={ids.email} variant="compact" name="email_address" inputMode="email" placeholder={t.emailPlaceholder} value={form.email} onChange={set("email")} aria-invalid={!!emailErr || undefined} aria-describedby={emailErr ? `${ids.email}-error` : undefined} />
                   </Field>
-                  <Field id={ids.password} label="Password" error={passwordErr}>
+                  <Field id={ids.password} label={t.password} error={passwordErr}>
                     <div className="relative">
                       <Input id={ids.password} variant="compact" name="password" type={showPassword ? "text" : "password"} value={form.password} onChange={set("password")} className="pr-9" aria-invalid={!!passwordErr || undefined} aria-describedby={passwordErr ? `${ids.password}-error` : undefined} />
                       <button
                         type="button"
-                        aria-label={showPassword ? "Hide password" : "Show password"}
+                        aria-label={showPassword ? t.hidePassword : t.showPassword}
                         aria-pressed={showPassword}
                         onClick={() => setShowPassword((s) => !s)}
-                        className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2.5 text-subtle transition-colors outline-none hover:text-foreground focus-visible:text-foreground"
+                        className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2.5 text-subtle transition-colors outline-none hover:text-foreground focus-visible:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
                       >
                         {showPassword ? <EyeOffIcon className="size-4" aria-hidden="true" /> : <EyeIcon className="size-4" aria-hidden="true" />}
                       </button>
@@ -192,15 +219,15 @@ export function CreateUserDialog({
                   <CheckField
                     checked={skipCheck}
                     onChange={setSkipCheck}
-                    title="Skip password strength check"
-                    description={`Accept this password even if it's shorter than ${minPasswordLength} characters.`}
+                    title={t.skipPasswordCheck}
+                    description={t.skipPasswordCheckDescription(minPasswordLength)}
                   />
-                  <CheckField checked={welcomeEmail} onChange={setWelcomeEmail} title="Send a welcome email" description="Email the new user a link to sign in." />
+                  <CheckField checked={welcomeEmail} onChange={setWelcomeEmail} title={t.sendWelcomeEmail} description={t.sendWelcomeEmailDescription} />
                 </TabsContent>
 
                 <TabsContent value="invite" className="space-y-5">
-                  <Field id={ids.invite} label="Email" error={inviteErr}>
-                    <Input id={ids.invite} variant="compact" name="invite_email" inputMode="email" placeholder="name@example.com" value={form.inviteEmail} onChange={set("inviteEmail")} aria-invalid={!!inviteErr || undefined} aria-describedby={inviteErr ? `${ids.invite}-error` : undefined} />
+                  <Field id={ids.invite} label={t.email} error={inviteErr}>
+                    <Input id={ids.invite} variant="compact" name="invite_email" inputMode="email" placeholder={t.emailPlaceholder} value={form.inviteEmail} onChange={set("inviteEmail")} aria-invalid={!!inviteErr || undefined} aria-describedby={inviteErr ? `${ids.invite}-error` : undefined} />
                   </Field>
                   {inviteNote && <p className="text-[0.8125rem]/[1.125rem] text-subtle">{inviteNote}</p>}
                 </TabsContent>
@@ -209,9 +236,9 @@ export function CreateUserDialog({
           </DialogSection>
         </DialogPanel>
         <DialogFooter>
-          <DialogClose render={<Button type="button" variant="elevated" size="compact" />}>Cancel</DialogClose>
+          <DialogClose render={<Button type="button" variant="elevated" size="compact" />}>{t.cancel}</DialogClose>
           <Button type="submit" form={formId} variant="primary" size="compact">
-            {tab === "create" ? "Create user" : "Send invitation"}
+            {tab === "create" ? t.createUser : t.sendInvitation}
           </Button>
         </DialogFooter>
       </DialogContent>

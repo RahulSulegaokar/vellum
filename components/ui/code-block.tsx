@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { CheckIcon, CopyIcon } from "lucide-react"
 
 const codeBlockVariants = cva(
-  "group/code-block relative flex w-full min-w-0 flex-col overflow-hidden rounded-lg text-sm has-[>[data-slot=code-block-content]:focus-visible]:ring-3 has-[>[data-slot=code-block-content]:focus-visible]:ring-ring/50 data-[size=sm]:text-xs",
+  "group/code-block relative flex w-full min-w-0 flex-col overflow-hidden rounded-lg text-sm has-[>[data-slot=code-block-content]:focus-visible]:ring-3 has-[>[data-slot=code-block-content]:focus-visible]:ring-ring/50 has-[>[data-slot=code-block-content]:focus-visible]:outline-2 has-[>[data-slot=code-block-content]:focus-visible]:outline-offset-2 has-[>[data-slot=code-block-content]:focus-visible]:[--tw-outline-style:solid] has-[>[data-slot=code-block-content]:focus-visible]:outline-ring data-[size=sm]:text-xs",
   {
     variants: {
       variant: {
@@ -90,8 +90,16 @@ function CodeBlockCopyButton({
   size = "icon-xs",
   className,
   onClick,
+  copyLabel = "Copy",
+  copiedLabel = "Copied",
   ...props
-}: React.ComponentProps<typeof Button> & { value: string }) {
+}: React.ComponentProps<typeof Button> & {
+  value: string
+  /** Accessible name before copying (translate it here). */
+  copyLabel?: string
+  /** Accessible name and live announcement after copying. */
+  copiedLabel?: string
+}) {
   const [copied, setCopied] = React.useState(false)
 
   React.useEffect(() => {
@@ -110,7 +118,7 @@ function CodeBlockCopyButton({
         data-copied={copied || undefined}
         variant={variant}
         size={size}
-        aria-label={copied ? "Copied" : "Copy"}
+        aria-label={copied ? copiedLabel : copyLabel}
         className={cn(className)}
         onClick={(event) => {
           onClick?.(event)
@@ -130,7 +138,7 @@ function CodeBlockCopyButton({
         )}
       </Button>
       <span aria-live="polite" className="sr-only">
-        {copied ? "Copied" : ""}
+        {copied ? copiedLabel : ""}
       </span>
     </>
   )

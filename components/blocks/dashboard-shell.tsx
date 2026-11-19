@@ -36,14 +36,32 @@ export type ShellApplication = { id: string; name: string; href?: string }
 /** `tone` picks the status dot: amber for a sandbox/test environment, green for live. */
 export type ShellEnvironment = { id: string; label: string; tone: "sandbox" | "live" }
 
+/** Built-in strings of DashboardShell and its menus; pass `labels` to translate them. */
+export const dashboardShellLabels = {
+  openWorkspaceMenu: "Open workspace menu",
+  addWorkspace: "Add workspace",
+  settings: "Settings",
+  inviteMembers: "Invite members",
+  signOut: "Sign out",
+  switchApplication: "Switch application",
+  applicationSettings: "Application settings",
+  applications: "Applications",
+  createApplication: "Create application",
+  allApplications: "All applications",
+  switchEnvironment: "Switch environment",
+  notifications: "Notifications",
+  notificationsUnread: (count: number) => `Notifications, ${count} unread`,
+}
+export type DashboardShellLabels = typeof dashboardShellLabels
+
 /* ------------------------------- Shared bits ------------------------------- */
 
 /** Breadcrumb-style menu trigger: flat until hovered or open, then a raised white chip. */
 const crumb =
-  "group/crumb relative isolate flex h-8 items-center justify-center gap-1.5 rounded-md px-1.5 text-[0.8125rem]/4 font-medium whitespace-nowrap text-foreground transition outline-none hover:bg-surface hover:shadow-chip hover:ring-1 hover:ring-hairline focus-visible:outline-3 focus-visible:outline-brand/40 data-popup-open:bg-surface data-popup-open:shadow-chip data-popup-open:ring-1 data-popup-open:ring-hairline"
+  "group/crumb relative isolate flex h-8 items-center justify-center gap-1.5 rounded-md px-1.5 text-[0.8125rem]/4 font-medium whitespace-nowrap text-foreground transition outline-none hover:bg-surface hover:shadow-chip hover:ring-1 hover:ring-hairline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring data-popup-open:bg-surface data-popup-open:shadow-chip data-popup-open:ring-1 data-popup-open:ring-hairline"
 
 const menuItem =
-  "flex w-full cursor-default items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[0.8125rem]/5 text-muted-foreground outline-none select-none data-highlighted:bg-accent data-highlighted:text-foreground [&_svg]:size-4 [&_svg]:shrink-0"
+  "flex w-full cursor-default items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-[0.8125rem]/5 text-muted-foreground outline-none select-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring data-highlighted:bg-accent data-highlighted:text-foreground [&_svg]:size-4 [&_svg]:shrink-0"
 
 function CrumbChevron() {
   return <ChevronDownIcon aria-hidden="true" className="mx-0.5 size-3.5 text-subtle transition-transform group-data-popup-open/crumb:rotate-180" />
@@ -89,6 +107,7 @@ export function WorkspaceMenu({
   onOpenSettings,
   onInviteMembers,
   onSignOut,
+  labels,
 }: {
   account: ShellAccount
   workspaces: ShellWorkspace[]
@@ -98,11 +117,14 @@ export function WorkspaceMenu({
   onOpenSettings?: () => void
   onInviteMembers?: () => void
   onSignOut?: () => void
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<DashboardShellLabels>
 }) {
+  const t = { ...dashboardShellLabels, ...labels }
   const current = workspaces.find((w) => w.id === currentWorkspaceId) ?? workspaces[0]
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger aria-label="Open workspace menu" className={cn(crumb, "gap-2 px-1")}>
+      <DropdownMenuTrigger aria-label={t.openWorkspaceMenu} className={cn(crumb, "gap-2 px-1")}>
         <WorkspaceAvatar name={current.name} className="size-6 text-[0.6875rem]" />
         <span className="max-w-40 truncate">{current.name}</span>
         {current.plan && <Badge variant="subtle">{current.plan}</Badge>}
@@ -140,7 +162,7 @@ export function WorkspaceMenu({
           {onAddWorkspace && (
             <MenuPrimitive.Item onClick={onAddWorkspace} className={cn(menuItem, "font-medium")}>
               <span className="flex size-6 items-center justify-center"><PlusIcon /></span>
-              Add workspace
+              {t.addWorkspace}
             </MenuPrimitive.Item>
           )}
         </div>
@@ -151,14 +173,14 @@ export function WorkspaceMenu({
               {onOpenSettings && (
                 <MenuPrimitive.Item onClick={onOpenSettings} className={cn(menuItem, "font-medium")}>
                   <span className="flex size-6 items-center justify-center"><SettingsIcon /></span>
-                  <span className="flex-1">Settings</span>
+                  <span className="flex-1">{t.settings}</span>
                   <ChevronRightIcon />
                 </MenuPrimitive.Item>
               )}
               {onInviteMembers && (
                 <MenuPrimitive.Item onClick={onInviteMembers} className={cn(menuItem, "font-medium")}>
                   <span className="flex size-6 items-center justify-center"><UserPlusIcon /></span>
-                  Invite members
+                  {t.inviteMembers}
                 </MenuPrimitive.Item>
               )}
             </div>
@@ -170,7 +192,7 @@ export function WorkspaceMenu({
             <div className="p-1">
               <MenuPrimitive.Item onClick={onSignOut} className={cn(menuItem, "font-medium")}>
                 <span className="flex size-6 items-center justify-center"><LogOutIcon /></span>
-                Sign out
+                {t.signOut}
               </MenuPrimitive.Item>
             </div>
           </>
@@ -195,6 +217,7 @@ export function ApplicationMenu({
   allApplicationsHref,
   onCreateApplication,
   linkComponent,
+  labels,
 }: {
   applications: ShellApplication[]
   currentApplicationId: string
@@ -206,14 +229,17 @@ export function ApplicationMenu({
   onCreateApplication?: () => void
   /** Component used for every link; defaults to `"a"`. */
   linkComponent?: React.ElementType
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<DashboardShellLabels>
 }) {
+  const t = { ...dashboardShellLabels, ...labels }
   const Link = linkComponent ?? "a"
   const renderLink = (props: React.ComponentProps<"a">) => <Link {...props} />
   const current = applications.find((a) => a.id === currentApplicationId) ?? applications[0]
   const others = applications.filter((a) => a.id !== current.id)
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger aria-label="Switch application" className={crumb}>
+      <DropdownMenuTrigger aria-label={t.switchApplication} className={crumb}>
         <span className="max-w-48 truncate">{current.name}</span>
         <CrumbChevron />
       </DropdownMenuTrigger>
@@ -227,15 +253,15 @@ export function ApplicationMenu({
             <MenuPrimitive.LinkItem
               href={settingsHref}
               render={renderLink}
-              aria-label="Application settings"
-              className="flex size-6 items-center justify-center rounded-md bg-surface text-subtle shadow-control outline-none data-highlighted:bg-surface-muted data-highlighted:text-foreground"
+              aria-label={t.applicationSettings}
+              className="flex size-6 items-center justify-center rounded-md bg-surface text-subtle shadow-control outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring data-highlighted:bg-surface-muted data-highlighted:text-foreground"
             >
               <SettingsIcon className="size-4" />
             </MenuPrimitive.LinkItem>
           )}
         </div>
         {others.length > 0 && (
-          <div role="group" aria-label="Applications" className="max-h-56 overflow-y-auto border-b border-edge/6 p-1 last:border-b-0">
+          <div role="group" aria-label={t.applications} className="max-h-56 overflow-y-auto border-b border-edge/6 p-1 last:border-b-0">
             {others.map((app) => {
               const content = (
                 <>
@@ -266,13 +292,13 @@ export function ApplicationMenu({
             {onCreateApplication && (
               <MenuPrimitive.Item onClick={onCreateApplication} className={menuItem}>
                 <PlusIcon />
-                <span className="font-medium">Create application</span>
+                <span className="font-medium">{t.createApplication}</span>
               </MenuPrimitive.Item>
             )}
             {allApplicationsHref && (
               <MenuPrimitive.LinkItem href={allApplicationsHref} render={renderLink} className={menuItem}>
                 <LayoutGridIcon />
-                <span className="font-medium">All applications</span>
+                <span className="font-medium">{t.allApplications}</span>
               </MenuPrimitive.LinkItem>
             )}
           </div>
@@ -291,17 +317,21 @@ export function EnvironmentMenu({
   onValueChange,
   onCreateEnvironment,
   createLabel = "Create environment",
+  labels,
 }: {
   environments: ShellEnvironment[]
   value: string
   onValueChange?: (id: string) => void
   onCreateEnvironment?: () => void
   createLabel?: string
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<DashboardShellLabels>
 }) {
+  const t = { ...dashboardShellLabels, ...labels }
   const current = environments.find((e) => e.id === value) ?? environments[0]
   return (
     <DropdownMenu>
-      <DropdownMenuTrigger aria-label="Switch environment" className={cn(crumb, "pl-2.5")}>
+      <DropdownMenuTrigger aria-label={t.switchEnvironment} className={cn(crumb, "pl-2.5")}>
         <EnvironmentDot tone={current.tone} />
         <span>{current.label}</span>
         <CrumbChevron />
@@ -367,7 +397,7 @@ export function ShellNav({
               onClick={(e: React.MouseEvent<HTMLElement>) => onNavigate?.(item, e)}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "relative flex shrink-0 items-center rounded-xl px-3.5 text-[0.8125rem] font-normal transition outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-inset",
+                "relative flex shrink-0 items-center rounded-xl px-3.5 text-[0.8125rem] font-normal transition outline-none hover:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring",
                 active ? "text-foreground" : "text-subtle"
               )}
             >
@@ -415,6 +445,7 @@ export function DashboardShell({
   onInvite,
   primaryAction,
   linkComponent,
+  labels,
   className,
   children,
 }: {
@@ -447,9 +478,12 @@ export function DashboardShell({
   primaryAction?: { label: string; onClick: () => void }
   /** Component used for every link; defaults to `"a"`. */
   linkComponent?: React.ElementType
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<DashboardShellLabels>
   className?: string
   children?: React.ReactNode
 }) {
+  const t = { ...dashboardShellLabels, ...labels }
   return (
     <div data-slot="dashboard-shell" className={cn("flex min-h-dvh flex-col bg-background", className)}>
       <header className="relative h-14 bg-surface-muted">
@@ -464,6 +498,7 @@ export function DashboardShell({
               onOpenSettings={onOpenSettings}
               onInviteMembers={onInviteMembers}
               onSignOut={onSignOut}
+              labels={t}
             />
             <Slash />
             <ApplicationMenu
@@ -474,9 +509,10 @@ export function DashboardShell({
               allApplicationsHref={allApplicationsHref}
               onCreateApplication={onCreateApplication}
               linkComponent={linkComponent}
+              labels={t}
             />
             <Slash />
-            <EnvironmentMenu environments={environments} value={environment} onValueChange={onEnvironmentChange} onCreateEnvironment={onCreateEnvironment} />
+            <EnvironmentMenu environments={environments} value={environment} onValueChange={onEnvironmentChange} onCreateEnvironment={onCreateEnvironment} labels={t} />
           </div>
           <div className="sticky end-0 isolate flex h-full items-center gap-2.5 bg-surface-muted px-4 md:px-5">
             {onNotificationsClick && (
@@ -485,7 +521,7 @@ export function DashboardShell({
                 variant="elevated"
                 size="icon-compact-sm"
                 onClick={onNotificationsClick}
-                aria-label={notificationCount > 0 ? `Notifications, ${notificationCount} unread` : "Notifications"}
+                aria-label={notificationCount > 0 ? t.notificationsUnread(notificationCount) : t.notifications}
               >
                 <BellIcon aria-hidden="true" className="text-subtle" />
               </Button>

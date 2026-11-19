@@ -50,7 +50,7 @@ export function AuthPage({
               <ul className="flex gap-2">
                 {links.map((l) => (
                   <li key={l.label} className="flex items-center gap-2 after:size-[1.5px] after:rounded-full after:bg-subtle last:after:hidden">
-                    <Link href={l.href} className="rounded-sm outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40">
+                    <Link href={l.href} className="rounded-sm outline-none hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">
                       {l.label}
                     </Link>
                   </li>

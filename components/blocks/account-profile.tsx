@@ -30,7 +30,36 @@ export type ProfileNavItem = {
 export type ProfileEmail = { address: string; primary?: boolean; verified?: boolean }
 export type LinkedAccount = { id: string; provider: string; account: string; icon?: React.ReactNode }
 
-const defaultNav: ProfileNavItem[] = [{ id: "profile", label: "Profile", icon: <UserIcon /> }]
+const defaultNav = (profile: string): ProfileNavItem[] => [{ id: "profile", label: profile, icon: <UserIcon /> }]
+
+/** Built-in strings of AccountProfile; pass `labels` to translate them. */
+export const accountProfileLabels = {
+  profile: "Profile",
+  nameAndPhoto: "Name and photo",
+  editProfile: "Edit profile",
+  emailAddresses: "Email addresses",
+  primary: "Primary",
+  unverified: "Unverified",
+  actionsForEmail: (address: string) => `Actions for ${address}`,
+  setAsPrimary: "Set as primary",
+  removeEmail: "Remove email",
+  addEmailAddress: "Add email address",
+  linkedAccounts: "Linked accounts",
+  actionsForAccount: (provider: string) => `Actions for ${provider} account`,
+  unlink: "Unlink",
+  linkAccount: "Link account",
+  thisSection: "This section",
+  sectionEmpty: (section: string) => `${section} is empty`,
+  nothingHereYet: "Nothing to show here yet.",
+  unlinkTitle: (provider: string) => `Unlink ${provider}?`,
+  removeEmailTitle: "Remove email address?",
+  unlinkDescription: "You won't be able to sign in with this account until you link it again.",
+  thisAddress: "This address",
+  removeEmailDescription: (address: string) => `${address} will no longer be able to sign in or receive account email.`,
+  cancel: "Cancel",
+  remove: "Remove",
+}
+export type AccountProfileLabels = typeof accountProfileLabels
 
 function initials(name: string) {
   return name
@@ -77,7 +106,7 @@ export function ProfileShell({
           {nav.map((n) => {
             const current = n.id === active
             const itemClass = cn(
-              "flex h-7 shrink-0 items-center gap-2 rounded-md px-2.5 text-[0.8125rem] font-medium whitespace-nowrap transition-colors outline-none focus-visible:ring-2 focus-visible:ring-brand/40 [&_svg]:size-3.5 [&_svg]:shrink-0",
+              "flex h-7 shrink-0 items-center gap-2 rounded-md px-2.5 text-[0.8125rem] font-medium whitespace-nowrap transition-colors outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring [&_svg]:size-3.5 [&_svg]:shrink-0",
               current ? "bg-accent text-foreground" : "text-subtle hover:bg-subtle/6 hover:text-foreground"
             )
             return n.href ? (
@@ -110,7 +139,7 @@ export function ProfileRow({ label, children }: { label: string; children: React
 }
 
 const addRowClass =
-  "flex h-7 w-fit items-center gap-1.5 rounded-md px-2 text-[0.8125rem] font-medium text-foreground outline-none hover:bg-surface-muted focus-visible:ring-2 focus-visible:ring-brand/40"
+  "flex h-7 w-fit items-center gap-1.5 rounded-md px-2 text-[0.8125rem] font-medium text-foreground outline-none hover:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
 
 type PendingConfirm = { kind: "email"; key: string } | { kind: "account"; key: string; label: string }
 
@@ -121,7 +150,7 @@ type PendingConfirm = { kind: "email"; key: string } | { kind: "account"; key: s
 export function AccountProfile({
   title = "Account settings",
   subtitle,
-  nav = defaultNav,
+  nav,
   defaultSection = "profile",
   linkComponent,
   user,
@@ -134,6 +163,7 @@ export function AccountProfile({
   onRemoveEmail,
   onLinkAccount,
   onUnlinkAccount,
+  labels,
   className,
 }: {
   title?: string
@@ -160,12 +190,16 @@ export function AccountProfile({
   onLinkAccount?: () => void
   /** Called after the user confirms. */
   onUnlinkAccount?: (id: string) => void
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<AccountProfileLabels>
   className?: string
 }) {
+  const t = { ...accountProfileLabels, ...labels }
+  const navItems = nav ?? defaultNav(t.profile)
   const [section, setSection] = React.useState(defaultSection)
   const [confirm, setConfirm] = React.useState<PendingConfirm | null>(null)
   const [confirmOpen, setConfirmOpen] = React.useState(false)
-  const current = nav.find((n) => n.id === section)
+  const current = navItems.find((n) => n.id === section)
   const ask = (c: PendingConfirm) => {
     setConfirm(c)
     setConfirmOpen(true)
@@ -173,11 +207,11 @@ export function AccountProfile({
   const showEmails = emails.length > 0 || Boolean(onAddEmail)
   const showLinked = linkedAccounts.length > 0 || Boolean(onLinkAccount)
   return (
-    <ProfileShell title={title} subtitle={subtitle} nav={nav} active={section} onNavChange={setSection} linkComponent={linkComponent} className={className}>
+    <ProfileShell title={title} subtitle={subtitle} nav={navItems} active={section} onNavChange={setSection} linkComponent={linkComponent} className={className}>
       {section === "profile" ? (
         <>
-          <h2 className="border-b border-edge/6 pb-3 text-sm/5 font-bold tracking-[-0.01em] text-foreground">Profile</h2>
-          <ProfileRow label="Name and photo">
+          <h2 className="border-b border-edge/6 pb-3 text-sm/5 font-bold tracking-[-0.01em] text-foreground">{t.profile}</h2>
+          <ProfileRow label={t.nameAndPhoto}>
             <div className="flex items-center gap-3 px-2 py-1">
               <Avatar size="lg">
                 {user.imageUrl && <AvatarImage src={user.imageUrl} alt="" />}
@@ -186,13 +220,13 @@ export function AccountProfile({
               <span className="min-w-0 flex-1 truncate text-[0.8125rem] font-medium text-foreground">{user.name}</span>
               {onUpdateProfile && (
                 <Button variant="ghost" size="compact-sm" onClick={onUpdateProfile}>
-                  Edit profile
+                  {t.editProfile}
                 </Button>
               )}
             </div>
           </ProfileRow>
           {showEmails && (
-            <ProfileRow label="Email addresses">
+            <ProfileRow label={t.emailAddresses}>
               {emails.length > 0 && (
                 <ul className="flex flex-col">
                   {emails.map((e) => {
@@ -201,20 +235,20 @@ export function AccountProfile({
                     return (
                       <li key={e.address} className="flex h-8 items-center gap-2 px-2">
                         <span className="min-w-0 truncate text-[0.8125rem] font-medium text-foreground">{e.address}</span>
-                        {e.primary && <Badge variant="subtle">Primary</Badge>}
-                        {e.verified === false && <Badge variant="subtle-warning">Unverified</Badge>}
+                        {e.primary && <Badge variant="subtle">{t.primary}</Badge>}
+                        {e.verified === false && <Badge variant="subtle-warning">{t.unverified}</Badge>}
                         {(canSetPrimary || canRemove) && (
                           <DropdownMenu>
                             <DropdownMenuTrigger
-                              render={<Button variant="ghost" size="icon-compact-sm" className="ml-auto" aria-label={`Actions for ${e.address}`} />}
+                              render={<Button variant="ghost" size="icon-compact-sm" className="ml-auto" aria-label={t.actionsForEmail(e.address)} />}
                             >
                               <MoreHorizontalIcon aria-hidden="true" />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-44">
-                              {canSetPrimary && <DropdownMenuItem onClick={() => onSetPrimaryEmail?.(e.address)}>Set as primary</DropdownMenuItem>}
+                              {canSetPrimary && <DropdownMenuItem onClick={() => onSetPrimaryEmail?.(e.address)}>{t.setAsPrimary}</DropdownMenuItem>}
                               {canRemove && (
                                 <DropdownMenuItem variant="destructive" onClick={() => ask({ kind: "email", key: e.address })}>
-                                  Remove email
+                                  {t.removeEmail}
                                 </DropdownMenuItem>
                               )}
                             </DropdownMenuContent>
@@ -228,13 +262,13 @@ export function AccountProfile({
               {onAddEmail && (
                 <button type="button" onClick={onAddEmail} className={addRowClass}>
                   <PlusIcon className="size-3.5" aria-hidden="true" />
-                  Add email address
+                  {t.addEmailAddress}
                 </button>
               )}
             </ProfileRow>
           )}
           {showLinked && (
-            <ProfileRow label="Linked accounts">
+            <ProfileRow label={t.linkedAccounts}>
               {linkedAccounts.length > 0 && (
                 <ul className="flex flex-col">
                   {linkedAccounts.map((a) => (
@@ -245,13 +279,13 @@ export function AccountProfile({
                       {onUnlinkAccount && (
                         <DropdownMenu>
                           <DropdownMenuTrigger
-                            render={<Button variant="ghost" size="icon-compact-sm" className="ml-auto" aria-label={`Actions for ${a.provider} account`} />}
+                            render={<Button variant="ghost" size="icon-compact-sm" className="ml-auto" aria-label={t.actionsForAccount(a.provider)} />}
                           >
                             <MoreHorizontalIcon aria-hidden="true" />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="w-44">
                             <DropdownMenuItem variant="destructive" onClick={() => ask({ kind: "account", key: a.id, label: a.provider })}>
-                              Unlink
+                              {t.unlink}
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -263,7 +297,7 @@ export function AccountProfile({
               {onLinkAccount && (
                 <button type="button" onClick={onLinkAccount} className={addRowClass}>
                   <PlusIcon className="size-3.5" aria-hidden="true" />
-                  Link account
+                  {t.linkAccount}
                 </button>
               )}
             </ProfileRow>
@@ -272,23 +306,23 @@ export function AccountProfile({
       ) : (
         (renderSection?.(section) ?? (
           <div className="grid flex-1 place-items-center">
-            <EmptyState title={`${current?.label ?? "This section"} is empty`} description="Nothing to show here yet." />
+            <EmptyState title={t.sectionEmpty(current?.label ?? t.thisSection)} description={t.nothingHereYet} />
           </div>
         ))
       )}
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen} onOpenChangeComplete={(open) => !open && setConfirm(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>{confirm?.kind === "account" ? `Unlink ${confirm.label}?` : "Remove email address?"}</AlertDialogTitle>
+            <AlertDialogTitle>{confirm?.kind === "account" ? t.unlinkTitle(confirm.label) : t.removeEmailTitle}</AlertDialogTitle>
             <AlertDialogDescription>
               {confirm?.kind === "account"
-                ? "You won't be able to sign in with this account until you link it again."
-                : `${confirm?.key ?? "This address"} will no longer be able to sign in or receive account email.`}
+                ? t.unlinkDescription
+                : t.removeEmailDescription(confirm?.key ?? t.thisAddress)}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel variant="elevated" size="compact">
-              Cancel
+              {t.cancel}
             </AlertDialogCancel>
             <AlertDialogAction
               size="compact"
@@ -299,7 +333,7 @@ export function AccountProfile({
                 setConfirmOpen(false)
               }}
             >
-              {confirm?.kind === "account" ? "Unlink" : "Remove"}
+              {confirm?.kind === "account" ? t.unlink : t.remove}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

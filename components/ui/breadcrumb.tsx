@@ -47,7 +47,7 @@ function BreadcrumbLink({
     defaultTagName: "a",
     props: mergeProps<"a">(
       {
-        className: cn("transition-colors hover:text-foreground", className),
+        className: cn("rounded-sm pointer-coarse:[:where(&)]:relative pointer-coarse:after:absolute pointer-coarse:after:inset-[min(0px,calc((100%_-_44px)/2))] transition-colors outline-none hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring", className),
       },
       props
     ),
@@ -93,8 +93,12 @@ function BreadcrumbSeparator({
 
 function BreadcrumbEllipsis({
   className,
+  label = "More",
   ...props
-}: React.ComponentProps<"span">) {
+}: React.ComponentProps<"span"> & {
+  /** Screen-reader text for the collapsed items (translate it here). */
+  label?: string
+}) {
   return (
     <span
       data-slot="breadcrumb-ellipsis"
@@ -108,7 +112,7 @@ function BreadcrumbEllipsis({
     >
       <MoreHorizontalIcon
       />
-      <span className="sr-only">More</span>
+      <span className="sr-only">{label}</span>
     </span>
   )
 }

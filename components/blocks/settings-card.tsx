@@ -8,6 +8,15 @@ import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { cn } from "@/lib/utils"
 
+/** Built-in strings of SettingsPage and SettingsSaveBar; pass `labels` to translate them. */
+export const settingsCardLabels = {
+  on: "(on)",
+  unsavedChanges: "Unsaved changes",
+  discard: "Discard",
+  saveChanges: "Save changes",
+}
+export type SettingsCardLabels = typeof settingsCardLabels
+
 /* -------------------------------- Collapse --------------------------------- */
 
 /** Height-animated disclosure region; content is `inert` while closed. */
@@ -216,6 +225,7 @@ export function SettingsPage({
   value,
   defaultValue,
   onValueChange,
+  labels,
   className,
 }: {
   title: string
@@ -224,8 +234,11 @@ export function SettingsPage({
   value?: string
   defaultValue?: string
   onValueChange?: (value: string) => void
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<SettingsCardLabels>
   className?: string
 }) {
+  const t = { ...settingsCardLabels, ...labels }
   return (
     <article data-slot="settings-page" className={cn("min-w-0", className)}>
       <header className="flex w-full flex-col gap-4 pb-6">
@@ -241,19 +254,19 @@ export function SettingsPage({
         className="gap-8"
       >
         <TabsList variant="underline" className="max-w-full overflow-x-auto [scrollbar-width:none]">
-          {tabs.map((t) => (
-            <TabsTrigger key={t.value} value={t.value} className="gap-1.5">
-              {t.enabled && (
+          {tabs.map((tab) => (
+            <TabsTrigger key={tab.value} value={tab.value} className="gap-1.5">
+              {tab.enabled && (
                 <span aria-hidden="true" className="size-1.5 rounded-full bg-success" />
               )}
-              {t.label}
-              {t.enabled && <span className="sr-only">(on)</span>}
+              {tab.label}
+              {tab.enabled && <span className="sr-only">{t.on}</span>}
             </TabsTrigger>
           ))}
         </TabsList>
-        {tabs.map((t) => (
-          <TabsContent key={t.value} value={t.value} className="space-y-6">
-            {t.content}
+        {tabs.map((tab) => (
+          <TabsContent key={tab.value} value={tab.value} className="space-y-6">
+            {tab.content}
           </TabsContent>
         ))}
       </Tabs>
@@ -267,18 +280,22 @@ export function SettingsSaveBar({
   onDiscard,
   onSave,
   message = "You have unsaved changes",
+  labels,
   className,
 }: {
   open: boolean
   onDiscard: () => void
   onSave: () => void
   message?: string
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<SettingsCardLabels>
   className?: string
 }) {
+  const t = { ...settingsCardLabels, ...labels }
   return (
     <div
       role="region"
-      aria-label="Unsaved changes"
+      aria-label={t.unsavedChanges}
       inert={!open}
       className={cn(
         "fixed inset-x-0 bottom-6 z-40 mx-auto flex w-[calc(100%-2rem)] max-w-md items-center justify-between gap-3 rounded-xl bg-foreground py-2 pr-2 pl-4 text-[0.8125rem] text-background shadow-popover transition-[opacity,translate] duration-200 motion-reduce:transition-none",
@@ -289,10 +306,10 @@ export function SettingsSaveBar({
       <span>{message}</span>
       <div className="flex gap-2">
         <Button variant="elevated" size="compact-sm" onClick={onDiscard}>
-          Discard
+          {t.discard}
         </Button>
         <Button variant="primary" size="compact-sm" onClick={onSave}>
-          Save changes
+          {t.saveChanges}
         </Button>
       </div>
     </div>

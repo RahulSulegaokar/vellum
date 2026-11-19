@@ -10,7 +10,7 @@ export function FaqList({ items, className }: { items: FaqItem[]; className?: st
     <Accordion className={className}>
       {items.map((item) => (
         <AccordionItem key={item.q} value={item.q} className="border-b border-edge/6 not-last:border-edge/6">
-          <AccordionTrigger className="gap-x-3 rounded-none py-6 text-base/6 font-medium text-pretty text-foreground hover:no-underline focus-visible:border-transparent focus-visible:ring-2 focus-visible:ring-brand/40 focus-visible:ring-inset">
+          <AccordionTrigger className="gap-x-3 rounded-none py-6 text-base/6 font-medium text-pretty text-foreground hover:no-underline focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">
             {item.q}
           </AccordionTrigger>
           <AccordionContent className="pb-6 text-[0.9375rem]/6 text-pretty text-muted-foreground">{item.a}</AccordionContent>

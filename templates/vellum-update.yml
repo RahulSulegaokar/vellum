@@ -3,22 +3,45 @@
 # (and the Vellum skill, if installed) from the newest Vellum release tag, then opens a pull request
 # if anything changed.
 #
-# - Pinned: installs from a release tag (vX.Y.Z), never from `main`, with a fixed shadcn CLI version.
-#   Set VELLUM_REF to hold a specific release; leave it empty to follow the newest tag.
+# Settings (the `env` block below):
+# - WORKDIR: the folder that holds components.json, relative to the repository root ("." for most projects,
+#   for example "apps/web" in a monorepo). Every step runs there, and the npm cache keys on its lockfile.
+# - UPDATE_BLOCKS: "true" re-installs blocks like components. "false" treats installed blocks as your own code:
+#   they are never overwritten, and the pull request lists what each one would change (`shadcn add --diff`).
+# - VELLUM_REF: hold a specific release (vX.Y.Z); leave it empty to follow the newest tag.
+# - STATE_FILE: a small JSON file (in WORKDIR) the job writes with the installed release and the list of Vellum
+#   items found in the project. When the newest release equals the one recorded there, the job stops without a PR
+#   (run it by hand with "force" to re-install anyway). Commit the file the first PR adds.
+#
+# - Pinned: installs from a release tag, never from `main`, with a fixed shadcn CLI version.
 # - Layout-aware: paths come from `shadcn info`, so it works with components/ui (Next.js),
 #   resources/js/components/ui (Laravel), src/components/ui (Vite) and any other components.json layout.
 # - Tokens are safe: the theme is not re-installed explicitly, so your overrides survive; new tokens still
 #   arrive as dependencies. To take a release's token values, run the vellum-theme install by hand.
+# - Least privilege: the checkout keeps no credentials, npm runs no install scripts, and the token is handed only
+#   to the step that pushes the branch and opens the pull request. Pin the actions by commit SHA if your policy asks.
 name: Vellum update
 
 on:
   schedule:
     - cron: "0 6 * * 1"
   workflow_dispatch:
+    inputs:
+      force:
+        description: Re-install even if the newest release is already recorded
+        type: boolean
+        default: false
+
+concurrency:
+  group: vellum-update
+  cancel-in-progress: false
 
 env:
   SHADCN_CLI: shadcn@4.23.0
   VELLUM_REF: ""
+  WORKDIR: "."
+  UPDATE_BLOCKS: "true"
+  STATE_FILE: vellum.json
 
 jobs:
   update:
@@ -27,58 +50,115 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    defaults:
+      run:
+        working-directory: ${{ env.WORKDIR }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-node@v4
         with:
           node-version: 24
           cache: npm
-      - run: npm ci
+          cache-dependency-path: ${{ env.WORKDIR }}/package-lock.json
+      - run: npm ci --ignore-scripts
       - name: Pick the Vellum release
         id: ref
+        env:
+          FORCE: ${{ inputs.force || 'false' }}
         run: |
           ref="$VELLUM_REF"
           if [ -z "$ref" ]; then
             ref=$(git ls-remote --tags --refs --sort=-v:refname https://github.com/RahulSulegaokar/vellum.git 'v*' | head -n1 | sed 's#.*refs/tags/##')
           fi
           test -n "$ref" || { echo "No Vellum release tag found"; exit 1; }
-          echo "Using Vellum $ref"
+          installed=$(node -e 'try { console.log(require("./" + process.env.STATE_FILE).ref ?? "") } catch { console.log("") }')
+          echo "Using Vellum $ref (recorded: ${installed:-none})"
           echo "ref=$ref" >> "$GITHUB_OUTPUT"
+          if [ "$ref" = "$installed" ] && [ "$FORCE" != "true" ]; then
+            echo "Vellum $ref is already installed; nothing to do."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
       - name: Find the Vellum items this project uses
         id: items
+        if: steps.ref.outputs.skip != 'true'
         env:
           REF: ${{ steps.ref.outputs.ref }}
         run: |
-          npx "$SHADCN_CLI" info --json > /tmp/shadcn-info.json
-          curl -fsSL "https://raw.githubusercontent.com/RahulSulegaokar/vellum/$REF/registry.json" -o /tmp/vellum-registry.json
-          node --input-type=module -e '
-            import { existsSync, readFileSync, writeFileSync } from "node:fs"
-            import { join } from "node:path"
-            const ref = process.env.REF
-            const p = JSON.parse(readFileSync("/tmp/shadcn-info.json", "utf8")).config.resolvedPaths
-            const { items } = JSON.parse(readFileSync("/tmp/vellum-registry.json", "utf8"))
-            const where = {
-              "registry:ui": (n) => [join(p.ui, `${n}.tsx`)],
-              "registry:hook": (n) => [join(p.hooks, `${n}.ts`), join(p.hooks, `${n}.tsx`)],
-              "registry:block": (n) => [join(p.components, "blocks", `${n}.tsx`)],
-              "registry:file": (n) => (n === "vellum-skill" ? [join(p.cwd, ".claude/skills/vellum/SKILL.md")] : []),
-            }
-            const found = items
-              .filter((i) => where[i.type]?.(i.name).some((f) => existsSync(f)))
-              .map((i) => `RahulSulegaokar/vellum/${i.name}#${ref}`)
-            console.log(`Found ${found.length} Vellum items: ${found.join(" ")}`)
-            writeFileSync("/tmp/vellum-items.txt", found.join(" "))
-          '
-          echo "list=$(cat /tmp/vellum-items.txt)" >> "$GITHUB_OUTPUT"
+          curl -fsSL "https://raw.githubusercontent.com/RahulSulegaokar/vellum/$REF/registry.json" -o "$RUNNER_TEMP/vellum-registry.json"
+          cat > "$RUNNER_TEMP/vellum-items.mjs" <<'EOF'
+          // Lists the Vellum items present in this project (components, hooks, blocks, the skill) from the files on disk.
+          import { execSync } from "node:child_process"
+          import { existsSync, readFileSync, writeFileSync } from "node:fs"
+          import { join } from "node:path"
+          const { REF: ref, RUNNER_TEMP: tmp, SHADCN_CLI: cli } = process.env
+          const p = JSON.parse(execSync(`npx ${cli} info --json`, { encoding: "utf8" })).config.resolvedPaths
+          const { items } = JSON.parse(readFileSync(join(tmp, "vellum-registry.json"), "utf8"))
+          const where = {
+            "registry:ui": (n) => [join(p.ui, `${n}.tsx`)],
+            "registry:hook": (n) => [join(p.hooks, `${n}.ts`), join(p.hooks, `${n}.tsx`)],
+            "registry:block": (n) => [join(p.components, "blocks", `${n}.tsx`)],
+            "registry:file": (n) => (n === "vellum-skill" ? [join(p.cwd, ".claude/skills/vellum/SKILL.md")] : []),
+          }
+          const found = items.filter((i) => where[i.type]?.(i.name).some((f) => existsSync(f)))
+          const address = (i) => `RahulSulegaokar/vellum/${i.name}#${ref}`
+          writeFileSync(join(tmp, "vellum-items.txt"), found.filter((i) => i.type !== "registry:block").map(address).join(" "))
+          writeFileSync(join(tmp, "vellum-blocks.txt"), found.filter((i) => i.type === "registry:block").map(address).join(" "))
+          writeFileSync(join(tmp, "vellum-state.json"), JSON.stringify({ ref, items: found.map((i) => i.name).sort() }, null, 2) + "\n")
+          console.log(`Found ${found.length} Vellum items: ${found.map((i) => i.name).join(" ")}`)
+          EOF
+          node "$RUNNER_TEMP/vellum-items.mjs"
+          echo "list=$(cat "$RUNNER_TEMP/vellum-items.txt")" >> "$GITHUB_OUTPUT"
+          echo "blocks=$(cat "$RUNNER_TEMP/vellum-blocks.txt")" >> "$GITHUB_OUTPUT"
       - name: Re-install them from that release
-        if: steps.items.outputs.list != ''
-        run: npx "$SHADCN_CLI" add ${{ steps.items.outputs.list }} --overwrite --yes
-      - uses: peter-evans/create-pull-request@v7
+        if: steps.ref.outputs.skip != 'true' && steps.items.outputs.list != ''
+        env:
+          ITEMS: ${{ steps.items.outputs.list }}
+        # The list arrives through the environment and is split into arguments here, never pasted into the script.
+        run: |
+          read -r -a items <<< "$ITEMS"
+          npx "$SHADCN_CLI" add "${items[@]}" --overwrite --yes
+      - name: Re-install blocks, or list what would change in them
+        if: steps.ref.outputs.skip != 'true' && steps.items.outputs.blocks != ''
+        env:
+          BLOCKS: ${{ steps.items.outputs.blocks }}
+        run: |
+          read -r -a blocks <<< "$BLOCKS"
+          if [ "$UPDATE_BLOCKS" = "true" ]; then
+            npx "$SHADCN_CLI" add "${blocks[@]}" --overwrite --yes
+          else
+            {
+              echo "### Blocks (not overwritten: \`UPDATE_BLOCKS\` is false)"
+              for b in "${blocks[@]}"; do
+                echo; echo "<details><summary>${b%%#*}</summary>"; echo; echo '```diff'
+                npx "$SHADCN_CLI" add "$b" --diff 2>&1 || true
+                echo '```'; echo "</details>"
+              done
+            } > "$RUNNER_TEMP/vellum-block-diffs.md"
+          fi
+      - name: Record the release and regenerate the item list
+        if: steps.ref.outputs.skip != 'true'
+        env:
+          REF: ${{ steps.ref.outputs.ref }}
+        run: |
+          # Re-scan after installing: a new release can bring in new items as dependencies.
+          node "$RUNNER_TEMP/vellum-items.mjs"
+          cp "$RUNNER_TEMP/vellum-state.json" "$STATE_FILE"
+          {
+            echo "Automated re-install of the Vellum items used in this project, from Vellum $REF."
+            echo "See https://github.com/RahulSulegaokar/vellum/blob/$REF/CHANGELOG.md for what changed, and its \"What consumers must do\" section."
+            echo "Local edits to those files show up in this diff, so review before merging."
+            echo; echo "Items: $(node -e 'console.log(require(process.argv[1]).items.join(", "))' "$PWD/$STATE_FILE")"
+            if [ -f "$RUNNER_TEMP/vellum-block-diffs.md" ]; then echo; cat "$RUNNER_TEMP/vellum-block-diffs.md"; fi
+          } > "$RUNNER_TEMP/vellum-pr-body.md"
+      - name: Open the pull request
+        if: steps.ref.outputs.skip != 'true'
+        uses: peter-evans/create-pull-request@v7
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          add-paths: ${{ env.WORKDIR }}
           branch: vellum-update
           title: "chore: update Vellum to ${{ steps.ref.outputs.ref }}"
           commit-message: "chore: update Vellum to ${{ steps.ref.outputs.ref }}"
-          body: |
-            Automated re-install of the Vellum components, hooks and blocks used in this project, from Vellum ${{ steps.ref.outputs.ref }}.
-            See https://github.com/RahulSulegaokar/vellum/blob/${{ steps.ref.outputs.ref }}/CHANGELOG.md for what changed.
-            Local edits to those files show up in this diff, so review before merging.
+          body-path: ${{ runner.temp }}/vellum-pr-body.md

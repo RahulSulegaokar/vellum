@@ -31,7 +31,7 @@ function DottedEdge({ side }: { side: "top" | "bottom" | "left" | "right" }) {
 }
 
 const linkClass =
-  "rounded-sm text-left font-medium text-foreground transition-colors outline-none hover:text-muted-foreground focus-visible:ring-2 focus-visible:ring-brand/40"
+  "rounded-sm text-left font-medium text-foreground transition-colors outline-none hover:text-muted-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
 
 /**
  * Marketing footer: framed logo, link columns, social links and a legal line. `tone="dark"` for dark pages.
@@ -126,7 +126,7 @@ export function SiteFooter({
                     <Link
                       href={s.href}
                       aria-label={s.label}
-                      className="block rounded-sm transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40 [&_svg]:size-4"
+                      className="block rounded-sm transition-colors outline-none hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring [&_svg]:size-4"
                     >
                       {s.icon}
                     </Link>

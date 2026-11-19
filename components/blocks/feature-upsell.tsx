@@ -17,6 +17,14 @@ export type UpsellFeature = {
 const STEP = 264 // card width (244) + gap (20)
 const CARD_W = 244
 
+/** Built-in strings of FeatureUpsell and FeatureCarousel; pass `labels` to translate them. */
+export const featureUpsellLabels = {
+  carousel: "carousel",
+  previousFeature: "Previous feature",
+  nextFeature: "Next feature",
+}
+export type FeatureUpsellLabels = typeof featureUpsellLabels
+
 /* -------------------------------- Carousel --------------------------------- */
 
 function FeatureCard({ feature, offset, onSelect }: { feature: UpsellFeature; offset: number; onSelect: () => void }) {
@@ -41,10 +49,10 @@ function FeatureCard({ feature, offset, onSelect }: { feature: UpsellFeature; of
   )
 }
 
-function ArrowButton({ dir, onClick }: { dir: "prev" | "next"; onClick: () => void }) {
+function ArrowButton({ dir, onClick, t }: { dir: "prev" | "next"; onClick: () => void; t: FeatureUpsellLabels }) {
   const Icon = dir === "prev" ? ChevronLeftIcon : ChevronRightIcon
   return (
-    <Button type="button" variant="elevated" size="icon-compact" aria-label={dir === "prev" ? "Previous feature" : "Next feature"} onClick={onClick}>
+    <Button type="button" variant="elevated" size="icon-compact" aria-label={dir === "prev" ? t.previousFeature : t.nextFeature} onClick={onClick}>
       <Icon aria-hidden="true" className="text-subtle" />
     </Button>
   )
@@ -56,6 +64,7 @@ export function FeatureCarousel({
   label,
   initialIndex = 0,
   action,
+  labels,
 }: {
   features: UpsellFeature[]
   /** Accessible name for the carousel group. */
@@ -63,7 +72,10 @@ export function FeatureCarousel({
   initialIndex?: number
   /** The main call to action, rendered between the phone-size arrows. */
   action?: React.ReactNode
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<FeatureUpsellLabels>
 }) {
+  const t = { ...featureUpsellLabels, ...labels }
   // `pos` is unbounded so cards keep stable keys and slide instead of jumping.
   const [pos, setPos] = useState(initialIndex)
   const n = features.length
@@ -77,7 +89,7 @@ export function FeatureCarousel({
     <div
       className="flex w-full flex-col items-center"
       role="group"
-      aria-roledescription="carousel"
+      aria-roledescription={t.carousel}
       aria-label={label}
       onKeyDown={(e) => {
         if (e.key === "ArrowLeft") prev()
@@ -96,14 +108,14 @@ export function FeatureCarousel({
           <h3 className="w-full text-[0.9375rem]/5 font-semibold text-foreground">{current.title}</h3>
           <p className="w-full max-w-91.5 text-[0.8125rem]/[1.125rem] text-pretty text-subtle">{current.description}</p>
         </div>
-        <div className="absolute top-1/2 left-0 hidden -translate-y-1/2 sm:block"><ArrowButton dir="prev" onClick={prev} /></div>
-        <div className="absolute top-1/2 right-0 hidden -translate-y-1/2 sm:block"><ArrowButton dir="next" onClick={next} /></div>
+        <div className="absolute top-1/2 left-0 hidden -translate-y-1/2 sm:block"><ArrowButton dir="prev" onClick={prev} t={t} /></div>
+        <div className="absolute top-1/2 right-0 hidden -translate-y-1/2 sm:block"><ArrowButton dir="next" onClick={next} t={t} /></div>
       </div>
 
       <div className="mt-4 flex items-center gap-4">
-        <div className="sm:hidden"><ArrowButton dir="prev" onClick={prev} /></div>
+        <div className="sm:hidden"><ArrowButton dir="prev" onClick={prev} t={t} /></div>
         {action}
-        <div className="sm:hidden"><ArrowButton dir="next" onClick={next} /></div>
+        <div className="sm:hidden"><ArrowButton dir="next" onClick={next} t={t} /></div>
       </div>
     </div>
   )
@@ -132,6 +144,7 @@ export function FeatureUpsell({
   videoLabel = "Watch the video",
   docsLabel = "View docs",
   linkComponent,
+  labels,
   className,
 }: {
   features: UpsellFeature[]
@@ -150,6 +163,8 @@ export function FeatureUpsell({
   docsLabel?: string
   /** Component used for links; defaults to `"a"`. */
   linkComponent?: React.ElementType
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<FeatureUpsellLabels>
   className?: string
 }) {
   const Link = linkComponent ?? "a"
@@ -175,6 +190,7 @@ export function FeatureUpsell({
           <FeatureCarousel
             features={features}
             label={label}
+            labels={labels}
             action={<Button type="button" variant="primary" size="compact" onClick={() => set(true)}>{enableLabel}</Button>}
           />
         )}
@@ -182,13 +198,13 @@ export function FeatureUpsell({
       {(videoHref || docsHref) && (
         <footer className="flex items-center justify-between gap-4 px-5 pt-4 pb-3 text-[0.8125rem]/[1.125rem] text-subtle">
           {videoHref ? (
-            <Link href={videoHref} className="inline-flex items-center gap-1.5 rounded-sm font-medium transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40">
+            <Link href={videoHref} className="inline-flex items-center gap-1.5 rounded-sm font-medium transition-colors outline-none hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">
               <EyeIcon aria-hidden="true" className="size-4" />
               {videoLabel}
             </Link>
           ) : <span />}
           {docsHref && (
-            <Link href={docsHref} className="inline-flex items-center gap-1.5 rounded-sm font-medium transition-colors outline-none hover:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40">
+            <Link href={docsHref} className="inline-flex items-center gap-1.5 rounded-sm font-medium transition-colors outline-none hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">
               <BookOpenIcon aria-hidden="true" className="size-4" />
               {docsLabel}
             </Link>

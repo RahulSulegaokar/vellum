@@ -41,19 +41,35 @@ export const defaultDateRangePresets: DateRangePreset[] = [
   { key: "last30Days", label: "Last 30 days", ms: 30 * DAY },
 ]
 
+/** Built-in strings of DateRangePicker and DateTimeRow; pass `labels` to translate them. */
+export const dateRangePickerLabels = {
+  dateRange: (from: string, to: string) => `${from} – ${to}`,
+  selectRange: "Select range",
+  dateOf: (label: string, date: string) => `${label} date ${date}`,
+  timeOf: (label: string) => `${label} time`,
+  datePresets: "Date presets",
+  customRange: "Custom range",
+  from: "From",
+  to: "To",
+  startAfterEnd: "Start is after end",
+  cancel: "Cancel",
+  apply: "Apply",
+}
+export type DateRangePickerLabels = typeof dateRangePickerLabels
+
 /* -------------------------------- Helpers ---------------------------------- */
 
 const pad = (n: number) => String(n).padStart(2, "0")
 const startOfDay = (d: Date) => { const x = new Date(d); x.setHours(0, 0, 0, 0); return x }
 const endOfDay = (d: Date) => { const x = new Date(d); x.setHours(23, 59, 0, 0); return x }
 const sameDay = (a: Date, b: Date) => startOfDay(a).getTime() === startOfDay(b).getTime()
-const shortDay = new Intl.DateTimeFormat("en-US", { month: "short", day: "numeric" })
 
-function rangeLabel(value: DateRangeValue, presets: DateRangePreset[]) {
+function rangeLabel(value: DateRangeValue, presets: DateRangePreset[], t: DateRangePickerLabels, locale: string) {
+  const shortDay = new Intl.DateTimeFormat(locale, { month: "short", day: "numeric" })
   const preset = presets.find((p) => p.key === value.preset)
   if (preset) return preset.triggerLabel ?? preset.label
-  if (value.from && value.to) return `${shortDay.format(value.from)} – ${shortDay.format(value.to)}`
-  return "Select range"
+  if (value.from && value.to) return t.dateRange(shortDay.format(value.from), shortDay.format(value.to))
+  return t.selectRange
 }
 
 type Draft = { preset: string | null; from: Date; to: Date }
@@ -69,12 +85,16 @@ export function DateTimeRow({
   value,
   onTimeChange,
   invalid,
+  labels,
 }: {
   label: string
   value: Date
   onTimeChange?: (hours: number, minutes: number) => void
   invalid?: boolean
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<DateRangePickerLabels>
 }) {
+  const t = { ...dateRangePickerLabels, ...labels }
   const dd = pad(value.getDate())
   const mm = pad(value.getMonth() + 1)
   const yyyy = value.getFullYear()
@@ -84,12 +104,12 @@ export function DateTimeRow({
     <div className="flex w-full items-center justify-between gap-4 pl-0.5">
       <span className="text-xs/4 font-medium text-subtle">{label}</span>
       <div className="flex items-center gap-2">
-        <div className={cn(fieldBox, "w-26.5 justify-between")} aria-label={`${label} date ${dd}/${mm}/${yyyy}`} role="group">
+        <div className={cn(fieldBox, "w-26.5 justify-between")} aria-label={t.dateOf(label, `${dd}/${mm}/${yyyy}`)} role="group">
           <span className="w-5 text-center">{dd}</span>{sep}<span className="w-5 text-center">{mm}</span>{sep}<span className="w-10 text-center">{yyyy}</span>
         </div>
         <input
           type="time"
-          aria-label={`${label} time`}
+          aria-label={t.timeOf(label)}
           aria-invalid={invalid || undefined}
           value={time}
           readOnly={!onTimeChange}
@@ -99,7 +119,7 @@ export function DateTimeRow({
           }}
           className={cn(
             fieldBox,
-            "w-20 justify-center text-center text-foreground outline-none focus-visible:ring-field-ring-focus aria-invalid:ring-field-invalid [&::-webkit-calendar-picker-indicator]:hidden"
+            "w-20 justify-center text-center text-foreground outline-none focus-visible:ring-field-ring-focus focus-visible:outline-2 focus-visible:outline-offset-0 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring aria-invalid:ring-field-invalid [&::-webkit-calendar-picker-indicator]:hidden"
           )}
         />
       </div>
@@ -123,6 +143,8 @@ export function DateRangePicker({
   touch = false,
   align = "end",
   getNow = () => new Date(),
+  locale = "en-US",
+  labels,
   className,
 }: {
   value: DateRangeValue
@@ -135,8 +157,13 @@ export function DateRangePicker({
   align?: "start" | "center" | "end"
   /** Clock source, called when the popover opens. */
   getNow?: () => Date
+  /** Translations of the built-in strings (English by default). */
+  /** BCP 47 locale for the dates in the trigger ("en-US" by default), for example "de-DE". */
+  locale?: string
+  labels?: Partial<DateRangePickerLabels>
   className?: string
 }) {
+  const t = { ...dateRangePickerLabels, ...labels }
   const [open, setOpen] = useState(false)
   // The clock is read only in the open handler, never during render.
   const [clock, setClock] = useState<{ now: Date; min?: Date; minDay?: Date } | null>(null)
@@ -198,7 +225,7 @@ export function DateRangePicker({
         }
       >
         <CalendarIcon aria-hidden="true" className="size-4 flex-none text-subtle" />
-        <span className="truncate">{rangeLabel(value, presets)}</span>
+        <span className="truncate">{rangeLabel(value, presets, t, locale)}</span>
         {!touch && <ChevronDownIcon aria-hidden="true" className={cn("size-4 text-subtle transition-transform", open && "rotate-180")} />}
       </PopoverTrigger>
       <PopoverContent
@@ -209,7 +236,7 @@ export function DateRangePicker({
         {draft && now && (
           <>
             <RadioGroup
-              aria-label="Date presets"
+              aria-label={t.datePresets}
               value={draft.preset ?? ""}
               onValueChange={(key) => typeof key === "string" && key && pickPreset(key)}
               className="hidden min-w-44 flex-1 content-start gap-1.5 px-1.5 py-4 sm:grid"
@@ -229,22 +256,22 @@ export function DateRangePicker({
             <div className="flex flex-col divide-y divide-edge/6 rounded-xl bg-surface shadow-surface ring-1 ring-edge/4">
               <div className="w-72 max-w-full flex-1 overflow-y-auto p-4">
                 <label className="mb-4 block sm:hidden">
-                  <span className="sr-only">Date presets</span>
+                  <span className="sr-only">{t.datePresets}</span>
                   <NativeSelect
                     size="sm"
                     className="w-full"
                     value={draft.preset ?? ""}
                     onChange={(e) => e.target.value && pickPreset(e.target.value)}
                   >
-                    <NativeSelectOption value="" disabled>Custom range</NativeSelectOption>
+                    <NativeSelectOption value="" disabled>{t.customRange}</NativeSelectOption>
                     {presets.map((p) => (
                       <NativeSelectOption key={p.key} value={p.key} disabled={p.disabled}>{p.label}</NativeSelectOption>
                     ))}
                   </NativeSelect>
                 </label>
                 <div className="flex flex-col gap-4">
-                  <DateTimeRow label="From" value={draft.from} onTimeChange={setTime("from")} invalid={invalid} />
-                  <DateTimeRow label="To" value={draft.to} onTimeChange={setTime("to")} invalid={invalid} />
+                  <DateTimeRow label={t.from} value={draft.from} onTimeChange={setTime("from")} invalid={invalid} labels={t} />
+                  <DateTimeRow label={t.to} value={draft.to} onTimeChange={setTime("to")} invalid={invalid} labels={t} />
                 </div>
                 <Calendar
                   mode="range"
@@ -261,8 +288,8 @@ export function DateRangePicker({
                 />
               </div>
               <footer className="flex items-center justify-end gap-3 p-4">
-                {invalid && <p className="mr-auto text-xs/4 text-destructive-text" role="alert">Start is after end</p>}
-                <Button variant="elevated" size="compact-sm" onClick={() => setOpen(false)}>Cancel</Button>
+                {invalid && <p className="mr-auto text-xs/4 text-destructive-text" role="alert">{t.startAfterEnd}</p>}
+                <Button variant="elevated" size="compact-sm" onClick={() => setOpen(false)}>{t.cancel}</Button>
                 <Button
                   variant="primary"
                   size="compact-sm"
@@ -272,7 +299,7 @@ export function DateRangePicker({
                     setOpen(false)
                   }}
                 >
-                  Apply
+                  {t.apply}
                 </Button>
               </footer>
             </div>

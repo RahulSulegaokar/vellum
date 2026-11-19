@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
+import { useScrollRegion } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
 
 /* ---------------------------------- Types ---------------------------------- */
@@ -48,7 +49,26 @@ export type RowAction = {
   confirm?: { title: string; description?: React.ReactNode; confirmLabel?: string }
 }
 
-const confirmOf = (action: RowAction) => action.confirm ?? (action.destructive ? { title: `${action.label}?` } : undefined)
+/** Built-in strings of DataTableCard, TableToolbar and RowActions; pass `labels` to translate them. */
+export const dataTableCardLabels = {
+  /** Name of the scrolling table region on narrow screens. */
+  table: "Table",
+  confirmTitle: (action: string) => `${action}?`,
+  cancel: "Cancel",
+  clearSearch: "Clear search",
+  columns: "Columns",
+  showColumns: "Show columns",
+  filtersActive: (count: number) => `Filters (${count} active)`,
+  addFilter: "Add filter",
+  filterBy: "Filter by",
+  actions: "Actions",
+  nothingHereYet: "Nothing here yet",
+  noMatchingResults: "No matching results",
+  noMatchingResultsDescription: "Try a different search or clear your filters.",
+}
+export type DataTableCardLabels = typeof dataTableCardLabels
+
+const confirmOf = (action: RowAction, t: DataTableCardLabels) => action.confirm ?? (action.destructive ? { title: t.confirmTitle(action.label) } : undefined)
 
 type MenuCheckItem = { id: string; label: string; checked: boolean }
 
@@ -65,12 +85,24 @@ export const tableRowClass = "transition-colors hover:bg-subtle/4"
  * Table card: the header row sits on a muted strip; a raised, ringed, rounded body
  * is painted behind the rows starting at the header height.
  */
-export function TableCard({ head, children, className }: { head: React.ReactNode; children: React.ReactNode; className?: string }) {
+export function TableCard({
+  head,
+  children,
+  label,
+  className,
+}: {
+  head: React.ReactNode
+  children: React.ReactNode
+  /** Name of the table's scrolling region when it is wider than the card (screen readers announce it). */
+  label?: string
+  className?: string
+}) {
+  const region = useScrollRegion(label)
   return (
     <section className={cn("relative isolate overflow-hidden rounded-2xl bg-surface-muted p-1 [--head:2.4375rem]", className)}>
       <div className="relative -mt-1">
         <div aria-hidden="true" className="absolute inset-0 top-(--head) -z-1 rounded-xl bg-surface shadow-card ring-1 ring-edge/4" />
-        <div className="overflow-x-auto">
+        <div {...region} className="overflow-x-auto outline-none focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring">
           <table className="w-full border-separate border-spacing-0 whitespace-nowrap">
             <thead className="text-xs/4 font-medium">{head}</thead>
             <tbody className="[&>tr:last-child>td]:border-0">{children}</tbody>
@@ -102,7 +134,7 @@ export function SortHeader({
         type="button"
         onClick={() => onSort(sortKey)}
         className={cn(
-          "group/sort -mx-1 flex items-center gap-1 rounded-sm px-1 outline-none hover:text-foreground focus-visible:text-foreground focus-visible:ring-2 focus-visible:ring-brand/40",
+          "group/sort -mx-1 flex items-center gap-1 rounded-sm px-1 outline-none hover:text-foreground focus-visible:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring",
           active ? "text-foreground" : "text-subtle"
         )}
       >
@@ -117,11 +149,21 @@ export function SortHeader({
 }
 
 /** Row "⋯" menu. Destructive actions, and any with `confirm`, open a confirmation dialog before running. */
-export function RowActions({ actions, label = "Actions" }: { actions: RowAction[]; label?: string }) {
+export function RowActions({
+  actions,
+  label = "Actions",
+  labels,
+}: {
+  actions: RowAction[]
+  label?: string
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<DataTableCardLabels>
+}) {
+  const t = { ...dataTableCardLabels, ...labels }
   // `current` stays set after closing so the dialog keeps its copy while it animates out.
   const [current, setCurrent] = useState<RowAction | null>(null)
   const [confirmOpen, setConfirmOpen] = useState(false)
-  const confirm = current ? confirmOf(current) : undefined
+  const confirm = current ? confirmOf(current, t) : undefined
 
   return (
     <>
@@ -136,7 +178,7 @@ export function RowActions({ actions, label = "Actions" }: { actions: RowAction[
               variant={action.destructive ? "destructive" : "default"}
               className="text-[0.8125rem]/4 font-medium"
               onClick={() => {
-                if (!confirmOf(action)) return action.onSelect()
+                if (!confirmOf(action, t)) return action.onSelect()
                 setCurrent(action)
                 setConfirmOpen(true)
               }}
@@ -156,7 +198,7 @@ export function RowActions({ actions, label = "Actions" }: { actions: RowAction[
             </DialogHeader>
           </DialogPanel>
           <DialogFooter>
-            <DialogClose render={<Button type="button" variant="elevated" size="compact" />}>Cancel</DialogClose>
+            <DialogClose render={<Button type="button" variant="elevated" size="compact" />}>{t.cancel}</DialogClose>
             <Button
               type="button"
               variant={current?.destructive ? "destructive" : "primary"}
@@ -204,6 +246,7 @@ export function TableToolbar({
   filters,
   onFilterChange,
   actions,
+  labels,
   className,
 }: {
   query?: string
@@ -217,8 +260,11 @@ export function TableToolbar({
   filters?: MenuCheckItem[]
   onFilterChange?: (id: string, active: boolean) => void
   actions?: React.ReactNode
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<DataTableCardLabels>
   className?: string
 }) {
+  const t = { ...dataTableCardLabels, ...labels }
   const activeFilters = filters?.filter((f) => f.checked).length ?? 0
   return (
     <header className={cn("flex gap-4 max-sm:flex-col sm:items-stretch sm:justify-between", className)}>
@@ -238,9 +284,9 @@ export function TableToolbar({
             {query && (
               <button
                 type="button"
-                aria-label="Clear search"
+                aria-label={t.clearSearch}
                 onClick={() => onQueryChange("")}
-                className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2.5 text-subtle outline-none hover:text-foreground focus-visible:text-foreground"
+                className="absolute inset-y-0 right-0 flex items-center rounded-r-md px-2.5 text-subtle outline-none hover:text-foreground focus-visible:text-foreground focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
               >
                 <XIcon aria-hidden="true" className="size-4" />
               </button>
@@ -251,11 +297,11 @@ export function TableToolbar({
           <DropdownMenu>
             <DropdownMenuTrigger render={<Button variant="elevated" size="compact" className="gap-1 pr-1.5 pl-2 [&_svg]:text-subtle" />}>
               <Settings2Icon aria-hidden="true" />
-              Columns
+              {t.columns}
               <ChevronDownIcon aria-hidden="true" />
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-auto min-w-48">
-              <CheckMenu label="Show columns" items={columns} onCheckedChange={(id, v) => onColumnChange?.(id, v)} />
+              <CheckMenu label={t.showColumns} items={columns} onCheckedChange={(id, v) => onColumnChange?.(id, v)} />
             </DropdownMenuContent>
           </DropdownMenu>
         )}
@@ -266,7 +312,7 @@ export function TableToolbar({
                 <Button
                   variant="elevated"
                   size="icon-compact"
-                  aria-label={activeFilters > 0 ? `Filters (${activeFilters} active)` : "Add filter"}
+                  aria-label={activeFilters > 0 ? t.filtersActive(activeFilters) : t.addFilter}
                   className="relative overflow-visible [&_svg]:text-subtle"
                 />
               }
@@ -279,7 +325,7 @@ export function TableToolbar({
               )}
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-auto min-w-48">
-              <CheckMenu label="Filter by" items={filters} onCheckedChange={(id, v) => onFilterChange?.(id, v)} />
+              <CheckMenu label={t.filterBy} items={filters} onCheckedChange={(id, v) => onFilterChange?.(id, v)} />
             </DropdownMenuContent>
           </DropdownMenu>
         )}
@@ -307,6 +353,7 @@ export function DataTableCard<T>({
   callout,
   emptyState,
   noResultsState,
+  labels,
   className,
 }: {
   columns: DataTableColumn<T>[]
@@ -330,8 +377,11 @@ export function DataTableCard<T>({
   emptyState?: React.ReactNode
   /** Shown when search or filters hide every row. */
   noResultsState?: React.ReactNode
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<DataTableCardLabels>
   className?: string
 }) {
+  const t = { ...dataTableCardLabels, ...labels }
   const [query, setQuery] = useState("")
   const [hidden, setHidden] = useState<Set<string>>(() => new Set(columns.filter((c) => c.hideable && c.defaultHidden).map((c) => c.id)))
   const [activeFilters, setActiveFilters] = useState<string[]>([])
@@ -382,11 +432,13 @@ export function DataTableCard<T>({
           setActiveFilters((prev) => (v ? (exclusiveFilters ? [id] : [...prev, id]) : prev.filter((x) => x !== id)))
         }
         actions={primaryAction}
+        labels={t}
       />
 
       {callout && <div className="mb-6">{callout}</div>}
 
       <TableCard
+        label={t.table}
         head={
           <tr>
             {visible.map((c) =>
@@ -398,7 +450,7 @@ export function DataTableCard<T>({
             )}
             {rowActions && (
               <th className={cn(tableHeadCellClass, "w-px")}>
-                <span className="sr-only">Actions</span>
+                <span className="sr-only">{t.actions}</span>
               </th>
             )}
           </tr>
@@ -408,9 +460,9 @@ export function DataTableCard<T>({
           <tr>
             <td colSpan={colCount}>
               {rows.length === 0
-                ? (emptyState ?? <EmptyState title="Nothing here yet" />)
+                ? (emptyState ?? <EmptyState title={t.nothingHereYet} />)
                 : (noResultsState ?? (
-                    <EmptyState icon={<SearchIcon aria-hidden="true" className="size-5 text-subtle" />} title="No matching results" description="Try a different search or clear your filters." />
+                    <EmptyState icon={<SearchIcon aria-hidden="true" className="size-5 text-subtle" />} title={t.noMatchingResults} description={t.noMatchingResultsDescription} />
                   ))}
             </td>
           </tr>
@@ -422,7 +474,7 @@ export function DataTableCard<T>({
               ))}
               {rowActions && (
                 <td className={cn(tableCellClass, "py-2")}>
-                  <RowActions actions={rowActions(row)} />
+                  <RowActions actions={rowActions(row)} label={t.actions} labels={t} />
                 </td>
               )}
             </tr>

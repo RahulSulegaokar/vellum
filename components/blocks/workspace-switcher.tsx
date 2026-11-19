@@ -28,6 +28,23 @@ export type Workspace = {
   imageUrl?: string
 }
 
+/** Built-in strings of WorkspaceSwitcher, WorkspaceList and CreateWorkspaceForm; pass `labels` to translate them. */
+export const workspaceSwitcherLabels = {
+  switchWorkspace: "Switch workspace",
+  switchWorkspaceCurrent: (name: string) => `Switch workspace, current: ${name}`,
+  uploadLogo: "Upload logo",
+  remove: "Remove",
+  logoHint: (maxMb: number) => `Square image, up to ${maxMb}MB.`,
+  logoTooLarge: (maxMb: number) => `That file is over ${maxMb}MB.`,
+  workspaceLogo: "Workspace logo",
+  name: "Name",
+  namePlaceholder: "Workspace name",
+  url: "URL",
+  slugPlaceholder: "my-workspace",
+  cancel: "Cancel",
+}
+export type WorkspaceSwitcherLabels = typeof workspaceSwitcherLabels
+
 function WorkspaceAvatar({ workspace, className }: { workspace: Pick<Workspace, "name" | "imageUrl">; className?: string }) {
   return (
     <Avatar className={cn("rounded-md after:rounded-md", className)}>
@@ -51,6 +68,7 @@ export function WorkspaceList({
   onSwitch,
   onManage,
   onCreate,
+  labels,
   className,
 }: {
   workspaces: Workspace[]
@@ -62,8 +80,11 @@ export function WorkspaceList({
   onManage?: (id: string) => void
   /** Omit to hide the create row. */
   onCreate?: () => void
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<WorkspaceSwitcherLabels>
   className?: string
 }) {
+  const t = { ...workspaceSwitcherLabels, ...labels }
   const active = workspaces.find((w) => w.id === activeId)
   const others = workspaces.filter((w) => w.id !== activeId)
   return (
@@ -84,13 +105,13 @@ export function WorkspaceList({
         </div>
       )}
       {others.length > 0 && (
-        <ul className="flex flex-col border-b border-edge/6 p-1" aria-label="Switch workspace">
+        <ul className="flex flex-col border-b border-edge/6 p-1" aria-label={t.switchWorkspace}>
           {others.map((w) => (
             <li key={w.id}>
               <button
                 type="button"
                 onClick={() => onSwitch?.(w.id)}
-                className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left outline-none hover:bg-surface-muted focus-visible:bg-surface-muted focus-visible:ring-2 focus-visible:ring-brand/40"
+                className="flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left outline-none hover:bg-surface-muted focus-visible:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
               >
                 <WorkspaceAvatar workspace={w} className="size-9" />
                 <span className="min-w-0">
@@ -107,7 +128,7 @@ export function WorkspaceList({
           <button
             type="button"
             onClick={onCreate}
-            className="flex h-12 w-full items-center gap-3 rounded-md px-3 text-sm font-medium text-muted-foreground outline-none hover:bg-surface-muted hover:text-foreground focus-visible:bg-surface-muted focus-visible:ring-2 focus-visible:ring-brand/40"
+            className="flex h-12 w-full items-center gap-3 rounded-md px-3 text-sm font-medium text-muted-foreground outline-none hover:bg-surface-muted hover:text-foreground focus-visible:bg-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring"
           >
             <span className="flex w-9 justify-center">
               <span className="grid size-6 place-items-center rounded-full border border-dashed border-edge/20 bg-surface-muted">
@@ -139,6 +160,7 @@ export function WorkspaceSwitcher({
   manageLabel = "Workspace settings",
   createLabel = "Create workspace",
   align = "start",
+  labels,
   className,
 }: {
   workspaces: Workspace[]
@@ -158,8 +180,11 @@ export function WorkspaceSwitcher({
   manageLabel?: string
   createLabel?: string
   align?: "start" | "center" | "end"
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<WorkspaceSwitcherLabels>
   className?: string
 }) {
+  const t = { ...workspaceSwitcherLabels, ...labels }
   const [internal, setInternal] = React.useState(defaultActiveId ?? workspaces[0]?.id ?? "")
   const current = activeId ?? internal
   const active = workspaces.find((w) => w.id === current)
@@ -167,7 +192,7 @@ export function WorkspaceSwitcher({
     <DropdownMenu defaultOpen={defaultOpen}>
       <DropdownMenuTrigger
         render={<Button variant="elevated" size="compact" className={cn("max-w-64 gap-2 pr-1.5 pl-1.5", className)} />}
-        aria-label={active ? `Switch workspace, current: ${active.name}` : "Switch workspace"}
+        aria-label={active ? t.switchWorkspaceCurrent(active.name) : t.switchWorkspace}
       >
         {active && <WorkspaceAvatar workspace={active} className="size-5" />}
         <span className="truncate">{active?.name ?? placeholder}</span>
@@ -237,6 +262,7 @@ export function CreateWorkspaceForm({
   maxLogoSizeMb = 10,
   onSubmit,
   onCancel,
+  labels,
   className,
 }: {
   title?: string
@@ -246,8 +272,11 @@ export function CreateWorkspaceForm({
   maxLogoSizeMb?: number
   onSubmit?: (values: { name: string; slug: string; logo?: File }) => void | Promise<void>
   onCancel?: () => void
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<WorkspaceSwitcherLabels>
   className?: string
 }) {
+  const t = { ...workspaceSwitcherLabels, ...labels }
   const id = React.useId()
   const fileRef = React.useRef<HTMLInputElement>(null)
   const [name, setName] = React.useState("")
@@ -292,16 +321,16 @@ export function CreateWorkspaceForm({
           <div className="flex flex-col items-start gap-2">
             <div className="flex gap-2">
               <Button type="button" variant="elevated" size="compact" aria-describedby={`${id}-logo-hint`} onClick={() => fileRef.current?.click()}>
-                Upload logo
+                {t.uploadLogo}
               </Button>
               {logo && (
                 <Button type="button" variant="ghost" size="compact" onClick={() => setLogo(null)}>
-                  Remove
+                  {t.remove}
                 </Button>
               )}
             </div>
             <p id={`${id}-logo-hint`} aria-live="polite" className={cn("text-xs", logoError ? "text-destructive-text" : "text-subtle")}>
-              {logoError ?? `Square image, up to ${maxLogoSizeMb}MB.`}
+              {logoError ?? t.logoHint(maxLogoSizeMb)}
             </p>
             <input
               ref={fileRef}
@@ -309,14 +338,14 @@ export function CreateWorkspaceForm({
               accept="image/*"
               className="sr-only"
               tabIndex={-1}
-              aria-label="Workspace logo"
+              aria-label={t.workspaceLogo}
               aria-describedby={`${id}-logo-hint`}
               onChange={(e) => {
                 const file = e.target.files?.[0]
                 e.target.value = ""
                 if (!file) return
                 if (file.size > maxLogoSizeMb * 1024 * 1024) {
-                  setLogoError(`That file is over ${maxLogoSizeMb}MB.`)
+                  setLogoError(t.logoTooLarge(maxLogoSizeMb))
                   return
                 }
                 setLogoError(null)
@@ -327,13 +356,13 @@ export function CreateWorkspaceForm({
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={`${id}-name`} className="text-[0.8125rem]">
-            Name
+            {t.name}
           </Label>
-          <Input id={`${id}-name`} variant="compact" placeholder="Workspace name" value={name} onChange={(e) => setName(e.target.value)} required autoComplete="organization" />
+          <Input id={`${id}-name`} variant="compact" placeholder={t.namePlaceholder} value={name} onChange={(e) => setName(e.target.value)} required autoComplete="organization" />
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor={`${id}-slug`} className="text-[0.8125rem]">
-            URL
+            {t.url}
           </Label>
           <div className="flex items-center rounded-md">
             {slugPrefix && (
@@ -344,7 +373,7 @@ export function CreateWorkspaceForm({
             <Input
               id={`${id}-slug`}
               variant="compact"
-              placeholder="my-workspace"
+              placeholder={t.slugPlaceholder}
               className={cn(slugPrefix && "rounded-l-none")}
               aria-describedby={slugPrefix ? `${id}-slug-prefix` : undefined}
               value={effectiveSlug}
@@ -360,7 +389,7 @@ export function CreateWorkspaceForm({
       <div className="flex justify-end gap-3 p-4">
         {onCancel && (
           <Button type="button" variant="elevated" size="compact" onClick={onCancel}>
-            Cancel
+            {t.cancel}
           </Button>
         )}
         <Button type="submit" variant="primary" size="compact" disabled={!canSubmit}>

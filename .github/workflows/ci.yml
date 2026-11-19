@@ -23,4 +23,13 @@ jobs:
       - run: npm run registry:build
       - run: npm run typecheck
       - run: npm run lint
+      - name: Every built-in string is translatable
+        run: npm run test:strings
+      - name: Every item type-checks in a strict Vite-style project
+        run: npm run test:install
       - run: npm run build
+      - run: npx playwright install --with-deps chromium
+      # Screenshots are compared on macOS (the committed baselines); CI checks everything else against the
+      # production build: console errors on every gallery page and the whole accessibility spec.
+      - name: Gallery and accessibility tests (production build)
+        run: npx playwright test --ignore-snapshots

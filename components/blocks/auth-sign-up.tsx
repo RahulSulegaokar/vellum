@@ -10,6 +10,7 @@ import {
   ProviderButtons,
   usePending,
   type AuthProvider,
+  type AuthSignInLabels,
 } from "@/components/blocks/auth-sign-in"
 
 /**
@@ -38,6 +39,7 @@ export function AuthSignUp({
   footer,
   onSubmit,
   onProvider,
+  labels,
   className,
 }: {
   logo?: React.ReactNode
@@ -68,6 +70,8 @@ export function AuthSignUp({
   footer?: React.ReactNode
   onSubmit?: (values: { email: string; password: string }) => void | Promise<void>
   onProvider?: (id: string) => void
+  /** Translations of the built-in strings (English by default). */
+  labels?: Partial<AuthSignInLabels>
   className?: string
 }) {
   const id = React.useId()
@@ -87,7 +91,7 @@ export function AuthSignUp({
     >
       {providers.length > 0 && (
         <>
-          <ProviderButtons providers={providers} recent={recentProvider} recentLabel={recentLabel} disabled={pending} onSelect={onProvider} />
+          <ProviderButtons providers={providers} recent={recentProvider} recentLabel={recentLabel} disabled={pending} onSelect={onProvider} labels={labels} />
           <AuthDivider />
         </>
       )}
@@ -109,6 +113,7 @@ export function AuthSignUp({
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             error={errors?.email}
+            labels={labels}
             required
           />
           <div className="flex flex-col gap-1.5">
@@ -123,6 +128,7 @@ export function AuthSignUp({
               onChange={(e) => setPassword(e.target.value)}
               minLength={minPasswordLength}
               error={errors?.password}
+              labels={labels}
               aria-describedby={showHint ? hintId : undefined}
               required
             />
