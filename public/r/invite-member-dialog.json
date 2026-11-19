@@ -4,11 +4,11 @@
   "title": "Invite Member Dialog",
   "description": "Invite-member dialog: email and role fields with inline validation, Cancel / Invite footer.",
   "registryDependencies": [
-    "RahulSulegaokar/vellum/button#v0.4.2",
-    "RahulSulegaokar/vellum/dialog#v0.4.2",
-    "RahulSulegaokar/vellum/input#v0.4.2",
-    "RahulSulegaokar/vellum/select#v0.4.2",
-    "RahulSulegaokar/vellum/vellum-theme#v0.4.2"
+    "RahulSulegaokar/vellum/button#v0.5.0",
+    "RahulSulegaokar/vellum/dialog#v0.5.0",
+    "RahulSulegaokar/vellum/input#v0.5.0",
+    "RahulSulegaokar/vellum/select#v0.5.0",
+    "RahulSulegaokar/vellum/vellum-theme#v0.5.0"
   ],
   "files": [
     {

@@ -29,7 +29,7 @@ Each component also brings in:
 
 Pulled in this way, the theme only adds missing tokens. It never overwrites values you've set, which is why step 1 installs it explicitly.
 
-Pin a release by appending a tag: `RahulSulegaokar/vellum/button#v0.4.2`.
+Pin a release by appending a tag: `RahulSulegaokar/vellum/button#v0.5.0`.
 
 **CLI versions.** Vellum is built and tested with shadcn CLI 4.23.0, which the update workflow pins; `shadcn@latest` works as long as it is 4.x. The `#tag` form is checked on every release by `.github/workflows/release-check.yml` (an empty Vite project and a Laravel-shaped one, `--dry-run`).
 
@@ -54,7 +54,8 @@ Main tokens:
 
 | Token | Used for |
 |---|---|
-| `--brand`, `--brand-foreground`, `--brand-edge` | Primary buttons, checked checkbox/radio/switch, focus outlines |
+| `--brand`, `--brand-foreground`, `--brand-edge` | Primary buttons, selection, focus outlines |
+| `--control-checked` | Checked checkbox, radio and switch, slider and progress fills (follows `--brand`; lighter in dark mode) |
 | `--solid`, `--solid-hover`, `--solid-foreground` | The default (dark) button |
 | `--surface`, `--surface-muted` | Raised controls, dialog panel and shell |
 | `--field`, `--field-ring`, `--field-ring-focus`, `--field-halo`, `--field-invalid` | Inputs, textareas, selects, OTP slots |

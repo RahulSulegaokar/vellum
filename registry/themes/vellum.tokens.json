@@ -1,5 +1,5 @@
 {
-  "accentTokens": ["brand", "brand-edge", "brand-edge-strong", "brand-foreground", "brand-text", "ring", "sidebar-ring", "sidebar-primary", "sidebar-primary-foreground", "chart-1", "chart-2", "success-text"],
+  "accentTokens": ["brand", "brand-edge", "brand-edge-strong", "brand-foreground", "brand-text", "ring", "sidebar-ring", "sidebar-primary", "sidebar-primary-foreground", "chart-1", "chart-2", "success-text", "control-checked"],
   "theme": {
     "breakpoint-xs": "30rem",
     "shadow-popover": "0 10px 32px rgb(34 42 53 / 0.15), 0 1px 1px rgb(0 0 0 / 0.05), 0 4px 6px rgb(34 42 53 / 0.08), 0 24px 68px rgb(47 48 55 / 0.1)",
@@ -87,7 +87,8 @@
     "color-info": "var(--info)",
     "color-info-text": "var(--info-text)",
     "color-success-text": "var(--success-text)",
-    "color-brand-text": "var(--brand-text)"
+    "color-brand-text": "var(--brand-text)",
+    "color-control-checked": "var(--control-checked)"
   },
   "light": {
     "brand": "#6c47ff",
@@ -165,8 +166,9 @@
     "warning-text": "#ca3500",
     "info": "#2b7fff",
     "info-text": "#1447e6",
-    "success-text": "#008236",
-    "brand-text": "#6c47ff"
+    "success-text": "#007a32",
+    "brand-text": "#6c47ff",
+    "control-checked": "var(--brand)"
   },
   "dark": {
     "background": "#131316",
@@ -227,6 +229,7 @@
     "info": "#2b7fff",
     "info-text": "#8ec5ff",
     "success-text": "#7bf1a8",
-    "brand-text": "#9479ff"
+    "brand-text": "#9479ff",
+    "control-checked": "#7755ff"
   }
 }

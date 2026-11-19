@@ -1536,7 +1536,7 @@ function SwitchShowcase() {
       id="switch"
       title="Switch"
       summary="An immediate on/off setting. Use it where the change applies at once; use a checkbox inside forms that need saving."
-      covers={["size: default", "size: sm", "off", "on", "disabled off", "disabled on"]}
+      covers={["size: default", "size: sm", "off", "on", "disabled off", "disabled on", "invalid"]}
     >
       <Demo label="Sizes">
         <SwitchRow label="Default" defaultChecked />
@@ -1549,6 +1549,7 @@ function SwitchShowcase() {
         <SwitchRow label="Disabled on" disabled defaultChecked />
         <SwitchRow label="Small off" size="sm" />
         <SwitchRow label="Small disabled" size="sm" disabled defaultChecked />
+        <SwitchRow label="Invalid (required)" invalid />
       </Demo>
       <Demo label="In context">
         <SwitchSettings />
@@ -1557,11 +1558,11 @@ function SwitchShowcase() {
   )
 }
 
-function SwitchRow({ label, size, defaultChecked, disabled }: { label: string; size?: "sm" | "default"; defaultChecked?: boolean; disabled?: boolean }) {
+function SwitchRow({ label, size, defaultChecked, disabled, invalid }: { label: string; size?: "sm" | "default"; defaultChecked?: boolean; disabled?: boolean; invalid?: boolean }) {
   const id = React.useId()
   return (
     <div className="flex items-center gap-2">
-      <Switch id={id} size={size} defaultChecked={defaultChecked} disabled={disabled} />
+      <Switch id={id} size={size} defaultChecked={defaultChecked} disabled={disabled} aria-invalid={invalid || undefined} />
       <Label htmlFor={id} className="font-normal">
         {label}
       </Label>

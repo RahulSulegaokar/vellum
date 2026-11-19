@@ -1,8 +1,8 @@
 "use client"
 
 import Link from "next/link"
-import { useTheme } from "next-themes"
 import { useSyncExternalStore } from "react"
+import { useTheme } from "@/hooks/use-theme"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
 import { GroupHeading } from "@/components/showcase/frame"
@@ -45,8 +45,15 @@ const groups = [
 const subscribe = () => () => {}
 
 export default function ShowcasePage() {
-  const { theme, setTheme } = useTheme()
+  const theme = useTheme()
   const mounted = useSyncExternalStore(subscribe, () => true, () => false)
+  const setTheme = (t: string) => {
+    document.documentElement.classList.toggle("dark", t === "dark")
+    document.documentElement.style.colorScheme = t
+    try {
+      localStorage.setItem("theme", t)
+    } catch {}
+  }
   const total = groups.reduce((n, g) => n + g.items.length, 0)
 
   return (

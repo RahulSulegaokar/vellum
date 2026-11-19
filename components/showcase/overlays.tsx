@@ -1185,7 +1185,7 @@ function CommandItems() {
           <UserIcon />
           Priya Nair
         </CommandItem>
-        <CommandItem data-checked="true">
+        <CommandItem checked>
           <UserIcon />
           Tomás Ortega
         </CommandItem>
@@ -1954,7 +1954,7 @@ function SidebarDemo() {
         className={cn("relative h-[30rem] min-h-0 overflow-hidden rounded-xl ring-1 ring-hairline", side === "right" && "flex-row-reverse")}
       >
         <RelaySidebar variant={variant} side={side} collapsible={collapsible} />
-        <SidebarInset className="min-w-0">
+        <SidebarInset as="div" className="min-w-0">
           <div className="flex h-12 shrink-0 items-center gap-2 border-b border-edge/6 px-3">
             <SidebarTrigger label="Toggle sidebar" />
             <Separator orientation="vertical" className="h-4" />

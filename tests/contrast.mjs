@@ -37,7 +37,7 @@ const fixtures = {
       "chart-1": "#0f8a4b", "chart-2": "#064e2b", "success-text": "#0e7e45",
     },
     dark: {
-      "brand-text": "#3dd68c", ring: "#34c77b", "sidebar-ring": "#34c77b", "sidebar-primary": "#3dd68c",
+      "brand-text": "#3dd68c", ring: "#1f9e5c", "sidebar-ring": "#1f9e5c", "sidebar-primary": "#3dd68c", "control-checked": "#12924f",
       "sidebar-primary-foreground": "#0d1f15", "success-text": "#3dd68c",
     },
   },
@@ -135,6 +135,7 @@ const sheen = Number(primaryClasses.match(/before:from-white\/(\d+)/)[1])
 // blending, which is lighter than overlay on these fills, so the check errs on the safe side).
 const gloss = buttonSource.match(/gloss:\s*"([^"]+)"/)[1]
 const glossSheen = Number(gloss.match(/before:from-white\/(\d+)/)[1]) * (gloss.includes("before:opacity-50") ? 0.5 : 1)
+const glossBand = Number(gloss.match(/after:from-white\/(\d+)/)[1])
 // Tags draw a 2% black gradient (`bg-linear-to-t from-black/2`) over their tint; its darkest end is the bottom row.
 const tagShade = (classes) => (classes.match(/from-black\/(\d+)/) ? [tw("var(--color-black)", Number(classes.match(/from-black\/(\d+)/)[1]))] : [])
 const badgeSource = readFileSync(new URL("../components/ui/badge.tsx", import.meta.url), "utf8")
@@ -190,7 +191,7 @@ const text = [
   ["solid button", "var(--solid-foreground)", ["var(--solid)"]],
   ["brand fill (checked control, calendar day)", "var(--brand-foreground)", ["var(--brand)"]],
   [`primary button label on its sheen's top row (white/${sheen})`, "var(--brand-foreground)", ["var(--brand)", tw("var(--color-white)", sheen)]],
-  [`gloss pill label on its sheen's top row (white/${glossSheen} + white/10)`, "var(--brand-foreground)", ["var(--brand)", tw("var(--color-white)", glossSheen), tw("var(--color-white)", 10)]],
+  [`gloss pill label on its sheen's top row (white/${glossSheen} + white/${glossBand})`, "var(--brand-foreground)", ["var(--brand)", tw("var(--color-white)", glossSheen), tw("var(--color-white)", glossBand)]],
   ["brand text link on surface", "var(--brand-text)", surface],
   ["brand text link on canvas", "var(--brand-text)", canvas],
   ["destructive text on surface", "var(--destructive-text)", surface],
@@ -231,10 +232,10 @@ const ui = [
   ].map(([where, bg]) => [`focus ring on ${where}`, "var(--ring)", bg, "ui"]),
   ["sidebar focus ring on sidebar", "var(--sidebar-ring)", sidebar, "ui"],
   ["sidebar focus ring on sidebar accent", "var(--sidebar-ring)", [...sidebar, "var(--sidebar-accent)"], "ui"],
-  ["checked fill (checkbox, radio, switch) on surface", "var(--brand)", surface, "ui"],
-  ["checked fill (checkbox, radio, switch) on canvas", "var(--brand)", canvas, "ui"],
-  ["check mark / radio dot on the checked fill", "var(--brand-foreground)", ["var(--brand)"], "ui"],
-  ["progress and slider fill on their track", "var(--brand)", muted, "ui"],
+  ["checked fill (checkbox, radio, switch) on surface", "var(--control-checked)", surface, "ui"],
+  ["checked fill (checkbox, radio, switch) on canvas", "var(--control-checked)", canvas, "ui"],
+  ["check mark / radio dot on the checked fill", "var(--brand-foreground)", ["var(--control-checked)"], "ui"],
+  ["progress and slider fill on their track", "var(--control-checked)", muted, "ui"],
   // A control inside a primary-filled container: in dark mode a bubble or ink button is white.
   ["focus ring on a primary fill (a control inside a dark-mode bubble)", "var(--ring)", ["var(--primary)"], "ui"],
 ]
@@ -243,17 +244,6 @@ const ui = [
 // with today's ratio as a floor: they are reported ("known"), not counted as failures, but getting worse fails.
 // Every other accent/mode of the same row is enforced. Remove an entry once its fix ships.
 const known = [
-  ["violet", "light", "gloss pill label on its sheen's top row", 3.78],
-  ["violet", "dark", "gloss pill label on its sheen's top row", 3.78],
-  ["green", "light", "gloss pill label on its sheen's top row", 3.63],
-  ["green", "dark", "gloss pill label on its sheen's top row", 3.63],
-  ["violet", "light", "success text on success/6 (banner) on canvas", 4.4],
-  ["violet", "dark", "checked fill (checkbox, radio, switch) on surface", 2.82],
-  ["green", "dark", "checked fill (checkbox, radio, switch) on surface", 2.89],
-  ["violet", "dark", "progress and slider fill on their track", 2.71],
-  ["green", "dark", "progress and slider fill on their track", 2.78],
-  // The green fixture's own dark ring (a consumer value, not Vellum's) on a white fill.
-  ["green", "dark", "focus ring on a primary fill (a control inside a dark-mode bubble)", 2.19],
 ]
 const knownFloor = (fx, mode, label) => known.find(([f, m, l]) => f === fx && m === mode && label.startsWith(l))?.[3]
 

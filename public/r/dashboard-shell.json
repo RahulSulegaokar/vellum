@@ -8,10 +8,10 @@
     "lucide-react"
   ],
   "registryDependencies": [
-    "RahulSulegaokar/vellum/badge#v0.4.2",
-    "RahulSulegaokar/vellum/button#v0.4.2",
-    "RahulSulegaokar/vellum/dropdown-menu#v0.4.2",
-    "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+    "RahulSulegaokar/vellum/badge#v0.5.0",
+    "RahulSulegaokar/vellum/button#v0.5.0",
+    "RahulSulegaokar/vellum/dropdown-menu#v0.5.0",
+    "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
     "utils"
   ],
   "files": [

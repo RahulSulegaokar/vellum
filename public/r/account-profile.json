@@ -7,14 +7,14 @@
     "lucide-react"
   ],
   "registryDependencies": [
-    "RahulSulegaokar/vellum/alert-dialog#v0.4.2",
-    "RahulSulegaokar/vellum/auth-sign-in#v0.4.2",
-    "RahulSulegaokar/vellum/avatar#v0.4.2",
-    "RahulSulegaokar/vellum/badge#v0.4.2",
-    "RahulSulegaokar/vellum/button#v0.4.2",
-    "RahulSulegaokar/vellum/dropdown-menu#v0.4.2",
-    "RahulSulegaokar/vellum/empty-state#v0.4.2",
-    "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+    "RahulSulegaokar/vellum/alert-dialog#v0.5.0",
+    "RahulSulegaokar/vellum/auth-sign-in#v0.5.0",
+    "RahulSulegaokar/vellum/avatar#v0.5.0",
+    "RahulSulegaokar/vellum/badge#v0.5.0",
+    "RahulSulegaokar/vellum/button#v0.5.0",
+    "RahulSulegaokar/vellum/dropdown-menu#v0.5.0",
+    "RahulSulegaokar/vellum/empty-state#v0.5.0",
+    "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
     "utils"
   ],
   "files": [

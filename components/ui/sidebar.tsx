@@ -318,17 +318,17 @@ function SidebarRail({
   )
 }
 
-function SidebarInset({ className, ...props }: React.ComponentProps<"main">) {
-  return (
-    <main
-      data-slot="sidebar-inset"
-      className={cn(
-        "relative flex w-full flex-1 flex-col bg-background md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-card md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
-        className
-      )}
-      {...props}
-    />
-  )
+/** The page beside the sidebar. Renders `<main>`; pass `as="div"` when the page already has a main landmark. */
+function SidebarInset({ className, as = "main", ...props }: React.ComponentProps<"main"> & { as?: "main" | "div" }) {
+  const shared = {
+    "data-slot": "sidebar-inset",
+    className: cn(
+      "relative flex w-full flex-1 flex-col bg-background md:peer-data-[variant=inset]:m-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow-card md:peer-data-[variant=inset]:peer-data-[state=collapsed]:ml-2",
+      className
+    ),
+  }
+  if (as === "div") return <div {...(props as React.ComponentProps<"div">)} {...shared} />
+  return <main {...props} {...shared} />
 }
 
 function SidebarInput({

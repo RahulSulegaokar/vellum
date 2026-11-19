@@ -18,7 +18,7 @@ colors:
   danger-text: "#c10007"   # --destructive-text, also --destructive-strong behind white text
   warning-text: "#ca3500"  # --warning-text
   info-text: "#1447e6"     # --info-text
-  success-text: "#008236"  # --success-text
+  success-text: "#007a32"  # --success-text
   accent-text: "#6c47ff"   # --brand-text (#9479ff in dark)
   success: "#22c543"
   warning: "#f36b16"
@@ -72,7 +72,7 @@ All text meets WCAG AA (4.5:1, or 3:1 at 18px and up) in light and dark. `npm ru
 - Never set status-coloured text with the fill token (`text-destructive`); use the `-text` token.
 - Focus rings (`--ring`) reach 3:1 on every surface; the test checks them too, with Vellum's violet and with a green accent fixture, so a rebrand is covered.
 - `node tests/contrast.mjs --json` prints every pair and its ratio, for apps that extend the list with their own tokens.
-- Known gaps, reported by the test and not yet fixed (each would visibly change a control at rest): control boundaries under 3:1 (unchecked checkbox, radio, field ring, switch-off track), the checked fill and progress fill against dark surfaces, the `gloss` pill label on its sheen, and success text on a success banner placed directly on the canvas.
+- Reported for information only: control boundaries under 3:1 (unchecked checkbox, radio, field ring, switch-off track). These controls are identified by their label and shape, and a darker edge would change the look at rest. Every other pair is enforced, with no known gaps (v0.5.0 closed the checked and progress fills in dark mode, the `gloss` pill label and success text on a success banner).
 
 ## Change the accent
 
@@ -80,7 +80,8 @@ The violet accent is spread over a handful of tokens. To rebrand, set all of the
 
 | Token | Light | Dark | Drives |
 |---|---|---|---|
-| `--brand` | `#6c47ff` | inherits light | Primary buttons, checked controls, progress, selection |
+| `--brand` | `#6c47ff` | inherits light | Primary buttons, selection, brand fills behind text |
+| `--control-checked` | `var(--brand)` | `#7755ff` | Checked checkbox, radio and switch, slider range and progress fill (3:1 on dark surfaces; white marks on it 3:1) |
 | `--brand-edge` | `#5b35f0` | inherits light | 1px ring around brand fills (also used by `--control-shadow-checked`) |
 | `--brand-foreground` | `#ffffff` | `#ffffff` | Text and icons on brand fills |
 | `--brand-text` | `#6c47ff` | `#9479ff` | Violet text and links (must pass 4.5:1 on white and the dark canvas) |
@@ -89,22 +90,24 @@ The violet accent is spread over a handful of tokens. To rebrand, set all of the
 | `--sidebar-primary` | `#131316` (ink, not violet) | `#9785ff` | Active sidebar item fill |
 | `--brand-edge-strong` | `color-mix(in oklab, #4a2bc7 88%, transparent)` | inherits light | Ring around the checked switch |
 | `--sidebar-primary-foreground` | `#ffffff` | `#ffffff` | Text on the active sidebar item |
-| `--success-text` | `#008236` | `#7bf1a8` | Success text (apps with a green accent often want one green) |
+| `--success-text` | `#007a32` | `#7bf1a8` | Success text (apps with a green accent often want one green) |
 | `--chart-1`, `--chart-2` | `#6c47ff`, `#9785ff` | inherit light | First two chart series |
 
-`--brand`, `--brand-edge`, `--brand-edge-strong`, `--chart-1` and `--chart-2` have no dark values of their own: dark mode uses the light ones unless you set them in `.dark`. The machine-readable list is `accentTokens` in `registry/themes/vellum.tokens.json`, so an app can check that no violet is left.
+`--brand`, `--brand-edge`, `--brand-edge-strong`, `--chart-1` and `--chart-2` have no dark values of their own (`--control-checked` follows `--brand` in light mode and has its own dark value): dark mode uses the light ones unless you set them in `.dark`. The machine-readable list is `accentTokens` in `registry/themes/vellum.tokens.json`, so an app can check that no violet is left.
 
 ```css
 :root {
-  --brand: #0f9d58; --brand-edge: #0b7a44; --brand-edge-strong: color-mix(in oklab, #08603a 88%, transparent);
-  --brand-text: #0b7a44; --success-text: #0b7a44; --ring: #0f9d58; --sidebar-ring: #0f9d58;
-  --sidebar-primary-foreground: #ffffff; --chart-1: #0f9d58; --chart-2: #5cc68d;
+  --brand: #0e7e45; --brand-edge: #0a6b3a; --brand-edge-strong: color-mix(in oklab, #085c32 88%, transparent);
+  --brand-text: #0e7e45; --success-text: #0e7e45; --ring: #0f8a4b; --sidebar-ring: #0f8a4b;
+  --sidebar-primary: #0e7e45; --chart-1: #0f8a4b; --chart-2: #064e2b;
 }
 .dark {
-  --brand-text: #5cc68d; --success-text: #5cc68d; --ring: #5cc68d; --sidebar-ring: #5cc68d;
-  --sidebar-primary: #5cc68d; --sidebar-primary-foreground: #0d1f15;
+  --brand-text: #3dd68c; --success-text: #3dd68c; --ring: #1f9e5c; --sidebar-ring: #1f9e5c;
+  --sidebar-primary: #3dd68c; --sidebar-primary-foreground: #0d1f15; --control-checked: #12924f;
 }
 ```
+
+These are the green values `tests/contrast.mjs` checks as its second accent, so this example passes every pair.
 
 After changing them, run `npm run test:contrast` in a Vellum checkout with your values, or check `--brand-text` and `--brand-foreground` on `--brand` by hand.
 

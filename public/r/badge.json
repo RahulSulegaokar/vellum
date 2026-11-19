@@ -7,7 +7,7 @@
     "class-variance-authority"
   ],
   "registryDependencies": [
-    "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+    "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
     "utils"
   ],
   "files": [

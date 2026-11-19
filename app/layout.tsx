@@ -1,6 +1,5 @@
 import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
-import { ThemeProvider } from "next-themes"
 import "./globals.css"
 
 const sans = Geist({ subsets: ["latin"], variable: "--font-sans" })
@@ -14,11 +13,15 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning className={`${sans.variable} ${mono.variable} font-sans antialiased`}>
-      <body>
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
-          {children}
-        </ThemeProvider>
-      </body>
+      <head>
+        {/* Apply the saved theme before first paint (the gallery's toggle and the tests write localStorage "theme"). */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{var t=localStorage.getItem("theme");if(t==="dark"){document.documentElement.classList.add("dark");document.documentElement.style.colorScheme="dark"}else{document.documentElement.style.colorScheme="light"}}catch(e){}`,
+          }}
+        />
+      </head>
+      <body>{children}</body>
     </html>
   )
 }

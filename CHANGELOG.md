@@ -2,6 +2,37 @@
 
 Each entry lists what consumers will see in `npx shadcn add RahulSulegaokar/vellum/<item> --diff`.
 
+## v0.5.0 (2026-11-19)
+
+Switch and slider take the shape of shadcn's Luma style, and every known contrast gap is closed. Minor (breaking) release under 0.x: the switch and slider change size, and checked fills move to a new token.
+
+### Looks different at rest
+
+- **Switch:** Luma's shape. A 44×20 track (`sm`: 28×16) with a 24×16 pill thumb (`sm`: 16×12) that slides 16px (`sm`: 8px). It was a 24px track with a 12px round thumb. The thumb is light in dark mode too. Invalid (`aria-invalid`) draws a 2px `--field-invalid` edge; there was no invalid style. The thumb moves with a transform that mirrors under `dir="rtl"`.
+- **Slider:** Luma's shape. An 8px track (`bg-muted`) with a 24×16 pill thumb (16×24 when vertical), raised with `shadow-thumb` and a hairline ring. It was a 4px track with a 12px round thumb with a `--ring` border. Hover and focus show a soft 4px `ring/30` halo under the opaque focus outline. The thumb is light in dark mode.
+- **Checked fills in dark mode:** the checkbox, radio, switch, slider range and progress use the new `--control-checked` token, which is `#7755ff` in dark mode (was `--brand`, `#6c47ff`). It reaches 3:1 on dark surfaces and tracks, and white marks on it stay at 4.6:1. Buttons and other brand fills behind text keep `--brand`.
+- **Gloss pills:** a gentler sheen (`before:from-white/6`, `after:from-white/4`; were /20 and /10), so the label reaches 4.5:1 with the violet accent and with a green one.
+- **Success text:** `--success-text` is `#007a32` in light mode (was `#008236`), so it passes 4.5:1 on a success banner placed on the canvas.
+- **Read-only fields:** the default `Input` and `Textarea` use the muted read-only look the compact input already had (`bg-subtle/8`, no shadow). Selects are excluded.
+
+### New
+
+- `--control-checked` token (`var(--brand)` light, `#7755ff` dark), listed in `accentTokens`. Apps that change the accent should set it in `.dark` too (DESIGN.md "Change the accent").
+- `CommandItem` `checked` prop shows the trailing check (it depended on a `data-checked` attribute the command library never sets).
+- `SidebarInset` `as="div"` for pages that already have a `<main>` landmark (default stays `main`).
+
+### Repo
+
+- Contrast test: no known gaps left. It reads the gloss band from the button classes, checks the checked fills through `--control-checked`, and its green example accent (now the one in DESIGN.md) passes every pair.
+- Gallery: `next-themes` removed. A server-rendered script applies the saved theme before first paint, and the showcase toggle uses `use-theme`, so the console warning about a `<script>` tag is gone.
+- Lint: 0 warnings. Unused imports are removed, rest-sibling props are allowed, and the copied gallery demos may use `<img>`.
+
+### What consumers must do
+
+- Re-install `switch`, `slider`, `checkbox`, `radio-group`, `progress`, `button`, `input`, `command` and `sidebar` (`--diff`, then `--overwrite`), and re-install `vellum-theme` by hand to take `--control-checked` and the new `--success-text`. `--control-checked` also arrives with the components if it's missing.
+- Layouts that sized around the 24px switch or 4px slider track: check spacing. The switch is now 44px wide.
+- A custom accent: set `--control-checked` in `.dark` (see DESIGN.md).
+
 ## v0.4.2 (2026-11-19)
 
 Bug-fix release, found while building the new `/showcase` page. Controls look the same at rest, except where noted.

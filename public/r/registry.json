@@ -96,7 +96,8 @@
           "color-info": "var(--info)",
           "color-info-text": "var(--info-text)",
           "color-success-text": "var(--success-text)",
-          "color-brand-text": "var(--brand-text)"
+          "color-brand-text": "var(--brand-text)",
+          "color-control-checked": "var(--control-checked)"
         },
         "light": {
           "brand": "#6c47ff",
@@ -174,8 +175,9 @@
           "warning-text": "#ca3500",
           "info": "#2b7fff",
           "info-text": "#1447e6",
-          "success-text": "#008236",
-          "brand-text": "#6c47ff"
+          "success-text": "#007a32",
+          "brand-text": "#6c47ff",
+          "control-checked": "var(--brand)"
         },
         "dark": {
           "background": "#131316",
@@ -236,7 +238,8 @@
           "info": "#2b7fff",
           "info-text": "#8ec5ff",
           "success-text": "#7bf1a8",
-          "brand-text": "#9479ff"
+          "brand-text": "#9479ff",
+          "control-checked": "#7755ff"
         }
       }
     },
@@ -271,7 +274,7 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -289,8 +292,8 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -308,7 +311,7 @@
         "class-variance-authority"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -323,7 +326,7 @@
       "type": "registry:ui",
       "title": "Aspect Ratio",
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -342,8 +345,8 @@
         "class-variance-authority"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -361,7 +364,7 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -380,7 +383,7 @@
         "class-variance-authority"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -399,7 +402,7 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -418,7 +421,7 @@
         "class-variance-authority"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -437,8 +440,8 @@
         "class-variance-authority"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/separator#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/separator#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -457,7 +460,7 @@
         "class-variance-authority"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -476,8 +479,8 @@
         "react-day-picker"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -492,7 +495,7 @@
       "type": "registry:ui",
       "title": "Card",
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -511,8 +514,8 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -530,7 +533,7 @@
         "recharts"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -548,7 +551,7 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -567,8 +570,8 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -586,7 +589,7 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2"
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0"
       ],
       "files": [
         {
@@ -604,9 +607,9 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/input-group#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/input-group#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -625,9 +628,9 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/dialog#v0.4.2",
-        "RahulSulegaokar/vellum/input-group#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/dialog#v0.5.0",
+        "RahulSulegaokar/vellum/input-group#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -646,7 +649,7 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -665,8 +668,8 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -684,7 +687,7 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2"
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0"
       ],
       "files": [
         {
@@ -701,7 +704,7 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -720,7 +723,7 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -738,7 +741,7 @@
         "class-variance-authority"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -756,9 +759,9 @@
         "class-variance-authority"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/label#v0.4.2",
-        "RahulSulegaokar/vellum/separator#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/label#v0.5.0",
+        "RahulSulegaokar/vellum/separator#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -773,8 +776,8 @@
       "type": "registry:ui",
       "title": "Form",
       "registryDependencies": [
-        "RahulSulegaokar/vellum/label#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/label#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -792,7 +795,7 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -810,10 +813,10 @@
         "class-variance-authority"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/input#v0.4.2",
-        "RahulSulegaokar/vellum/textarea#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/input#v0.5.0",
+        "RahulSulegaokar/vellum/textarea#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -832,7 +835,7 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -850,7 +853,7 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -869,8 +872,8 @@
         "class-variance-authority"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/separator#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/separator#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -885,7 +888,7 @@
       "type": "registry:ui",
       "title": "Kbd",
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -900,7 +903,7 @@
       "type": "registry:ui",
       "title": "Label",
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -919,7 +922,7 @@
         "class-variance-authority"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -938,8 +941,8 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/dropdown-menu#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/dropdown-menu#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -958,8 +961,8 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -974,7 +977,7 @@
       "type": "registry:ui",
       "title": "Message",
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -992,8 +995,8 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/input#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/input#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1013,7 +1016,7 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1031,8 +1034,8 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1050,7 +1053,7 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1068,7 +1071,7 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1087,9 +1090,9 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/input#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/input#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1107,7 +1110,7 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1125,7 +1128,7 @@
         "react-resizable-panels"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1143,7 +1146,7 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1161,7 +1164,7 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1180,9 +1183,9 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/input#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/input#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1200,7 +1203,7 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1219,8 +1222,8 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1240,14 +1243,14 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/input#v0.4.2",
-        "RahulSulegaokar/vellum/separator#v0.4.2",
-        "RahulSulegaokar/vellum/sheet#v0.4.2",
-        "RahulSulegaokar/vellum/skeleton#v0.4.2",
-        "RahulSulegaokar/vellum/tooltip#v0.4.2",
-        "RahulSulegaokar/vellum/use-mobile#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/input#v0.5.0",
+        "RahulSulegaokar/vellum/separator#v0.5.0",
+        "RahulSulegaokar/vellum/sheet#v0.5.0",
+        "RahulSulegaokar/vellum/skeleton#v0.5.0",
+        "RahulSulegaokar/vellum/tooltip#v0.5.0",
+        "RahulSulegaokar/vellum/use-mobile#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1262,7 +1265,7 @@
       "type": "registry:ui",
       "title": "Skeleton",
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1280,7 +1283,7 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1299,8 +1302,8 @@
         "sonner"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/use-theme#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2"
+        "RahulSulegaokar/vellum/use-theme#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0"
       ],
       "files": [
         {
@@ -1317,7 +1320,7 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1335,7 +1338,7 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1350,7 +1353,7 @@
       "type": "registry:ui",
       "title": "Table",
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1369,7 +1372,7 @@
         "class-variance-authority"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1384,8 +1387,8 @@
       "type": "registry:ui",
       "title": "Textarea",
       "registryDependencies": [
-        "RahulSulegaokar/vellum/input#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/input#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1404,8 +1407,8 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1424,8 +1427,8 @@
         "class-variance-authority"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/toggle#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/toggle#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1444,7 +1447,7 @@
         "class-variance-authority"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1462,7 +1465,7 @@
         "@base-ui/react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1480,8 +1483,8 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/collapsible#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/collapsible#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1500,12 +1503,12 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/alert-dialog#v0.4.2",
-        "RahulSulegaokar/vellum/avatar#v0.4.2",
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/dropdown-menu#v0.4.2",
-        "RahulSulegaokar/vellum/separator#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/alert-dialog#v0.5.0",
+        "RahulSulegaokar/vellum/avatar#v0.5.0",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/dropdown-menu#v0.5.0",
+        "RahulSulegaokar/vellum/separator#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1524,14 +1527,14 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/alert-dialog#v0.4.2",
-        "RahulSulegaokar/vellum/auth-sign-in#v0.4.2",
-        "RahulSulegaokar/vellum/avatar#v0.4.2",
-        "RahulSulegaokar/vellum/badge#v0.4.2",
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/dropdown-menu#v0.4.2",
-        "RahulSulegaokar/vellum/empty-state#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/alert-dialog#v0.5.0",
+        "RahulSulegaokar/vellum/auth-sign-in#v0.5.0",
+        "RahulSulegaokar/vellum/avatar#v0.5.0",
+        "RahulSulegaokar/vellum/badge#v0.5.0",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/dropdown-menu#v0.5.0",
+        "RahulSulegaokar/vellum/empty-state#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1550,14 +1553,14 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/badge#v0.4.2",
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/dialog#v0.4.2",
-        "RahulSulegaokar/vellum/empty-state#v0.4.2",
-        "RahulSulegaokar/vellum/input#v0.4.2",
-        "RahulSulegaokar/vellum/label#v0.4.2",
-        "RahulSulegaokar/vellum/spinner#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/badge#v0.5.0",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/dialog#v0.5.0",
+        "RahulSulegaokar/vellum/empty-state#v0.5.0",
+        "RahulSulegaokar/vellum/input#v0.5.0",
+        "RahulSulegaokar/vellum/label#v0.5.0",
+        "RahulSulegaokar/vellum/spinner#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1573,7 +1576,7 @@
       "title": "Auth Page",
       "description": "Full-page auth layout: soft centered glow on the canvas, a centered card slot and a copyright/links footer.",
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1592,12 +1595,12 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/badge#v0.4.2",
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/input#v0.4.2",
-        "RahulSulegaokar/vellum/label#v0.4.2",
-        "RahulSulegaokar/vellum/spinner#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/badge#v0.5.0",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/input#v0.5.0",
+        "RahulSulegaokar/vellum/label#v0.5.0",
+        "RahulSulegaokar/vellum/spinner#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1613,8 +1616,8 @@
       "title": "Auth Sign Up",
       "description": "Sign-up card: optional logo, provider buttons, email and password (with show/hide), primary continue and a link to sign in.",
       "registryDependencies": [
-        "RahulSulegaokar/vellum/auth-sign-in#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2"
+        "RahulSulegaokar/vellum/auth-sign-in#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0"
       ],
       "files": [
         {
@@ -1632,8 +1635,8 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/auth-sign-in#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2"
+        "RahulSulegaokar/vellum/auth-sign-in#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0"
       ],
       "files": [
         {
@@ -1651,7 +1654,7 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1670,7 +1673,7 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1689,13 +1692,13 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/badge#v0.4.2",
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/checkbox#v0.4.2",
-        "RahulSulegaokar/vellum/dialog#v0.4.2",
-        "RahulSulegaokar/vellum/input#v0.4.2",
-        "RahulSulegaokar/vellum/tabs#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/badge#v0.5.0",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/checkbox#v0.5.0",
+        "RahulSulegaokar/vellum/dialog#v0.5.0",
+        "RahulSulegaokar/vellum/input#v0.5.0",
+        "RahulSulegaokar/vellum/tabs#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1714,11 +1717,11 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/input#v0.4.2",
-        "RahulSulegaokar/vellum/radio-group#v0.4.2",
-        "RahulSulegaokar/vellum/switch#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/input#v0.5.0",
+        "RahulSulegaokar/vellum/radio-group#v0.5.0",
+        "RahulSulegaokar/vellum/switch#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1734,8 +1737,8 @@
       "title": "Cta Section",
       "description": "Closing call-to-action card: title, short pitch and actions over soft line art.",
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1755,10 +1758,10 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/badge#v0.4.2",
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/dropdown-menu#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/badge#v0.5.0",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/dropdown-menu#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1777,13 +1780,13 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/dialog#v0.4.2",
-        "RahulSulegaokar/vellum/dropdown-menu#v0.4.2",
-        "RahulSulegaokar/vellum/empty-state#v0.4.2",
-        "RahulSulegaokar/vellum/input#v0.4.2",
-        "RahulSulegaokar/vellum/table#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/dialog#v0.5.0",
+        "RahulSulegaokar/vellum/dropdown-menu#v0.5.0",
+        "RahulSulegaokar/vellum/empty-state#v0.5.0",
+        "RahulSulegaokar/vellum/input#v0.5.0",
+        "RahulSulegaokar/vellum/table#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1803,12 +1806,12 @@
         "react-day-picker"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/calendar#v0.4.2",
-        "RahulSulegaokar/vellum/native-select#v0.4.2",
-        "RahulSulegaokar/vellum/popover#v0.4.2",
-        "RahulSulegaokar/vellum/radio-group#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/calendar#v0.5.0",
+        "RahulSulegaokar/vellum/native-select#v0.5.0",
+        "RahulSulegaokar/vellum/popover#v0.5.0",
+        "RahulSulegaokar/vellum/radio-group#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1827,7 +1830,7 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1843,8 +1846,8 @@
       "title": "Faq Section",
       "description": "FAQ section: title on the left, accordion of questions on the right.",
       "registryDependencies": [
-        "RahulSulegaokar/vellum/accordion#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/accordion#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1863,7 +1866,7 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1882,9 +1885,9 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/empty-state#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/empty-state#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1903,12 +1906,12 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/checkbox#v0.4.2",
-        "RahulSulegaokar/vellum/input#v0.4.2",
-        "RahulSulegaokar/vellum/popover#v0.4.2",
-        "RahulSulegaokar/vellum/sheet#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/checkbox#v0.5.0",
+        "RahulSulegaokar/vellum/input#v0.5.0",
+        "RahulSulegaokar/vellum/popover#v0.5.0",
+        "RahulSulegaokar/vellum/sheet#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1927,8 +1930,8 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1947,10 +1950,10 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/callout#v0.4.2",
-        "RahulSulegaokar/vellum/switch#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/callout#v0.5.0",
+        "RahulSulegaokar/vellum/switch#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -1966,11 +1969,11 @@
       "title": "Invite Member Dialog",
       "description": "Invite-member dialog: email and role fields with inline validation, Cancel / Invite footer.",
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/dialog#v0.4.2",
-        "RahulSulegaokar/vellum/input#v0.4.2",
-        "RahulSulegaokar/vellum/select#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2"
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/dialog#v0.5.0",
+        "RahulSulegaokar/vellum/input#v0.5.0",
+        "RahulSulegaokar/vellum/select#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0"
       ],
       "files": [
         {
@@ -1988,18 +1991,18 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/avatar#v0.4.2",
-        "RahulSulegaokar/vellum/badge#v0.4.2",
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/dialog#v0.4.2",
-        "RahulSulegaokar/vellum/dropdown-menu#v0.4.2",
-        "RahulSulegaokar/vellum/empty-state#v0.4.2",
-        "RahulSulegaokar/vellum/input#v0.4.2",
-        "RahulSulegaokar/vellum/label#v0.4.2",
-        "RahulSulegaokar/vellum/select#v0.4.2",
-        "RahulSulegaokar/vellum/table#v0.4.2",
-        "RahulSulegaokar/vellum/tabs#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/avatar#v0.5.0",
+        "RahulSulegaokar/vellum/badge#v0.5.0",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/dialog#v0.5.0",
+        "RahulSulegaokar/vellum/dropdown-menu#v0.5.0",
+        "RahulSulegaokar/vellum/empty-state#v0.5.0",
+        "RahulSulegaokar/vellum/input#v0.5.0",
+        "RahulSulegaokar/vellum/label#v0.5.0",
+        "RahulSulegaokar/vellum/select#v0.5.0",
+        "RahulSulegaokar/vellum/table#v0.5.0",
+        "RahulSulegaokar/vellum/tabs#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -2018,10 +2021,10 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/badge#v0.4.2",
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/segmented-control#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/badge#v0.5.0",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/segmented-control#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -2037,12 +2040,12 @@
       "title": "Settings Card",
       "description": "Settings card: a switch-led header (title, description, optional badge) over a white panel of option rows that collapses while off.",
       "registryDependencies": [
-        "RahulSulegaokar/vellum/badge#v0.4.2",
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/checkbox#v0.4.2",
-        "RahulSulegaokar/vellum/switch#v0.4.2",
-        "RahulSulegaokar/vellum/tabs#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/badge#v0.5.0",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/checkbox#v0.5.0",
+        "RahulSulegaokar/vellum/switch#v0.5.0",
+        "RahulSulegaokar/vellum/tabs#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -2061,10 +2064,10 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/dialog#v0.4.2",
-        "RahulSulegaokar/vellum/kbd#v0.4.2",
-        "RahulSulegaokar/vellum/sheet#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/dialog#v0.5.0",
+        "RahulSulegaokar/vellum/kbd#v0.5.0",
+        "RahulSulegaokar/vellum/sheet#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -2080,7 +2083,7 @@
       "title": "Site Footer",
       "description": "Marketing footer: framed logo, link columns, social links and a legal line.",
       "registryDependencies": [
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -2099,9 +2102,9 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/navigation-menu#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/navigation-menu#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -2120,8 +2123,8 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/avatar#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/avatar#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [
@@ -2140,13 +2143,13 @@
         "lucide-react"
       ],
       "registryDependencies": [
-        "RahulSulegaokar/vellum/avatar#v0.4.2",
-        "RahulSulegaokar/vellum/button#v0.4.2",
-        "RahulSulegaokar/vellum/dropdown-menu#v0.4.2",
-        "RahulSulegaokar/vellum/input#v0.4.2",
-        "RahulSulegaokar/vellum/label#v0.4.2",
-        "RahulSulegaokar/vellum/spinner#v0.4.2",
-        "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
+        "RahulSulegaokar/vellum/avatar#v0.5.0",
+        "RahulSulegaokar/vellum/button#v0.5.0",
+        "RahulSulegaokar/vellum/dropdown-menu#v0.5.0",
+        "RahulSulegaokar/vellum/input#v0.5.0",
+        "RahulSulegaokar/vellum/label#v0.5.0",
+        "RahulSulegaokar/vellum/spinner#v0.5.0",
+        "RahulSulegaokar/vellum/vellum-theme#v0.5.0",
         "utils"
       ],
       "files": [

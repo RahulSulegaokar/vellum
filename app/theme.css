@@ -88,6 +88,7 @@
   --color-info-text: var(--info-text);
   --color-success-text: var(--success-text);
   --color-brand-text: var(--brand-text);
+  --color-control-checked: var(--control-checked);
 }
 
 :root {
@@ -166,8 +167,9 @@
   --warning-text: #ca3500;
   --info: #2b7fff;
   --info-text: #1447e6;
-  --success-text: #008236;
+  --success-text: #007a32;
   --brand-text: #6c47ff;
+  --control-checked: var(--brand);
 }
 
 .dark {
@@ -230,4 +232,5 @@
   --info-text: #8ec5ff;
   --success-text: #7bf1a8;
   --brand-text: #9479ff;
+  --control-checked: #7755ff;
 }
