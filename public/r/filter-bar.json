@@ -7,12 +7,12 @@
     "lucide-react"
   ],
   "registryDependencies": [
-    "RahulSulegaokar/vellum/button#v0.4.1",
-    "RahulSulegaokar/vellum/checkbox#v0.4.1",
-    "RahulSulegaokar/vellum/input#v0.4.1",
-    "RahulSulegaokar/vellum/popover#v0.4.1",
-    "RahulSulegaokar/vellum/sheet#v0.4.1",
-    "RahulSulegaokar/vellum/vellum-theme#v0.4.1",
+    "RahulSulegaokar/vellum/button#v0.4.2",
+    "RahulSulegaokar/vellum/checkbox#v0.4.2",
+    "RahulSulegaokar/vellum/input#v0.4.2",
+    "RahulSulegaokar/vellum/popover#v0.4.2",
+    "RahulSulegaokar/vellum/sheet#v0.4.2",
+    "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
     "utils"
   ],
   "files": [

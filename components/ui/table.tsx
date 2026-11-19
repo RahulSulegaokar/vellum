@@ -4,11 +4,6 @@ import * as React from "react"
 import { cn } from "@/lib/utils"
 
 /**
- * When the table is wider than its container, the container scrolls sideways and becomes a focusable, named
- * region (tabindex 0, role "region") so keyboard users can scroll it. `label` names it; by default it uses the
- * table's caption, then "Table".
- */
-/**
  * Props for a sideways-scrolling wrapper: while its content is wider than it is, it becomes a focusable, named
  * region (tabindex 0, role "region") so keyboard users can scroll it. The name is `label`, else the caption of a
  * table inside it, else "Table". Spread the result on the wrapper: `<div {...useScrollRegion(label)}>`.

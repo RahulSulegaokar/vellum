@@ -7,8 +7,8 @@
     "lucide-react"
   ],
   "registryDependencies": [
-    "RahulSulegaokar/vellum/auth-sign-in#v0.4.1",
-    "RahulSulegaokar/vellum/vellum-theme#v0.4.1"
+    "RahulSulegaokar/vellum/auth-sign-in#v0.4.2",
+    "RahulSulegaokar/vellum/vellum-theme#v0.4.2"
   ],
   "files": [
     {

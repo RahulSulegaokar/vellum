@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 
 /**
  * Checkbox: 14px surface box with a hairline ring and two soft drops, a faint
- * bottom shade that clears on hover, brand fill with a drawn check when checked.
+ * bottom shade that clears on hover, brand fill with a drawn check when checked and a dash when indeterminate.
  */
 function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
   return (
@@ -15,17 +15,31 @@ function Checkbox({ className, ...props }: CheckboxPrimitive.Root.Props) {
         "peer group/checkbox relative inline-flex size-3.5 after:absolute after:-inset-x-2.5 after:-inset-y-2 pointer-coarse:after:inset-x-[min(0px,calc((100%_-_44px)/2))] pointer-coarse:after:inset-y-[min(0px,calc((100%_-_36px)/2))] group-has-disabled/field:opacity-50 shrink-0 items-center justify-center rounded-sm bg-surface text-brand-foreground transition outline-none",
         "shadow-control",
         "before:absolute before:inset-0 before:rounded-[inherit] before:bg-linear-to-b before:to-black/2 before:transition-opacity hover:bg-accent hover:before:opacity-0 hover:shadow-control-hover",
-        "data-checked:bg-brand data-checked:shadow-control-checked data-checked:hover:bg-brand",
+        "data-checked:bg-brand data-checked:shadow-control-checked data-checked:hover:bg-brand data-indeterminate:bg-brand data-indeterminate:shadow-control-checked data-indeterminate:hover:bg-brand",
         // Forced colours (Windows high contrast): a CanvasText box, Highlight with a HighlightText check when checked.
-        "forced-colors:bg-[Canvas] forced-colors:text-[HighlightText] forced-colors:outline-1 forced-colors:[--tw-outline-style:solid] forced-colors:-outline-offset-1 forced-colors:outline-[CanvasText] forced-colors:forced-color-adjust-none forced-colors:before:hidden forced-colors:data-checked:bg-[Highlight] forced-colors:focus-visible:outline-2 forced-colors:focus-visible:outline-offset-2 forced-colors:focus-visible:outline-[CanvasText]",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring aria-invalid:bg-red-100 aria-invalid:shadow-[0_0_0_1px_var(--color-red-500)] data-disabled:cursor-not-allowed data-disabled:opacity-40",
+        "forced-colors:bg-[Canvas] forced-colors:text-[HighlightText] forced-colors:outline-1 forced-colors:[--tw-outline-style:solid] forced-colors:-outline-offset-1 forced-colors:outline-[CanvasText] forced-colors:forced-color-adjust-none forced-colors:before:hidden forced-colors:data-checked:bg-[Highlight] forced-colors:data-indeterminate:bg-[Highlight] forced-colors:focus-visible:outline-2 forced-colors:focus-visible:outline-offset-2 forced-colors:focus-visible:outline-[CanvasText]",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring aria-invalid:bg-destructive/10 aria-invalid:shadow-[0_0_0_1px_var(--destructive)] data-disabled:cursor-not-allowed data-disabled:opacity-40",
                 className
       )}
       {...props}
     >
       <CheckboxPrimitive.Indicator data-slot="checkbox-indicator" keepMounted className="relative grid place-content-center">
-        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="size-3.5 transition-[stroke-dashoffset] duration-200 ease-out motion-reduce:transition-none [stroke-dasharray:14] [stroke-dashoffset:14] group-data-checked/checkbox:[stroke-dashoffset:0]">
-          <path d="M4.25 8.75 7.25 11.75 11.75 4.25" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        <svg viewBox="0 0 16 16" fill="none" aria-hidden="true" className="size-3.5 *:transition-[stroke-dashoffset] *:duration-200 *:ease-out motion-reduce:*:transition-none">
+          <path
+            d="M4.25 8.75 7.25 11.75 11.75 4.25"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            className="[stroke-dasharray:14] [stroke-dashoffset:14] group-data-checked/checkbox:[stroke-dashoffset:0]"
+          />
+          <path
+            d="M4.5 8h7"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            className="[stroke-dasharray:7] [stroke-dashoffset:7] group-data-indeterminate/checkbox:[stroke-dashoffset:0]"
+          />
         </svg>
       </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>

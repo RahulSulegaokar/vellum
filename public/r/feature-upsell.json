@@ -7,9 +7,9 @@
     "lucide-react"
   ],
   "registryDependencies": [
-    "RahulSulegaokar/vellum/button#v0.4.1",
-    "RahulSulegaokar/vellum/empty-state#v0.4.1",
-    "RahulSulegaokar/vellum/vellum-theme#v0.4.1",
+    "RahulSulegaokar/vellum/button#v0.4.2",
+    "RahulSulegaokar/vellum/empty-state#v0.4.2",
+    "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
     "utils"
   ],
   "files": [

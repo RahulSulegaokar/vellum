@@ -112,12 +112,16 @@ function ToastClose({
   className,
   children,
   render = <Button variant="ghost" size="icon-sm" />,
+  label = "Close toast",
   ...props
-}: ToastPrimitive.Close.Props) {
+}: ToastPrimitive.Close.Props & {
+  /** Accessible name of the close button (translate it here). */
+  label?: string
+}) {
   return (
     <ToastPrimitive.Close
       data-slot="toast-close"
-      aria-label="Close toast"
+      aria-label={label}
       render={render}
       className={cn(
         "relative shrink-0 text-muted-foreground after:absolute after:-inset-2 after:content-[''] hover:text-foreground",
@@ -137,19 +141,19 @@ function ToastIcon({ type }: { type: string | undefined }) {
 
   if (type === "success") {
     icon = (
-      <CircleCheckIcon aria-hidden="true" />
+      <CircleCheckIcon className="text-success" aria-hidden="true" />
     )
   }
 
   if (type === "info") {
     icon = (
-      <InfoIcon aria-hidden="true" />
+      <InfoIcon className="text-info" aria-hidden="true" />
     )
   }
 
   if (type === "warning") {
     icon = (
-      <TriangleAlertIcon aria-hidden="true" />
+      <TriangleAlertIcon className="text-warning" aria-hidden="true" />
     )
   }
 

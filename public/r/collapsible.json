@@ -6,7 +6,7 @@
     "@base-ui/react"
   ],
   "registryDependencies": [
-    "RahulSulegaokar/vellum/vellum-theme#v0.4.1"
+    "RahulSulegaokar/vellum/vellum-theme#v0.4.2"
   ],
   "files": [
     {

@@ -189,7 +189,11 @@ async function walk(page: Page, max = 400) {
     // A ring next to a brand-filled neighbour (the slider's range, a selected day) cannot contrast with the brand on
     // that one side; three sides at 3:1 are required, all four when nothing brand-coloured is adjacent.
     const weak = Object.entries(r.sides).filter(([, s]) => s.found && s.ratio < 3)
-    if (weak.length > 1 || (weak.length === 1 && !r.brandNeighbour)) problems.push(`${r.name}: outline contrast ${weak.map(([k, s]) => `${k} ${s.ratio.toFixed(2)}`).join(", ")}`)
+    // A middle thumb of a multi-thumb slider sits inside the brand range, so both sides along the track touch the
+    // brand; the two sides across the track must still pass.
+    const alongTrack = weak.map(([k]) => k).sort().join()
+    const insideRange = r.brandNeighbour && weak.length === 2 && (alongTrack === "left,right" || alongTrack === "bottom,top")
+    if (!insideRange && (weak.length > 1 || (weak.length === 1 && !r.brandNeighbour))) problems.push(`${r.name}: outline contrast ${weak.map(([k, s]) => `${k} ${s.ratio.toFixed(2)}`).join(", ")}`)
   }
   return { checked, problems }
 }

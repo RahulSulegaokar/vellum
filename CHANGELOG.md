@@ -2,6 +2,27 @@
 
 Each entry lists what consumers will see in `npx shadcn add RahulSulegaokar/vellum/<item> --diff`.
 
+## v0.4.2 (2026-11-19)
+
+Bug-fix release, found while building the new `/showcase` page. Controls look the same at rest, except where noted.
+
+- **Checkbox:** `indeterminate` now draws a violet box with a dash (it looked unchecked before). The invalid state uses the destructive token (`bg-destructive/10`, 1px `--destructive` edge) instead of raw `red-100`/`red-500`, so it has a dark value.
+- **Slider:** a single number (`value={50}` / `defaultValue={50}`) renders one thumb; it rendered two (`[min, max]`). Arrays and no value behave as before.
+- **Calendar:** `data-day` is `YYYY-MM-DD` instead of `toLocaleDateString()`, which differed between the server and a browser in another locale and caused a hydration error. If you select days by `data-day`, update the selector.
+- **Pagination:** `PaginationPrevious`/`PaginationNext` keep their text size when `size` is passed as `undefined` (the label was squeezed into an icon-sized button). The ellipsis label is read by screen readers (it was inside `aria-hidden`); same for `BreadcrumbEllipsis`.
+- **Tokens instead of raw colours:** the alert-dialog overlay uses `bg-overlay` (same value); sheet and drawer overlays use `bg-overlay/25` (same 10% black); the compact input's invalid ring uses `--field-invalid` (was `red-500`, now the same red as the default field).
+- **Toast:** success, info and warning icons are coloured like Sonner's (`text-success`, `text-info`, `text-warning`); `ToastClose` takes a `label` (default "Close toast"). Sonner's info icon is `text-info`.
+- **Command:** `CommandDialog` renders its sr-only title and description inside the popup, so the dialog is labelled by them.
+- **Sidebar:** `SidebarMenuSkeleton` derives its width from `useId()` instead of `Math.random()` (hydration mismatch).
+- **Right-to-left:** bubble reactions, the vertical attachment's actions and the trace use logical sides (`start`/`end`, `ms`/`ps`, `border-s`, `text-start`), so they mirror under `dir="rtl"`. `RadioCard` uses `text-start`.
+- **RadioCard:** a disabled card is dimmed and shows a not-allowed cursor.
+- **Input group:** addons dim when the input inside is disabled, not only when the group has `data-disabled`.
+- **Navigation menu:** triggers and links show only the opaque focus outline (the extra translucent ring is gone, as on every other control).
+- **Questionnaire:** a checked choice's edge is violet (`border-brand/40`), like every other checked control.
+- **Chart:** the generated chart id keeps only `[a-zA-Z0-9_-]`, so React versions whose ids contain `«»` don't break the style selector.
+- **Accordion** is marked `"use client"`. `table.tsx` loses a duplicated doc comment.
+- **Gallery:** new `/showcase` page with every component, variant, size and state in light and dark with real-world copy. The marker example no longer uses an undefined `shimmer` class.
+
 ## v0.4.1 (2026-11-19)
 
 Patch release. Nothing changes at rest: only the focus ring of one button moves.

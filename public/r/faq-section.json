@@ -4,8 +4,8 @@
   "title": "Faq Section",
   "description": "FAQ section: title on the left, accordion of questions on the right.",
   "registryDependencies": [
-    "RahulSulegaokar/vellum/accordion#v0.4.1",
-    "RahulSulegaokar/vellum/vellum-theme#v0.4.1",
+    "RahulSulegaokar/vellum/accordion#v0.4.2",
+    "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
     "utils"
   ],
   "files": [

@@ -8,12 +8,12 @@
     "react-day-picker"
   ],
   "registryDependencies": [
-    "RahulSulegaokar/vellum/button#v0.4.1",
-    "RahulSulegaokar/vellum/calendar#v0.4.1",
-    "RahulSulegaokar/vellum/native-select#v0.4.1",
-    "RahulSulegaokar/vellum/popover#v0.4.1",
-    "RahulSulegaokar/vellum/radio-group#v0.4.1",
-    "RahulSulegaokar/vellum/vellum-theme#v0.4.1",
+    "RahulSulegaokar/vellum/button#v0.4.2",
+    "RahulSulegaokar/vellum/calendar#v0.4.2",
+    "RahulSulegaokar/vellum/native-select#v0.4.2",
+    "RahulSulegaokar/vellum/popover#v0.4.2",
+    "RahulSulegaokar/vellum/radio-group#v0.4.2",
+    "RahulSulegaokar/vellum/vellum-theme#v0.4.2",
     "utils"
   ],
   "files": [

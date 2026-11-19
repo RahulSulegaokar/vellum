@@ -64,6 +64,7 @@ function PaginationLink({
 
 function PaginationPrevious({
   className,
+  size,
   text = "Previous",
   label = "Go to previous page",
   ...props
@@ -75,7 +76,7 @@ function PaginationPrevious({
   return (
     <PaginationLink
       aria-label={label}
-      size="default"
+      size={size ?? "default"}
       className={cn("pl-1.5!", className)}
       {...props}
     >
@@ -87,6 +88,7 @@ function PaginationPrevious({
 
 function PaginationNext({
   className,
+  size,
   text = "Next",
   label = "Go to next page",
   ...props
@@ -98,7 +100,7 @@ function PaginationNext({
   return (
     <PaginationLink
       aria-label={label}
-      size="default"
+      size={size ?? "default"}
       className={cn("pr-1.5!", className)}
       {...props}
     >
@@ -118,7 +120,6 @@ function PaginationEllipsis({
 }) {
   return (
     <span
-      aria-hidden
       data-slot="pagination-ellipsis"
       className={cn(
         "flex size-8 items-center justify-center [&_svg:not([class*='size-'])]:size-4",
@@ -126,8 +127,7 @@ function PaginationEllipsis({
       )}
       {...props}
     >
-      <MoreHorizontalIcon
-      />
+      <MoreHorizontalIcon aria-hidden="true" />
       <span className="sr-only">{label}</span>
     </span>
   )

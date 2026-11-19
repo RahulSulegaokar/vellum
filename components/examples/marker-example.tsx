@@ -66,12 +66,12 @@ function MarkerExample() {
         <MarkerIcon>
           <Spinner />
         </MarkerIcon>
-        <MarkerContent className="shimmer">
-          Marker with shimmer effect
+        <MarkerContent className="animate-pulse motion-reduce:animate-none">
+          Marker with a pulsing label
         </MarkerContent>
       </Marker>
       <Marker role="status">
-        <MarkerContent className="shimmer">Thinking...</MarkerContent>
+        <MarkerContent className="animate-pulse motion-reduce:animate-none">Thinking...</MarkerContent>
       </Marker>
       <Marker render={<a href="#" />}>
         <MarkerIcon>
@@ -164,7 +164,7 @@ function MarkerSeparator() {
         <MarkerContent>Compacting conversation</MarkerContent>
       </Marker>
       <Marker variant="separator" role="status">
-        <MarkerContent className="shimmer">Reading 4 files</MarkerContent>
+        <MarkerContent className="animate-pulse motion-reduce:animate-none">Reading 4 files</MarkerContent>
       </Marker>
       <Marker variant="separator">
         <MarkerIcon>

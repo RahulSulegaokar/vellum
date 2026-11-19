@@ -12,11 +12,9 @@ function Slider({
   ...props
 }: SliderPrimitive.Root.Props &
   Pick<SliderPrimitive.Thumb.Props, "getAriaValueText" | "getAriaLabel">) {
-  const _values = Array.isArray(value)
-    ? value
-    : Array.isArray(defaultValue)
-      ? defaultValue
-      : [min, max]
+  // One thumb per value. A plain number (value={50}) is one thumb; nothing at all is a min–max range, as in shadcn.
+  const given = value ?? defaultValue
+  const _values = Array.isArray(given) ? given : given != null ? [given] : [min, max]
 
   return (
     <SliderPrimitive.Root

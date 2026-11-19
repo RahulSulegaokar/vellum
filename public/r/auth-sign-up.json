@@ -4,8 +4,8 @@
   "title": "Auth Sign Up",
   "description": "Sign-up card: optional logo, provider buttons, email and password (with show/hide), primary continue and a link to sign in.",
   "registryDependencies": [
-    "RahulSulegaokar/vellum/auth-sign-in#v0.4.1",
-    "RahulSulegaokar/vellum/vellum-theme#v0.4.1"
+    "RahulSulegaokar/vellum/auth-sign-in#v0.4.2",
+    "RahulSulegaokar/vellum/vellum-theme#v0.4.2"
   ],
   "files": [
     {

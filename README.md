@@ -29,7 +29,7 @@ Each component also brings in:
 
 Pulled in this way, the theme only adds missing tokens. It never overwrites values you've set, which is why step 1 installs it explicitly.
 
-Pin a release by appending a tag: `RahulSulegaokar/vellum/button#v0.4.1`.
+Pin a release by appending a tag: `RahulSulegaokar/vellum/button#v0.4.2`.
 
 **CLI versions.** Vellum is built and tested with shadcn CLI 4.23.0, which the update workflow pins; `shadcn@latest` works as long as it is 4.x. The `#tag` form is checked on every release by `.github/workflows/release-check.yml` (an empty Vite project and a Laravel-shaped one, `--dry-run`).
 
@@ -203,7 +203,7 @@ import { Link } from "@inertiajs/react"
 
 ```bash
 npm install
-npm run dev                 # gallery at http://localhost:3000
+npm run dev                 # gallery at http://localhost:3000, every component and state at /showcase
 npm run registry:generate   # rebuild registry.json + app/theme.css from components/ui and the tokens file
 npm run registry:validate
 npm run registry:build      # writes public/r/*.json for URL hosting

@@ -43,8 +43,8 @@ function RadioCard({ className, children, ...props }: RadioPrimitive.Root.Props)
     <RadioPrimitive.Root
       data-slot="radio-card"
       className={cn(
-        "flex w-full cursor-pointer items-start gap-3 rounded-xl bg-surface px-4 py-3 text-left ring-1 ring-edge/4 transition-colors outline-none",
-        "shadow-surface hover:bg-surface-muted",
+        "flex w-full cursor-pointer items-start gap-3 rounded-xl bg-surface px-4 py-3 text-start ring-1 ring-edge/4 transition-colors outline-none",
+        "shadow-surface hover:bg-surface-muted data-disabled:cursor-not-allowed data-disabled:opacity-50 data-disabled:hover:bg-surface",
                 "data-checked:bg-surface-muted data-checked:ring-edge/12 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:[--tw-outline-style:solid] focus-visible:outline-ring",
         className
       )}
